@@ -1,0 +1,20 @@
+{
+  "name": "entrenio-dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm -r --filter '!entrenio-dashboard' --parallel run dev",
+    "build": "pnpm -r --filter '!entrenio-dashboard' run build",
+    "test": "pnpm -r --filter '!entrenio-dashboard' run test",
+    "lint": "pnpm -r --filter '!entrenio-dashboard' run lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0",
+  "devDependencies": {
+    "turbo": "^2.7.3"
+  }
+}

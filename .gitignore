@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+.turbo
+.next
+.DS_Store
+.env
+.env.local
+# pnpm-lock.yaml
+# pnpm-lock.yaml is debated, but often kept. I will exclude node_modules definitely. 
+# actually pnpm-lock.yaml SHOULD be committed usually. 
+# I will keep pnpm-lock.yaml in the repo.
