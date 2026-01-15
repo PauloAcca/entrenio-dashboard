@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="54" viewBox="0 0 180 54">
+  <rect width="180" height="54" rx="8" fill="#000"/>
+  <text x="26" y="32" font-family="-apple-system,Segoe UI,Roboto,Arial" font-size="14" fill="#fff">Disponible en</text>
+  <text x="26" y="46" font-family="-apple-system,Segoe UI,Roboto,Arial" font-size="16" font-weight="700" fill="#fff">Google Play</text>
+  <polygon points="12,27 22,20 22,34" fill="#34a853"/>
+</svg>
