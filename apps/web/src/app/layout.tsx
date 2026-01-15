@@ -1,6 +1,13 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
+import { Urbanist } from 'next/font/google';
+
+const urbanist = Urbanist({
+  subsets: ['latin'],
+  variable: '--font-urbanist',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://entrenio.com"),
@@ -18,8 +25,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
-      <body className="bg-white text-slate-800 antialiased">{children}</body>
+    <html lang="es" className={`${urbanist.variable}`}>
+      <body className="bg-white text-slate-800 antialiased font-sans">{children}</body>
     </html>
   );
 }

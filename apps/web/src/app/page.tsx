@@ -40,10 +40,10 @@ export default function Home() {
         </div>
 
         <div className="rounded-2xl border bg-white p-3 shadow-sm">
-          <img 
-            src="/og-image.png" 
-            alt="Vista previa de la app" 
-            className="rounded-xl max-w-full h-auto mx-auto md:max-w-md lg:max-w-lg" 
+          <img
+            src="/mirandoGymDibujo.png"
+            alt="Vista previa de la app"
+            className="rounded-xl max-w-full h-auto mx-auto md:max-w-md lg:max-w-lg"
           />
         </div>
       </section>

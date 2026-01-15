@@ -9,3 +9,7 @@ html,
 body {
   height: 100%;
 }
+
+@theme {
+  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, sans-serif;
+}
