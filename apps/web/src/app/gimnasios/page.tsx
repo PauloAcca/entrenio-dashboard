@@ -2,14 +2,17 @@
 import TargetCursor from "@/components/TargetCursor";
 import SplitText from "@/components/SplitText";
 import Particles from "@/components/Particles";
+import Image from "next/image";
 import Lanyard from "@/components/Lanyard";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function GimnasiosPage() {
   const [showInfo, setShowInfo] = useState<number>(0);
+  const router = useRouter();
 
   return (
-    <main className="min-h-dvh">
+    <main className="min-h-dvh w-full overflow-x-hidden">
       <TargetCursor
         targetSelector=".cursor-target"
         spinDuration={4}
@@ -33,10 +36,10 @@ export default function GimnasiosPage() {
         />
       </div>
 
-      <header className="mx-auto max-w-6xl px-4 py-6 flex items-center justify-center">
+      <header onClick={() => router.push("/")} className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-center">
         <SplitText
           text="Entrenio Business"
-          className="text-5xl font-semibold text-center"
+          className=" text-3xl md:text-5xl font-semibold text-center"
           delay={100}
           duration={1}
           ease="power3.out"
@@ -50,19 +53,19 @@ export default function GimnasiosPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="mx-auto max-w-6xl px-4 py-16 md:py-24 grid lg:grid-cols-2 gap-12 items-center">
+      <section className="mx-auto max-w-6xl px-4 py-6 md:py-24 grid lg:grid-cols-2 gap-12 items-center">
         <div>
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight">
             Elevá la experiencia de tu <span className="text-slate-500">Gimnasio.</span>
           </h1>
-          <p className="mt-6 text-xl text-slate-600 leading-relaxed">
+          <p className="mt-6 text-lg md:text-xl text-slate-600 leading-relaxed">
             Fidelizá a tus socios, modernizá tu equipamiento y reducí la tasa de abandono con una app personalizada para tu marca.
           </p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <a href="mailto:ventas@entrenio.app" className="bg-black text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-slate-800 hover:-translate-y-1 transition-all shadow-lg cursor-target">
+          <div className="mt-8 flex flex-col lg:flex-row gap-4 w-full lg:w-auto">
+            <a href="mailto:ventas@entrenio.app" className="w-full lg:w-auto text-center bg-black text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-slate-800 hover:-translate-y-1 transition-all shadow-lg cursor-target">
               Solicitar Demo
             </a>
-            <a href="#features" className="bg-white text-slate-900 border border-slate-200 px-8 py-4 rounded-xl font-medium text-lg hover:border-slate-400 hover:bg-slate-50 transition-all cursor-target">
+            <a href="#features" className="w-full lg:w-auto text-center bg-white text-slate-900 border border-slate-200 px-8 py-4 rounded-xl font-medium text-lg hover:border-slate-400 hover:bg-slate-50 transition-all cursor-target">
               Ver Características
             </a>
           </div>
@@ -73,7 +76,7 @@ export default function GimnasiosPage() {
       </section>
 
       {/* Value Proposition */}
-      <section className="mx-auto max-w-6xl px-4 py-20 text-center">
+      <section className="mx-auto max-w-6xl px-4 py-6 text-center">
         <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
           ¿Por qué tus socios abandonan?
         </h2>
@@ -101,7 +104,7 @@ export default function GimnasiosPage() {
       </section>
 
       {/* Interactive Features Section */}
-      <section id="features" className="mx-auto max-w-6xl px-4 py-20">
+      <section id="features" className="mx-auto max-w-6xl px-4 py-6">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {[
               { t: "Marca Blanca", d: "Tu logo, tus colores, tu identidad." },
@@ -122,31 +125,35 @@ export default function GimnasiosPage() {
             ))}
         </div>
 
-        <div className="rounded-3xl border bg-slate-50 p-8 md:p-16">
+        <div className="rounded-3xl border bg-slate-50 p-8 md:p-10">
             {[
                 {
                     t: "Tu propia App, sin programar",
                     d: "Personalizamos la interfaz de Entrenio con el logo y branding de tu gimnasio. Para tus socios, es TU aplicación.",
-                    emoji: "🎨"
+                    i: "/mockupPersonalizar.png"
                 },
                 {
                     t: "Tus máquinas te hablan",
                     d: "Generamos códigos QR únicos para cada una de tus máquinas. Al escanearlos, el socio ve instantáneamente un video tutorial de cómo usarla, músculos trabajados y ejercicios alternativos.",
-                    emoji: "📱"
+                    i: "/mockupQR.png"
                 },
                 {
                     t: "Rutinas que sí pueden hacer",
                     d: "Nuestro algoritmo crea planes de entrenamiento basándose EXCLUSIVAMENTE en el inventario de máquinas y elementos que tiene tu gimnasio. Se acabaron las rutinas con ejercicios imposibles de realizar.",
-                    emoji: "📝"
+                    i: "/mockupEjercicios.png"
                 }
             ].filter((_, index) => showInfo === index).map((content) => (
                 <div key={content.t} className="grid md:grid-cols-2 gap-12 items-center animation-fade-in">
                     <div className="order-2 md:order-1">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6">{content.t}</h2>
-                        <p className="text-xl text-slate-600 leading-relaxed">{content.d}</p>
+                        <h2 className="text-3xl lg:text-5xl font-bold mb-6">{content.t}</h2>
+                        <p className="text-lg lg:text-xl text-slate-600 leading-relaxed">{content.d}</p>
                     </div>
-                    <div className="order-1 md:order-2 flex justify-center items-center bg-white rounded-2xl border border-slate-200 aspect-video md:aspect-auto h-64 md:h-96 shadow-sm">
-                        <span className="text-9xl">{content.emoji}</span>
+                    <div className="order-1 md:order-2 flex justify-center">
+                        <img 
+                            src={content.i} 
+                            alt={content.t} 
+                            className="max-w-full h-auto object-cover transform transition-transform hover:scale-[1.02] duration-500" 
+                        />
                     </div>
                 </div>
             ))}
@@ -154,9 +161,9 @@ export default function GimnasiosPage() {
       </section>
 
       {/* CTA Footer */}
-      <section className="mx-auto max-w-4xl px-4 py-24 text-center">
+      <section className="mx-auto max-w-4xl px-4 py-6 text-center">
         <h2 className="text-4xl md:text-5xl font-bold mb-8">¿Listo para modernizar tu gimnasio?</h2>
-        <p className="text-xl text-slate-600 mb-10">Agenda una demostración gratuita de 15 minutos y descubrí cómo Entrenio puede transformar tu negocio.</p>
+        <p className="text-lg md:text-xl text-slate-600 mb-10">Agenda una demostración gratuita de 15 minutos y descubrí cómo Entrenio puede transformar tu negocio.</p>
         <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
              <input type="email" placeholder="tu@email.com" className="flex-1 px-5 py-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-black/5 focus:outline-none transition-all" required/>
              <button type="submit" className="bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition-all cursor-target">Solicitar Info</button>

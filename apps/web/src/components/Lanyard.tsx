@@ -2,7 +2,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
-import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
+import { useGLTF, useTexture, Environment, Lightformer, Text } from '@react-three/drei';
 import {
   BallCollider,
   CuboidCollider,
@@ -26,13 +26,15 @@ interface LanyardProps {
   gravity?: [number, number, number];
   fov?: number;
   transparent?: boolean;
+  cardTexture?: string; // New prop for custom texture
 }
 
 export default function Lanyard({
   position = [0, 0, 30],
   gravity = [0, -40, 0],
   fov = 20,
-  transparent = true
+  transparent = true,
+  cardTexture
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
@@ -52,7 +54,7 @@ export default function Lanyard({
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band isMobile={isMobile} />
+          <Band isMobile={isMobile} cardTexture={cardTexture} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
@@ -93,9 +95,10 @@ interface BandProps {
   maxSpeed?: number;
   minSpeed?: number;
   isMobile?: boolean;
+  cardTexture?: string;
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
+function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, cardTexture }: BandProps) {
   // Using "any" for refs since the exact types depend on Rapier's internals
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -119,6 +122,10 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
 
   const { nodes, materials } = useGLTF(cardGLB) as any;
   const texture = useTexture(lanyard);
+  // Default to empty/lanyard if no custom texture, but apply conditionally
+  // Note: hooks must be unconditional. relying on texture loading.
+  const customTexture = useTexture(cardTexture || lanyard);
+
   const [curve] = useState(
     () =>
       new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()])
@@ -178,6 +185,9 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
   curve.curveType = 'chordal';
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
+  // Determine which map to use
+  const cardMap = cardTexture ? customTexture : materials.base.map;
+
   return (
     <>
       <group position={[0, 4, 0]}>
@@ -214,16 +224,41 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
           >
             <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
-                map={materials.base.map}
-                map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
+                color="#ffffffff" // Dark premium background
+                clearcoat={1}
+                clearcoatRoughness={0.1}
+                roughness={0.2}
                 metalness={0.8}
               />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+            
+            {/* Entrenio 'E' Logo */}
+            <Text
+              position={[0, 0.55, 0.05]}
+              fontSize={0.3}
+              fontWeight={600}
+              color="#000000"
+              anchorX="center"
+              anchorY="middle"
+              fillOpacity={0.9}
+            >
+              VIP
+            </Text>
+
+            {/* VIP Gold Text */}
+            <Text
+              position={[0, 0.15, 0.05]}
+              fontSize={0.12}
+              fontWeight={600}
+              letterSpacing={0.1}
+              color="#ffffffff" 
+              anchorX="center"
+              anchorY="middle"
+            >
+              Gym
+            </Text>
           </group>
         </RigidBody>
       </group>

@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${urbanist.variable}`} suppressHydrationWarning>
-      <body className="bg-white text-slate-800 antialiased font-sans" suppressHydrationWarning>{children}</body>
+      <body className="bg-white p-4 md:p-6 lg:p-8 text-slate-800 antialiased font-sans" suppressHydrationWarning>{children}</body>
     </html>
   );
 }
