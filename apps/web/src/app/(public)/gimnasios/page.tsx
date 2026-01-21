@@ -12,7 +12,7 @@ export default function GimnasiosPage() {
   const router = useRouter();
 
   return (
-    <main className="min-h-dvh w-full overflow-x-hidden">
+    <main className="min-h-dvh w-full p-4 md:p-6 lg:p-8 overflow-x-hidden">
       <TargetCursor
         targetSelector=".cursor-target"
         spinDuration={4}

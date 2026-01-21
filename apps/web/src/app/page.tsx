@@ -10,7 +10,7 @@ export default function Home() {
 
 
   return (
-    <main className="min-h-dvh w-full overflow-x-hidden">
+    <main className="min-h-dvh w-full overflow-x-hidden p-4 md:p-6 lg:p-8">
       <TargetCursor
         targetSelector=".cursor-target"
         spinDuration={4}
