@@ -1,0 +1,441 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Owner {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  gymId     String   @db.Uuid
+  gym       gyms     @relation(fields: [gymId], references: [id])
+  updatedAt DateTime @updatedAt @default(now())
+
+  @@map("owners")
+}
+
+model daily_summaries {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           Int
+  date             DateTime @db.Date
+  caloriesGoal     Int      @default(0)
+  caloriesConsumed Int      @default(0)
+  completed        Boolean  @default(false)
+  meta             Json?
+  proteinGoal      Int      @default(0)
+  proteinConsumed  Int      @default(0)
+  carbsGoal        Int      @default(0)
+  carbsConsumed    Int      @default(0)
+  fatsGoal         Int      @default(0)
+  fatsConsumed     Int      @default(0)
+  waterGoal        Float?   @default(0)
+  waterConsumed    Float?   @default(0)
+
+  @@unique([userId, date])
+  @@index([userId], map: "idx_daily_summaries_user")
+}
+
+model equipment {
+  id                 Int                  @id(map: "PK_0722e1b9d6eb19f5874c1678740") @default(autoincrement())
+  gymId              String               @db.Uuid
+  machineTemplateId  Int?
+  name               String               @db.VarChar
+  location           String?              @db.VarChar
+  description        String?
+  qrCode             String               @unique(map: "UQ_fc8f9e33b5effd9647b5eba77c8") @db.VarChar
+  isActive           Boolean              @default(true)
+  createdAt          DateTime             @default(now()) @db.Timestamp(6)
+  machine_template   machine_template?    @relation(fields: [machineTemplateId], references: [id], onUpdate: NoAction, map: "FK_47fb1a40254509cd7a2e4407936")
+  gyms               gyms                 @relation(fields: [gymId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_e0c87403de1cfe80ea3e5e7cc02")
+  equipment_exercise equipment_exercise[]
+  equipment_usage    equipment_usage[]
+}
+
+model equipment_exercise {
+  id           Int       @id(map: "PK_763339f3951c93410538250fa3d") @default(autoincrement())
+  equipmentId  Int
+  exerciseId   Int
+  isPrimary    Boolean   @default(false)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now()) @db.Timestamp(6)
+  exercise     exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_60c9cb8652175cc746a2ad7bcd7")
+  equipment    equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_e8093906e3254471c11f3c5401e")
+}
+
+model equipment_usage {
+  id          Int       @id(map: "PK_457b0a9e70a8df8c2aee6536596") @default(autoincrement())
+  gymId       String    @db.Uuid
+  equipmentId Int
+  userId      Int?
+  exerciseId  Int?
+  source      String    @default("qr") @db.VarChar
+  openedAt    DateTime  @default(now()) @db.Timestamp(6)
+  user        user?     @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK_4b91e2c22763cc5917b60a47718")
+  gyms        gyms      @relation(fields: [gymId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_5bc2b552eec9a8da3fdb8f511ff")
+  equipment   equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ae0e862dd65050c9543d31e94eb")
+  exercise    exercise? @relation(fields: [exerciseId], references: [id], onUpdate: NoAction, map: "FK_bbd34cb205d285faf02de2085bf")
+}
+
+model exercise {
+  id                        Int                         @id(map: "PK_a0f107e3a2ef2742c1e91d97c14") @default(autoincrement())
+  slug                      String                      @unique(map: "UQ_9cd76df1fd4d2b21dfcec845ef4") @db.VarChar
+  nameEs                    String                      @db.VarChar
+  primaryMuscleEs           String                      @db.VarChar
+  secondaryMusclesEs        String?
+  equipmentType             String?                     @db.VarChar
+  difficulty                String?                     @db.VarChar
+  instructionsEs            String?
+  tipsEs                    String?
+  videoUrl                  String?                     @db.VarChar
+  base_exercise_id          Int?
+  createdAt                 DateTime                    @default(now()) @db.Timestamp(6)
+  equipment_exercise        equipment_exercise[]
+  equipment_usage           equipment_usage[]
+  exercise                  exercise?                   @relation("exerciseToexercise", fields: [base_exercise_id], references: [id], onUpdate: NoAction, map: "FK_b3b3e93dd6e733901c52f64d987")
+  other_exercise            exercise[]                  @relation("exerciseToexercise")
+  machine_template_exercise machine_template_exercise[]
+}
+
+model exercise_history {
+  id            String   @id(map: "PK_047ac19e4771e5c851cc6bef373") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id       Int
+  exercise_name String   @db.VarChar
+  weight_kg     Float
+  reps          Int
+  sets          Int
+  date          DateTime @default(now()) @db.Timestamp(6)
+  exerciseId    Int?
+  user          user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_5ab7994ad4af58218fd1e4845f2")
+
+  @@index([user_id], map: "IDX_5ab7994ad4af58218fd1e4845f")
+  @@index([exercise_name], map: "IDX_fc58471c515ce7143e5d02b5e3")
+}
+
+model favorite_meal_ingredients {
+  id            Int           @id @default(autoincrement())
+  food_id       Int
+  name          String        @db.VarChar(255)
+  amountGrams   Float
+  calories      Float
+  protein       Float
+  carbohydrates Float
+  fats          Float
+  food_favorite food_favorite @relation(fields: [food_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_meal_ingredients_food_id_food_id")
+
+  @@index([food_id], map: "IDX_favorite_meal_ingredients_food_id")
+}
+
+model food {
+  id                Int                @id(map: "PK_26d12de4b6576ff08d30c281837") @default(autoincrement())
+  name              String             @db.VarChar
+  createdAt         DateTime           @default(now()) @db.Timestamp(6)
+  userId            Int?
+  imageKey          String?
+  baseCalories      Decimal            @db.Decimal(10, 2)
+  baseProtein       Decimal            @db.Decimal(10, 2)
+  baseCarbohydrates Decimal            @db.Decimal(10, 2)
+  baseFats          Decimal            @db.Decimal(10, 2)
+  quantity          Decimal            @default(1) @db.Decimal(10, 2)
+  amountGrams       Decimal?           @db.Decimal(10, 2)
+  healthScore       Int?
+  foodDescription   String?
+  user              user?              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_5ed8e55796b747240eff8d82b8a")
+  meal_ingredients  meal_ingredients[]
+
+  @@index([userId, createdAt], map: "idx_food_user_createdat")
+}
+
+model food_favorite {
+  id                        Int                         @id(map: "PK_8f72faf54e11ee2761cb85855b1") @default(autoincrement())
+  name                      String                      @db.VarChar
+  createdAt                 DateTime                    @default(now()) @db.Timestamp(6)
+  userId                    Int?
+  imageKey                  String?
+  baseCalories              Decimal                     @db.Decimal(10, 2)
+  baseProtein               Decimal                     @db.Decimal(10, 2)
+  baseCarbohydrates         Decimal                     @db.Decimal(10, 2)
+  baseFats                  Decimal                     @db.Decimal(10, 2)
+  quantity                  Decimal                     @default(1) @db.Decimal(10, 2)
+  amountGrams               Decimal?                    @db.Decimal(10, 2)
+  healthScore               Int?
+  foodDescription           String?
+  favorite_meal_ingredients favorite_meal_ingredients[]
+  user                      user?                       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_7f4eb15b900c243a0187ab2f444")
+
+  @@index([userId, createdAt], map: "idx_food_favorite_user_createdat")
+}
+
+model gym_attendance {
+  id                 String                   @id(map: "PK_0180186b4ba8e2d8637e6916e40") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id            Int
+  date               DateTime                 @db.Date
+  type               gym_attendance_type_enum @default(ROUTINE)
+  duration_minutes   Int?
+  routine_session_id Int?
+  createdAt          DateTime                 @default(now()) @db.Timestamp(6)
+  routine_sessions   routine_sessions?        @relation(fields: [routine_session_id], references: [id], onUpdate: NoAction, map: "FK_6858c29d16ec36c88b9ad7e5407")
+  user               user                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_960df77ad83533128beb92a5fcc")
+
+  @@index([user_id], map: "IDX_960df77ad83533128beb92a5fc")
+  @@index([date], map: "IDX_bfe5145a405de8153ead9c561b")
+}
+
+model gym_import_profiles {
+  id         String   @id(map: "PK_gym_import_profiles_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  gym_id     String   @unique(map: "UQ_gym_import_profiles_gym_id") @db.Uuid
+  column_map Json
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
+}
+
+model gym_member_registry {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  gym_id               String    @db.Uuid
+  dni                  String?
+  email                String?   @db.Citext
+  nombre               String?
+  status               String    @default("active")
+  starts_at            DateTime? @db.Timestamptz(6)
+  ends_at              DateTime? @db.Timestamptz(6)
+  external_member_id   String?
+  updated_from_file_at DateTime? @db.Timestamptz(6)
+  created_at           DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime  @default(now()) @db.Timestamptz(6)
+  phone                String?
+  claimed_by_user_id   Int?
+  claimed_at           DateTime? @db.Timestamptz(6)
+  claim_otp_hash       String?
+  claim_otp_expires_at DateTime? @db.Timestamptz(6)
+
+  @@unique([gym_id, dni], map: "ux_registry_gym_dni")
+  @@unique([gym_id, email], map: "ux_registry_gym_email")
+  @@index([claim_otp_expires_at], map: "idx_registry_claim_expires")
+  @@index([claimed_by_user_id], map: "idx_registry_claimed_by")
+  @@index([gym_id], map: "idx_registry_gym")
+  @@index([gym_id, dni], map: "idx_registry_gym_dni")
+  @@index([gym_id, email], map: "idx_registry_gym_email")
+  @@index([gym_id, status], map: "idx_registry_gym_status")
+}
+
+model gyms {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String            @unique
+  status            String            @default("active")
+  created_at        DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime          @default(now()) @db.Timestamptz(6)
+  sheet_url         String?
+  auto_sync_enabled Boolean           @default(false)
+  last_sync_at      DateTime?         @db.Timestamptz(6)
+  last_sync_status  String?
+  last_sync_error   String?
+  logo_url          String?
+  equipment         equipment[]
+  equipment_usage   equipment_usage[]
+  memberships       memberships[]
+  owners            Owner[]
+}
+
+model machine_template {
+  id                        Int                         @id(map: "PK_125f1da2f113750c61bea10b683") @default(autoincrement())
+  name                      String                      @db.VarChar
+  description               String?
+  category                  String?                     @db.VarChar
+  imageUrl                  String?                     @db.VarChar
+  createdAt                 DateTime                    @default(now()) @db.Timestamp(6)
+  slug                      String                      @unique(map: "UQ_machine_template_slug")
+  body_region               String?
+  is_active                 Boolean                     @default(true)
+  equipment                 equipment[]
+  machine_template_exercise machine_template_exercise[]
+}
+
+model machine_template_exercise {
+  id                Int              @id(map: "PK_f35abf9cb0657cd15c0f117e93b") @default(autoincrement())
+  machineTemplateId Int
+  exerciseId        Int
+  isPrimary         Boolean          @default(false)
+  displayOrder      Int              @default(0)
+  createdAt         DateTime         @default(now()) @db.Timestamp(6)
+  machine_template  machine_template @relation(fields: [machineTemplateId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_84afcb50adbff39b3f43cfd1a09")
+  exercise          exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ca068551bbbd5422292d38e4eea")
+}
+
+model meal_ingredients {
+  id            Int    @id @default(autoincrement())
+  food_id       Int
+  name          String @db.VarChar(255)
+  amountGrams   Float
+  calories      Float
+  protein       Float
+  carbohydrates Float
+  fats          Float
+  food          food   @relation(fields: [food_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_meal_ingredients_food_id_food_id")
+
+  @@index([food_id], map: "IDX_meal_ingredients_food_id")
+}
+
+model memberships {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    Int
+  gym_id     String    @db.Uuid
+  status     String    @default("active")
+  source     String    @default("excel")
+  starts_at  DateTime? @db.Timestamptz(6)
+  ends_at    DateTime? @db.Timestamptz(6)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @default(now()) @db.Timestamptz(6)
+  gyms       gyms      @relation(fields: [gym_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_memberships_gym")
+
+  @@unique([user_id, gym_id])
+}
+
+model migrations {
+  id        Int    @id(map: "PK_8c82d7f526340ab734260ea46be") @default(autoincrement())
+  timestamp BigInt
+  name      String @db.VarChar
+}
+
+model otp_codes {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purpose          String
+  user_id          BigInt?
+  gym_challenge_id String?   @db.Uuid
+  email_plain      String?   @db.Citext
+  code_hash        String
+  expires_at       DateTime  @db.Timestamptz(6)
+  consumed_at      DateTime? @db.Timestamptz(6)
+  attempts         Int       @default(0)
+  channel          String    @default("email")
+  sent_to          String    @db.Citext
+  created_at       DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([purpose, gym_challenge_id], map: "idx_otp_purpose_gym")
+}
+
+model routine_exercises {
+  id               Int               @id(map: "PK_routine_exercises_id") @default(autoincrement())
+  name             String            @db.VarChar
+  sets             Int
+  reps             String            @db.VarChar
+  rest             String?           @db.VarChar
+  order            Int
+  notes            String?
+  sessionId        Int?
+  weight_kg        Float?
+  exerciseId       Int?
+  primaryMuscle    String?           @db.VarChar
+  secondaryMuscles String?           @db.VarChar
+  routine_sessions routine_sessions? @relation(fields: [sessionId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_routine_exercises_sessionId_routine_sessions_id")
+
+  @@index([sessionId], map: "IDX_routine_exercises_sessionId")
+}
+
+model routine_sessions {
+  id                Int                 @id(map: "PK_routine_sessions_id") @default(autoincrement())
+  day_label         String              @db.VarChar(50)
+  focus             String?             @db.VarChar
+  order             Int
+  routineId         Int?
+  gym_attendance    gym_attendance[]
+  routine_exercises routine_exercises[]
+  routines          routines?           @relation(fields: [routineId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_routine_sessions_routineId_routines_id")
+
+  @@index([routineId], map: "IDX_routine_sessions_routineId")
+}
+
+model routines {
+  id               Int                @id(map: "PK_routines_id") @default(autoincrement())
+  name             String             @db.VarChar(120)
+  goal             String?            @db.VarChar
+  days_per_week    Int
+  session_duration Int?
+  intensity        String?            @db.VarChar
+  focus            String?            @db.VarChar
+  isActive         Boolean            @default(true)
+  source           String             @default("ai_v1") @db.VarChar
+  createdAt        DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime           @default(now()) @db.Timestamptz(6)
+  userId           Int?
+  description      String?
+  routine_sessions routine_sessions[]
+  user             user?              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_routines_userId_users_id")
+
+  @@index([userId], map: "IDX_routines_userId")
+}
+
+model subscriptions {
+  id                         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                    Int
+  provider                   String
+  product_id                 String
+  status                     String
+  period_start               DateTime? @db.Timestamptz(6)
+  period_end                 DateTime? @db.Timestamptz(6)
+  original_tx_id             String?
+  last_receipt_snapshot      Json?
+  created_at                 DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime  @default(now()) @db.Timestamptz(6)
+  revenuecat_user_id         String?
+  revenuecat_subscription_id String?
+
+  @@index([status], map: "idx_subscriptions_status")
+  @@index([user_id], map: "idx_subscriptions_user_id")
+  @@index([user_id, status, period_end], map: "idx_subscriptions_user_status_period")
+}
+
+model user {
+  id                    Int                    @id(map: "PK_cace4a159ff9f2512dd42373760") @default(autoincrement())
+  email                 String                 @unique(map: "UQ_e12875dfb3b1d92d7d7c5377e22") @db.VarChar
+  password              String                 @db.VarChar
+  calories              Int                    @default(0)
+  email_verified        Boolean?               @default(false)
+  targetWeight          Float?
+  dailyWaterGoal        Float?                 @default(2.0)
+  userType              String?
+  equipment_usage       equipment_usage[]
+  exercise_history      exercise_history[]
+  food                  food[]
+  food_favorite         food_favorite[]
+  gym_attendance        gym_attendance[]
+  routines              routines[]
+  user_training_profile user_training_profile?
+  user_weight_progress  user_weight_progress[]
+}
+
+model user_training_profile {
+  id          Int      @id(map: "PK_user_training_profile_id") @default(autoincrement())
+  experiencia String   @db.VarChar(50)
+  dias        Int
+  tiempo      Int
+  enfoque     String   @db.VarChar(100)
+  intensidad  String   @db.VarChar(50)
+  lesion      String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @db.Timestamptz(6)
+  userId      Int?     @unique(map: "UQ_user_training_profile_userId")
+  edad        Int?
+  sexo        String?  @db.VarChar(20)
+  peso        Float?
+  altura      Float?
+  objetivo    String?  @db.VarChar(50)
+  user        user?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_user_training_profile_userId_users_id")
+}
+
+model user_weight_progress {
+  id     Int      @id(map: "PK_d8d86e51550040e763e086ba055") @default(autoincrement())
+  weight Float
+  date   DateTime @default(now()) @db.Timestamp(6)
+  userId Int
+  user   user     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_caf147183c6edd18610d9eeda20")
+}
+
+enum gym_attendance_type_enum {
+  ROUTINE
+  MANUAL
+  CLASS
+}

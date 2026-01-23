@@ -25,9 +25,13 @@ export interface machineTemplate {
 export interface Gym {
     id: string;
     name: string;
-    address: string;
-    phone: string;
-    email: string;
-    website: string;
-    logo: string;
+    status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    sheet_url: string;
+    auto_sync_enabled: boolean;
+    last_sync_at: Date;
+    last_sync_status: string;
+    last_sync_error: string;
+    logo_url: string;
 }
