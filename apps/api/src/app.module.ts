@@ -5,6 +5,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './database/prisma/prisma.module';
 import { SupabaseModule } from './integrations/supabase/supabase.module';
+import { MachinesModule } from './modules/machines/machines.module';
+import { MembersModule } from './modules/members/members.module';
 
 @Module({
   imports: [
@@ -13,7 +15,9 @@ import { SupabaseModule } from './integrations/supabase/supabase.module';
     }),
     AuthModule, 
     PrismaModule, 
-    SupabaseModule
+    SupabaseModule,
+    MachinesModule,
+    MembersModule
   ],
   controllers: [AppController],
   providers: [AppService],

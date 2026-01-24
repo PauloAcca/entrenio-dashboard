@@ -16,7 +16,7 @@ export default function Navigation() {
             <ul className="flex flex-col gap-2">
                 <li onClick={() => {router.push('/dashboard'); setOpen(false)}} className="cursor-pointer hover:bg-slate-200 p-2 rounded-lg">{open ? 'Inicio' : <LayoutDashboard /> }</li>
                 <li onClick={() => {router.push('/metrics'); setOpen(false)}} className="cursor-pointer hover:bg-slate-200 p-2 rounded-lg">{open ? 'Métricas' : <ChartNoAxesCombined /> }</li>
-                <li onClick={() => {router.push('/customers'); setOpen(false)}} className="cursor-pointer hover:bg-slate-200 p-2 rounded-lg">{open ? 'Clientes' : <UsersRound />}</li>
+                <li onClick={() => {router.push('/members'); setOpen(false)}} className="cursor-pointer hover:bg-slate-200 p-2 rounded-lg">{open ? 'Clientes' : <UsersRound />}</li>
                 <li onClick={() => {router.push('/machines'); setOpen(false)}} className="cursor-pointer hover:bg-slate-200 p-2 rounded-lg">{open ? 'Maquinas' : <Dumbbell />}</li>
                 <li onClick={() => {router.push('/reports'); setOpen(false)}} className="cursor-pointer hover:bg-slate-200 p-2 rounded-lg">{open ? 'Reportes' : <MessageCircleWarning />}</li>
             </ul> 
