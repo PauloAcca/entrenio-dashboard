@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Urbanist } from 'next/font/google';
+import { ThemeProvider } from "@/components/providers/theme-provider"
 
 const urbanist = Urbanist({
   subsets: ['latin'],
@@ -26,7 +27,16 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${urbanist.variable}`} suppressHydrationWarning>
-      <body className="bg-white text-slate-800 antialiased font-sans" suppressHydrationWarning>{children}</body>
+      <body className="antialiased font-sans" suppressHydrationWarning>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

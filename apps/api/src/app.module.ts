@@ -7,6 +7,7 @@ import { PrismaModule } from './database/prisma/prisma.module';
 import { SupabaseModule } from './integrations/supabase/supabase.module';
 import { MachinesModule } from './modules/machines/machines.module';
 import { MembersModule } from './modules/members/members.module';
+import { MetricsModule } from './modules/metrics/metrics.modules';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { MembersModule } from './modules/members/members.module';
     PrismaModule, 
     SupabaseModule,
     MachinesModule,
-    MembersModule
+    MembersModule,
+    MetricsModule
   ],
   controllers: [AppController],
   providers: [AppService],

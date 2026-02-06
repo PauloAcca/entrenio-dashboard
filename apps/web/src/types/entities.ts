@@ -2,16 +2,14 @@ export interface equipment {
     id: string;
     gymId: string;
     machineTemplateId: number;
-    name: string;
     location: string;
-    description: string;
-    qrCode: string;
     isActive: boolean;
     createdAt: Date;
+    machine_template?: machineTemplate;
 }
 
 export interface machineTemplate {
-    id: string;
+    id: number;
     name: string;
     description: string;
     category: string;
@@ -20,6 +18,7 @@ export interface machineTemplate {
     slug: string;
     bodyRegion: string;
     is_active: boolean;
+    qrCode: string;
 }
 
 export interface Gym {
@@ -34,6 +33,7 @@ export interface Gym {
     last_sync_status: string;
     last_sync_error: string;
     logo_url: string;
+    plan: string;
 }
 
 export interface membership {

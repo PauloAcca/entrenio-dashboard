@@ -9,16 +9,14 @@ export class MachineTemplateDto {
     body_region: string | null;
     is_active: boolean;
     createdAt: Date;
+    qrCode: string | null;
 }
 
 export class MachineResponseDto {
     id: number;
     gymId: string;
     machineTemplateId: number | null;
-    name: string;
     location: string | null;
-    description: string | null;
-    qrCode: string;
     isActive: boolean;
     createdAt: Date;
     machine_template?: MachineTemplateDto | null;

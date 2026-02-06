@@ -43,10 +43,7 @@ model equipment {
   id                 Int                  @id(map: "PK_0722e1b9d6eb19f5874c1678740") @default(autoincrement())
   gymId              String               @db.Uuid
   machineTemplateId  Int?
-  name               String               @db.VarChar
   location           String?              @db.VarChar
-  description        String?
-  qrCode             String               @unique(map: "UQ_fc8f9e33b5effd9647b5eba77c8") @db.VarChar
   isActive           Boolean              @default(true)
   createdAt          DateTime             @default(now()) @db.Timestamp(6)
   machine_template   machine_template?    @relation(fields: [machineTemplateId], references: [id], onUpdate: NoAction, map: "FK_47fb1a40254509cd7a2e4407936")
@@ -237,6 +234,7 @@ model gyms {
   equipment_usage   equipment_usage[]
   memberships       memberships[]
   owners            Owner[]
+  plan              String            @default("basic")
 }
 
 model machine_template {
@@ -249,6 +247,7 @@ model machine_template {
   slug                      String                      @unique(map: "UQ_machine_template_slug")
   body_region               String?
   is_active                 Boolean                     @default(true)
+  qrCode                    String?                     @unique(map: "UQ_machine_template_qrCode") @db.VarChar
   equipment                 equipment[]
   machine_template_exercise machine_template_exercise[]
 }
@@ -407,6 +406,7 @@ model user {
   routines              routines[]
   user_training_profile user_training_profile?
   user_weight_progress  user_weight_progress[]
+  deletedAt             DateTime?
 }
 
 model user_training_profile {
