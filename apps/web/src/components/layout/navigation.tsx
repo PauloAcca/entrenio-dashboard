@@ -11,14 +11,17 @@ export default function Navigation() {
     const { logout } = useAuthStore()
     return (
         <>
-            {/* Mobile Toggle Button: only visible on mobile when menu is closed */}
+            {/* Mobile Header: Visible on mobile when menu is closed */}
             {!open && (
-                <button 
-                    onClick={() => setOpen(true)} 
-                    className="md:hidden fixed top-4 left-4 z-40 p-2 bg-sidebar rounded-lg shadow-md"
-                >
-                    <Menu />
-                </button>
+                <div className="md:hidden w-full flex items-center p-4 bg-sidebar gap-4 border-b">
+                    <button 
+                        onClick={() => setOpen(true)} 
+                        className="p-2 hover:bg-sidebar-accent rounded-lg"
+                    >
+                        <Menu />
+                    </button>
+                    <h1 className="font-bold text-lg">Entrenio Business</h1>
+                </div>
             )}
 
             <nav className={`
