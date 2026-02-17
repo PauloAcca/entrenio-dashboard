@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useAuthStore } from "@/store/authStore"
 import { apiFetch } from "@/lib/api/http"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function Login() {
     const router = useRouter()
@@ -14,6 +15,7 @@ export default function Login() {
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
 
     const handleLogin = async () => {
         setIsLoading(true)
@@ -52,13 +54,22 @@ export default function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
-                    <input 
-                        type="password" 
-                        placeholder="Contraseña" 
-                        className="border rounded-lg px-6 py-2" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div className="relative">
+                        <input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="Contraseña" 
+                            className="border rounded-lg px-6 py-2 w-full pr-12" 
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                    </div>
                 </div>
                 <button 
                     onClick={handleLogin} 
