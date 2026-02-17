@@ -29,4 +29,9 @@ export class MetricsController {
   async getPopularExercises(@Query('gymId') gymId: string) {
     return this.metricsService.getMostPopularExercises(gymId);
   }
+
+  @Get('average-workout-duration')
+  async getAverageWorkoutDuration(@Query('gymId') gymId: string) {
+    return this.metricsService.getAverageWorkoutDuration(gymId);
+  }
 }

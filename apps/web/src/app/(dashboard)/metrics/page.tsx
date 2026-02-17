@@ -1,8 +1,8 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useAuthStore } from "@/store/authStore"
-import { getMostUsedMachinesWithGymId, getUserGoalsDistribution, getUserGenderDistribution, getUserAgeDistribution, getMostPopularExercises, MachineUsageMetric, UserGoalMetric, UserGenderMetric, UserAgeMetric, PopularExerciseMetric } from "@/lib/api/metrics"
-import { BarChart, Activity, Dumbbell, UsersRound } from "lucide-react"
+import { getMostUsedMachinesWithGymId, getUserGoalsDistribution, getUserGenderDistribution, getUserAgeDistribution, getMostPopularExercises, getAverageWorkoutDuration, MachineUsageMetric, UserGoalMetric, UserGenderMetric, UserAgeMetric, PopularExerciseMetric, AverageWorkoutDurationMetric } from "@/lib/api/metrics"
+import { BarChart, Activity, Dumbbell, UsersRound, Clock } from "lucide-react"
 
 export default function Metrics() {
     const gym = useAuthStore((state) => state.gym)
@@ -11,6 +11,7 @@ export default function Metrics() {
     const [genders, setGenders] = useState<UserGenderMetric[]>([])
     const [ages, setAges] = useState<UserAgeMetric[]>([])
     const [popularExercises, setPopularExercises] = useState<PopularExerciseMetric[]>([])
+    const [avgDuration, setAvgDuration] = useState<AverageWorkoutDurationMetric | null>(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -20,14 +21,16 @@ export default function Metrics() {
                 getUserGoalsDistribution(gym.id),
                 getUserGenderDistribution(gym.id),
                 getUserAgeDistribution(gym.id),
-                getMostPopularExercises(gym.id)
+                getMostPopularExercises(gym.id),
+                getAverageWorkoutDuration(gym.id)
             ])
-            .then(([machinesData, goalsData, gendersData, agesData, popularExercisesData]) => {
+            .then(([machinesData, goalsData, gendersData, agesData, popularExercisesData, avgDurationData]) => {
                 setMetrics(machinesData)
                 setGoals(goalsData)
                 setGenders(gendersData)
                 setAges(agesData)
                 setPopularExercises(popularExercisesData)
+                setAvgDuration(avgDurationData)
             })
             .catch(console.error)
             .finally(() => setLoading(false))
@@ -39,6 +42,22 @@ export default function Metrics() {
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold text-foreground">Métricas</h1>
                 <p className="text-muted-foreground">Analiza el rendimiento de tu gimnasio y el uso del equipamiento.</p>
+            </div>
+
+            {/* KPI Cards Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 {/* Average Duration Card */}
+                 <div className="bg-card rounded-xl border border-border shadow-sm p-6 flex items-center gap-4">
+                    <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full">
+                        <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-muted-foreground">Tiempo Promedio</p>
+                        <h3 className="text-2xl font-bold text-foreground">
+                            {loading ? "..." : avgDuration ? `${avgDuration.averageMinutes} min` : "N/A"}
+                        </h3>
+                    </div>
+                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

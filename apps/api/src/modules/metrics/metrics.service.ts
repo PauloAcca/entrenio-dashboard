@@ -254,4 +254,29 @@ export class MetricsService {
       percentage: totalExercises > 0 ? (stat._count.id / totalExercises) * 100 : 0,
     }));
   }
+  async getAverageWorkoutDuration(gymId: string) {
+    const result = await this.prisma.gym_attendance.aggregate({
+      where: {
+        user: {
+          memberships: {
+            some: {
+              gym_id: gymId,
+              status: 'active',
+            },
+          },
+        },
+        duration_minutes: {
+          not: null,
+          gt: 0,
+        },
+      },
+      _avg: {
+        duration_minutes: true,
+      },
+    });
+
+    return {
+      averageMinutes: Math.round(result._avg.duration_minutes || 0),
+    };
+  }
 }

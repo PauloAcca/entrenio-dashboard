@@ -54,3 +54,11 @@ export interface PopularExerciseMetric {
 export async function getMostPopularExercises(gymId: string): Promise<PopularExerciseMetric[]> {
     return apiFetch<PopularExerciseMetric[]>(`/metrics/popular-exercises?gymId=${gymId}`)
 }
+
+export interface AverageWorkoutDurationMetric {
+    averageMinutes: number;
+}
+
+export async function getAverageWorkoutDuration(gymId: string): Promise<AverageWorkoutDurationMetric> {
+    return apiFetch<AverageWorkoutDurationMetric>(`/metrics/average-workout-duration?gymId=${gymId}`)
+}
