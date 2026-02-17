@@ -24,7 +24,7 @@ export default function Login() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email: email.toLowerCase(), password })
             })
 
             document.cookie = `auth_token=${data.access_token}; path=/`

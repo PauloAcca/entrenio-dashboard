@@ -12,30 +12,33 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto) {
+    const email = loginDto.email.toLowerCase();
+
     const { data, error } = await this.supabaseService.getClient().auth.signInWithPassword({
-      email: loginDto.email,
+      email,
       password: loginDto.password,
     });
 
     if (error) {
-      throw new UnauthorizedException(error.message);
+      console.error('Supabase Login Error:', error);
+      if (error.message === 'Invalid login credentials') {
+        throw new UnauthorizedException('Credenciales incorrectas. Verifica tu email y contraseña.');
+      }
+      throw new UnauthorizedException('Error al iniciar sesión: ' + error.message);
     }
 
     if (!data.session) {
-      throw new UnauthorizedException('No session created');
+      throw new UnauthorizedException('No se pudo establecer la sesión.');
     }
 
     // After login, fetch the internal Owner profile
-    // Note: We assume the Owner table has been populated with the same email
     const owner = await this.prisma.owner.findUnique({
-      where: { email: loginDto.email },
+      where: { email },
       include: { gym: true },
     });
 
     if (!owner) {
-        // Option: Create owner if not exists, or throw error. 
-        // For now, we expect owner to exist or we return just the auth data with a warning/null
-        throw new BadRequestException('Owner profile not found in database');
+        throw new BadRequestException('Este usuario no está registrado como administrador en nuestra base de datos.');
     }
 
     return {
