@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useAuthStore } from "@/store/authStore"
 import { apiFetch } from "@/lib/api/http"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Info } from "lucide-react"
 
 export default function Login() {
     const router = useRouter()
@@ -78,6 +78,12 @@ export default function Login() {
                 >
                     {isLoading ? 'Cargando...' : 'Entrar'}
                 </button>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg border border-border">
+                <Info className="w-4 h-4" />
+                <p>
+                    Si tienes algun problema con tu contraseña comunicate con nosotros.
+                </p>
+            </div>
             </div>
         </div>
     )
