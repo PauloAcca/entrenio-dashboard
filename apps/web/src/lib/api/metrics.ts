@@ -62,3 +62,13 @@ export interface AverageWorkoutDurationMetric {
 export async function getAverageWorkoutDuration(gymId: string): Promise<AverageWorkoutDurationMetric> {
     return apiFetch<AverageWorkoutDurationMetric>(`/metrics/average-workout-duration?gymId=${gymId}`)
 }
+
+export interface AverageWorkoutDurationByAgeMetric {
+    range: string;
+    averageMinutes: number;
+}
+
+export async function getAverageWorkoutDurationByAge(gymId: string): Promise<AverageWorkoutDurationByAgeMetric[]> {
+    return apiFetch<AverageWorkoutDurationByAgeMetric[]>(`/metrics/average-workout-duration-by-age?gymId=${gymId}`)
+}
+

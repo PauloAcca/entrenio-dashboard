@@ -279,4 +279,66 @@ export class MetricsService {
       averageMinutes: Math.round(result._avg.duration_minutes || 0),
     };
   }
+
+  async getAverageWorkoutDurationByAge(gymId: string) {
+    const attendanceRecords = await this.prisma.gym_attendance.findMany({
+      where: {
+        user: {
+          memberships: {
+            some: {
+              gym_id: gymId,
+              status: 'active',
+            },
+          },
+        },
+        duration_minutes: {
+          not: null,
+          gt: 0,
+        },
+      },
+      select: {
+        duration_minutes: true,
+        user: {
+          select: {
+            user_training_profile: {
+              select: {
+                edad: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const buckets: Record<string, { totalMinutes: number; count: number }> = {
+      '<18': { totalMinutes: 0, count: 0 },
+      '18-24': { totalMinutes: 0, count: 0 },
+      '25-30': { totalMinutes: 0, count: 0 },
+      '31-40': { totalMinutes: 0, count: 0 },
+      '41-60': { totalMinutes: 0, count: 0 },
+      '>60': { totalMinutes: 0, count: 0 },
+    };
+
+    for (const record of attendanceRecords) {
+      const age = record.user?.user_training_profile?.edad;
+
+      if (age !== null && age !== undefined) {
+        let range = '';
+        if (age < 18) range = '<18';
+        else if (age >= 18 && age <= 24) range = '18-24';
+        else if (age >= 25 && age <= 30) range = '25-30';
+        else if (age >= 31 && age <= 40) range = '31-40';
+        else if (age >= 41 && age <= 60) range = '41-60';
+        else range = '>60';
+
+        buckets[range].totalMinutes += record.duration_minutes || 0;
+        buckets[range].count++;
+      }
+    }
+
+    return Object.entries(buckets).map(([range, data]) => ({
+      range,
+      averageMinutes: data.count > 0 ? Math.round(data.totalMinutes / data.count) : 0,
+    }));
+  }
 }

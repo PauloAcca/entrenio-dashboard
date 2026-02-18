@@ -1,8 +1,8 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useAuthStore } from "@/store/authStore"
-import { getMostUsedMachinesWithGymId, getUserGoalsDistribution, getUserGenderDistribution, getUserAgeDistribution, getMostPopularExercises, getAverageWorkoutDuration, MachineUsageMetric, UserGoalMetric, UserGenderMetric, UserAgeMetric, PopularExerciseMetric, AverageWorkoutDurationMetric } from "@/lib/api/metrics"
-import { BarChart, Activity, Dumbbell, UsersRound, Clock } from "lucide-react"
+import { getMostUsedMachinesWithGymId, getUserGoalsDistribution, getUserGenderDistribution, getUserAgeDistribution, getMostPopularExercises, getAverageWorkoutDuration, getAverageWorkoutDurationByAge, MachineUsageMetric, UserGoalMetric, UserGenderMetric, UserAgeMetric, PopularExerciseMetric, AverageWorkoutDurationMetric, AverageWorkoutDurationByAgeMetric } from "@/lib/api/metrics"
+import { BarChart, Activity, Dumbbell, UsersRound, Clock, Timer } from "lucide-react"
 
 export default function Metrics() {
     const gym = useAuthStore((state) => state.gym)
@@ -12,6 +12,7 @@ export default function Metrics() {
     const [ages, setAges] = useState<UserAgeMetric[]>([])
     const [popularExercises, setPopularExercises] = useState<PopularExerciseMetric[]>([])
     const [avgDuration, setAvgDuration] = useState<AverageWorkoutDurationMetric | null>(null)
+    const [avgDurationByAge, setAvgDurationByAge] = useState<AverageWorkoutDurationByAgeMetric[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -22,15 +23,17 @@ export default function Metrics() {
                 getUserGenderDistribution(gym.id),
                 getUserAgeDistribution(gym.id),
                 getMostPopularExercises(gym.id),
-                getAverageWorkoutDuration(gym.id)
+                getAverageWorkoutDuration(gym.id),
+                getAverageWorkoutDurationByAge(gym.id)
             ])
-            .then(([machinesData, goalsData, gendersData, agesData, popularExercisesData, avgDurationData]) => {
+            .then(([machinesData, goalsData, gendersData, agesData, popularExercisesData, avgDurationData, avgDurationByAgeData]) => {
                 setMetrics(machinesData)
                 setGoals(goalsData)
                 setGenders(gendersData)
                 setAges(agesData)
                 setPopularExercises(popularExercisesData)
                 setAvgDuration(avgDurationData)
+                setAvgDurationByAge(avgDurationByAgeData)
             })
             .catch(console.error)
             .finally(() => setLoading(false))
@@ -52,12 +55,57 @@ export default function Metrics() {
                         <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-muted-foreground">Tiempo Promedio</p>
+                        <p className="text-sm font-medium text-muted-foreground">Duración Promedio de Sesión</p>
                         <h3 className="text-2xl font-bold text-foreground">
                             {loading ? "..." : avgDuration ? `${avgDuration.averageMinutes} min` : "N/A"}
                         </h3>
                     </div>
                  </div>
+            </div>
+
+            {/* Age Based Duration Chart */}
+            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden lg:col-span-2">
+                <div className="p-6 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-teal-100 dark:bg-teal-900/20 rounded-lg">
+                            <Timer className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        </div>
+                        <div>
+                            <h2 className="font-semibold text-foreground">Duración Promedio por Edad</h2>
+                            <p className="text-sm text-muted-foreground">Tiempo promedio de entrenamiento por rango de edad</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="p-6">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                        </div>
+                    ) : avgDurationByAge.length > 0 ? (
+                        <div className="flex justify-between gap-4 h-64 pt-8 items-end">
+                            {avgDurationByAge.map((metric) => (
+                                <div key={metric.range} className="flex flex-col items-center gap-2 flex-1 group h-full justify-end">
+                                    <div className="relative w-full flex items-end justify-center flex-1">
+                                        <div 
+                                            className="w-full bg-teal-500 rounded-t-lg transition-all duration-500 relative group-hover:bg-teal-600"
+                                            style={{ height: `${Math.min(metric.averageMinutes * 2, 100)}%` }} // Scaling factor
+                                        >
+                                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-foreground z-20 whitespace-nowrap">
+                                                {Math.round(metric.averageMinutes)} min
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span className="text-xs font-medium text-muted-foreground text-center">{metric.range}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 text-gray-500">
+                            No hay datos de duración por edad registrados aún.
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
