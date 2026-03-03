@@ -54,6 +54,7 @@ export interface user {
     name?: string;
     phone?: string;
     dni?: string;
+    avatarUrl?: string;
     claimed_at?: Date;
     created_at: Date;
     updated_at: Date;

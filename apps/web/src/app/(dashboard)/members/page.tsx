@@ -75,19 +75,35 @@ export default function Members() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {members.map((member) => (
-                    <button onClick={() => window.location.href = `/members/${member.id}`} key={member.id} className="flex flex-row items-center justify-between p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left">
-                        <div className="flex flex-col gap-1">
-                            <h1 className="font-bold text-lg text-foreground">{member.user?.name || 'Sin Nombre'}</h1>
-                            <p className="text-sm text-muted-foreground">{member.user?.email || 'Sin Email'}</p>
-                            {member.user?.dni && <p className="text-xs text-muted-foreground">DNI: {member.user.dni}</p>}
-                            {member.user?.phone && <p className="text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                            <span className={`px-2 py-1 text-xs rounded-full ${member.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
-                                {member.status === 'active' ? 'Activo' : 'Inactivo'}
-                            </span>
-                            <p className="text-xs text-muted-foreground mt-2">Desde: {member.starts_at ? new Date(member.starts_at).toLocaleDateString() : '-'}</p>
-                            <p className="text-xs text-muted-foreground">Hasta: {member.ends_at ? new Date(member.ends_at).toLocaleDateString() : '-'}</p>
+                    <button onClick={() => window.location.href = `/members/${member.id}`} key={member.id} className="flex flex-row items-center gap-4 p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left">
+                        {/* Avatar */}
+                        {member.user?.avatarUrl ? (
+                            <img 
+                                src={member.user.avatarUrl} 
+                                alt={member.user?.name || 'Avatar'} 
+                                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                            />
+                        ) : (
+                            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                                <span className="text-primary font-bold text-lg">
+                                    {(member.user?.name || member.user?.email || '?').charAt(0).toUpperCase()}
+                                </span>
+                            </div>
+                        )}
+                        <div className="flex flex-1 justify-between items-start">
+                            <div className="flex flex-col gap-1">
+                                <h1 className="font-bold text-lg text-foreground">{member.user?.name || 'Sin Nombre'}</h1>
+                                <p className="text-sm text-muted-foreground">{member.user?.email || 'Sin Email'}</p>
+                                {member.user?.dni && <p className="text-xs text-muted-foreground">DNI: {member.user.dni}</p>}
+                                {member.user?.phone && <p className="text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                                <span className={`px-2 py-1 text-xs rounded-full ${member.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
+                                    {member.status === 'active' ? 'Activo' : 'Inactivo'}
+                                </span>
+                                <p className="text-xs text-muted-foreground mt-2">Desde: {member.starts_at ? new Date(member.starts_at).toLocaleDateString() : '-'}</p>
+                                <p className="text-xs text-muted-foreground">Hasta: {member.ends_at ? new Date(member.ends_at).toLocaleDateString() : '-'}</p>
+                            </div>
                         </div>
                     </button>
                 ))}

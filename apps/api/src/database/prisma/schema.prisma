@@ -397,6 +397,7 @@ model user {
   targetWeight          Float?
   dailyWaterGoal        Float?                 @default(2.0)
   userType              String?
+  avatarUrl             String?
   equipment_usage       equipment_usage[]
   exercise_history      exercise_history[]
   food                  food[]
