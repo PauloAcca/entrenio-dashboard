@@ -15,11 +15,19 @@ export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachi
     const [saving, setSaving] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+    const [filterCategory, setFilterCategory] = useState('')
+    const [filterBodyRegion, setFilterBodyRegion] = useState('')
 
-    const filteredTemplates = templates.filter(t => 
-        t.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        t.description?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const categories = [...new Set(templates.map(t => t.category).filter(Boolean))] as string[]
+    const bodyRegions = [...new Set(templates.map(t => t.bodyRegion).filter(Boolean))] as string[]
+
+    const filteredTemplates = templates.filter(t => {
+        const term = searchTerm.toLowerCase()
+        const matchesSearch = t.name.toLowerCase().includes(term) || t.description?.toLowerCase().includes(term)
+        const matchesCategory = !filterCategory || t.category === filterCategory
+        const matchesBodyRegion = !filterBodyRegion || t.bodyRegion === filterBodyRegion
+        return matchesSearch && matchesCategory && matchesBodyRegion
+    })
 
     useEffect(() => {
         getAllMachineTemplates()
@@ -75,15 +83,35 @@ export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachi
                     </button>
                 </div>
                 
-                {/* Search */}
-                <div className="mb-4">
+                {/* Search and filters */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <input 
                         type="text" 
                         placeholder="Buscar máquina..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="flex-1 p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     />
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        className="p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    >
+                        <option value="">Todas las categorías</option>
+                        {categories.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
+                    <select
+                        value={filterBodyRegion}
+                        onChange={(e) => setFilterBodyRegion(e.target.value)}
+                        className="p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    >
+                        <option value="">Todas las zonas</option>
+                        {bodyRegions.map(region => (
+                            <option key={region} value={region}>{region}</option>
+                        ))}
+                    </select>
                 </div>
                 
                 {/* Templates grid */}
