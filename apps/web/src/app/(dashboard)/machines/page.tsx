@@ -71,7 +71,7 @@ export default function Machines() {
                     </button>
                 ))}
             </div>
-            {showModalAddMachine && <ModalAddMachine gymId={gym?.id || ''} setShowModalAddMachine={setShowModalAddMachine} />}
+            {showModalAddMachine && <ModalAddMachine gymId={gym?.id || ''} setShowModalAddMachine={setShowModalAddMachine} onMachinesAdded={fetchMachines} />}
             {selectedMachine && (
                 <ModalEditMachine 
                     machine={selectedMachine} 

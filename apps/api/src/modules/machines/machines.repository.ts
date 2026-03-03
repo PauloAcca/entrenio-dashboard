@@ -47,6 +47,17 @@ export class MachinesRepository {
         });
     }
 
+    async addMachinesBulk(templateIds: string[], gymId: string) {
+        return this.prisma.equipment.createMany({
+            data: templateIds.map(templateId => ({
+                machineTemplateId: parseInt(templateId),
+                gymId,
+                location: "",
+                isActive: true
+            }))
+        });
+    }
+
     async updateMachine(id: number, gymId: string, data: { location?: string, isActive?: boolean }) {
         // Validate that the machine belongs to the gym
         const machine = await this.prisma.equipment.findFirst({

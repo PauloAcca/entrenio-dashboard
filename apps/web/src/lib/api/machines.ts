@@ -22,6 +22,13 @@ export async function addMachine(templateId: number, gymId: string) {
     })
 }
 
+export async function addMachinesBulk(templateIds: number[], gymId: string) {
+    return apiFetch<void>(`/machines/bulk`, {
+        method: 'POST',
+        body: JSON.stringify({ templateIds: templateIds.map(id => id.toString()), gymId })
+    })
+}
+
 export async function updateMachine(id: string, gymId: string, data: { location?: string, isActive?: boolean }) {
     return apiFetch<void>(`/machines/${id}`, {
         method: 'PATCH',

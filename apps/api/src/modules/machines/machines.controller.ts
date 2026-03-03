@@ -15,6 +15,11 @@ export class MachinesController {
         return this.machinesService.getAllMachineTemplates();
     }
 
+    @Post('bulk')
+    async addMachinesBulk(@Body() body: { templateIds: string[], gymId: string }) {
+        return this.machinesService.addMachinesBulk(body.templateIds, body.gymId);
+    }
+
     @Post()
     async addMachine(@Body() body: { templateId: string, gymId: string }) {
         return this.machinesService.addMachine(body.templateId, body.gymId);

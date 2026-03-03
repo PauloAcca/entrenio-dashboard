@@ -20,6 +20,10 @@ export class MachinesService {
         return this.machinesRepository.addMachine(templateId, gymId);
     }
 
+    async addMachinesBulk(templateIds: string[], gymId: string) {
+        return this.machinesRepository.addMachinesBulk(templateIds, gymId);
+    }
+
     async updateMachine(id: number, gymId: string, data: { location?: string, isActive?: boolean }) {
         return this.machinesRepository.updateMachine(id, gymId, data);
     }
