@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     siteName: "Entrenio",
     images: ["/og-image.png"],
   },
-  icons: { icon: "/favicon.ico" },
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
