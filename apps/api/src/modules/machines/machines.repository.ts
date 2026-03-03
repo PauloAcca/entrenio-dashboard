@@ -78,4 +78,18 @@ export class MachinesRepository {
             data
         });
     }
+
+    async deleteMachine(id: number, gymId: string) {
+        const machine = await this.prisma.equipment.findFirst({
+            where: { id, gymId }
+        });
+
+        if (!machine) {
+            throw new Error("Machine not found or access denied");
+        }
+
+        return this.prisma.equipment.delete({
+            where: { id }
+        });
+    }
 }

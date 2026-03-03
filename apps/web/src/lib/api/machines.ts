@@ -35,3 +35,10 @@ export async function updateMachine(id: string, gymId: string, data: { location?
         body: JSON.stringify({ gymId, ...data })
     })
 }
+
+export async function deleteMachine(id: string, gymId: string) {
+    return apiFetch<void>(`/machines/${id}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ gymId })
+    })
+}

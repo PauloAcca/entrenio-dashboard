@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, ParseIntPipe, Body, Post, Patch } from "@nestjs/common";
+import { Controller, Get, Param, Query, ParseIntPipe, Body, Post, Patch, Delete } from "@nestjs/common";
 import { MachinesService } from "./machines.service";
 
 @Controller('machines')
@@ -39,5 +39,13 @@ export class MachinesController {
             location: body.location,
             isActive: body.isActive
         });
+    }
+
+    @Delete(':id')
+    async deleteMachine(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() body: { gymId: string }
+    ) {
+        return this.machinesService.deleteMachine(id, body.gymId);
     }
 }

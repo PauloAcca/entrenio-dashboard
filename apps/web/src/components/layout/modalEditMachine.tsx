@@ -1,12 +1,14 @@
 
 import { equipment } from "@/types/entities"
 import { useState } from "react"
-import { updateMachine } from "../../lib/api/machines"
+import { updateMachine, deleteMachine } from "../../lib/api/machines"
 
 export default function ModalEditMachine({ machine, gymId, onClose, onUpdate }: { machine: equipment, gymId: string, onClose: () => void, onUpdate: () => void }) {
     const [location, setLocation] = useState(machine.location || '')
     const [isActive, setIsActive] = useState(machine.isActive)
     const [loading, setLoading] = useState(false)
+    const [deleting, setDeleting] = useState(false)
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
     const handleSave = async () => {
         setLoading(true)
@@ -19,6 +21,20 @@ export default function ModalEditMachine({ machine, gymId, onClose, onUpdate }: 
             alert('Error al actualizar la maquina')
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handleDelete = async () => {
+        setDeleting(true)
+        try {
+            await deleteMachine(machine.id, gymId)
+            onUpdate()
+            onClose()
+        } catch (error) {
+            console.error(error)
+            alert('Error al eliminar la máquina')
+        } finally {
+            setDeleting(false)
         }
     }
 
@@ -66,17 +82,63 @@ export default function ModalEditMachine({ machine, gymId, onClose, onUpdate }: 
                     </div>
                 </div>
 
-                <div className="mt-6 flex justify-end gap-3">
-                    <button onClick={onClose} className="px-4 py-2 text-muted-foreground hover:bg-muted rounded">Cancelar</button>
+                <div className="mt-6 flex justify-between">
+                    {/* Delete button */}
                     <button 
-                        onClick={handleSave} 
-                        disabled={loading}
-                        className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50"
+                        onClick={() => setShowDeleteConfirm(true)} 
+                        disabled={loading || deleting}
+                        className="px-4 py-2 text-destructive hover:bg-destructive/10 rounded transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-2"
                     >
-                        {loading ? 'Guardando...' : 'Guardar Cambios'}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Eliminar
                     </button>
+
+                    {/* Save/Cancel buttons */}
+                    <div className="flex gap-3">
+                        <button onClick={onClose} className="px-4 py-2 text-muted-foreground hover:bg-muted rounded cursor-pointer">Cancelar</button>
+                        <button 
+                            onClick={handleSave} 
+                            disabled={loading || deleting}
+                            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
+                        >
+                            {loading ? 'Guardando...' : 'Guardar Cambios'}
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            {/* Delete confirmation overlay */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center z-[60]">
+                    <div className="bg-card p-6 rounded-lg max-w-sm w-full border border-border shadow-xl">
+                        <h2 className="text-lg font-bold text-foreground mb-2">¿Eliminar máquina?</h2>
+                        <p className="text-sm text-muted-foreground mb-6">
+                            Esta acción eliminará <strong>{machine.machine_template?.name}</strong> de tu gimnasio. Esta acción no se puede deshacer.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setShowDeleteConfirm(false)} 
+                                disabled={deleting}
+                                className="px-4 py-2 text-muted-foreground hover:bg-muted rounded cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={handleDelete} 
+                                disabled={deleting}
+                                className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90 disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                            >
+                                {deleting && (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-destructive-foreground border-t-transparent" />
+                                )}
+                                {deleting ? 'Eliminando...' : 'Eliminar'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

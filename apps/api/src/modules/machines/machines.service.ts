@@ -27,4 +27,8 @@ export class MachinesService {
     async updateMachine(id: number, gymId: string, data: { location?: string, isActive?: boolean }) {
         return this.machinesRepository.updateMachine(id, gymId, data);
     }
+
+    async deleteMachine(id: number, gymId: string) {
+        return this.machinesRepository.deleteMachine(id, gymId);
+    }
 }
