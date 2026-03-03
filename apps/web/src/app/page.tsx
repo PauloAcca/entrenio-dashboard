@@ -230,8 +230,8 @@ export default function Home() {
 
       <footer id="contacto" className="mx-auto max-w-6xl px-4 py-10 text-sm text-slate-600 dark:text-slate-400">
         <div className="flex gap-4">
-          <a className="hover:underline" href="/privacy.html">Privacidad y legales</a>
-          <a className="hover:underline" href="/terms.html">Términos y condiciones</a>
+          <a className="hover:underline" href="/privacy">Privacidad y legales</a>
+          <a className="hover:underline" href="/terms">Términos y condiciones</a>
           <a className="hover:underline" href="mailto:soporte@entrenio.app">soporte@entrenio.app</a>
         </div>
         <p className="mt-2">© {new Date().getFullYear()} Entrenio</p>
