@@ -65,12 +65,29 @@ export default function Privacy() {
 
       <h2>Pagos y suscripciones</h2>
       <p>Si se habilitan, se gestionan por App Store/Google Play con sus términos.</p>
+      <p>Subscriptions purchased through Apple App Store are managed by Apple. Payments and renewals are handled by Apple according to their terms and conditions.</p>
 
       <h2>Limitación de responsabilidad</h2>
       <p>La App se ofrece “tal cual”. En lo permitido por ley, sin responsabilidad por daños indirectos.</p>
 
       <h2>Cambios</h2>
       <p>Podemos actualizar estos textos, indicando fecha de última actualización.</p>
+
+      <h2>AI Food Analysis</h2>
+      <p> 
+        Entrenio provides food analysis features that estimate calories and macronutrients from photos or text descriptions of meals.
+
+        To perform this analysis, the following data may be sent to a third-party AI service:
+
+        • Photos of meals uploaded by the user
+        • Food descriptions entered by the user
+        • Context needed to estimate nutritional values
+
+        This data is processed only to generate the nutritional analysis requested by the user.
+
+        Entrenio does not sell this data and does not use it for advertising purposes.
+        The AI analysis may be processed using third-party providers such as OpenAI and Gemini.
+      </p>
 
       <h2>Contacto legal</h2>
       <p><a href="mailto:contacto@entrenio.com">contacto@entrenio.com</a></p>
