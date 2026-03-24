@@ -66,7 +66,7 @@ export default function GimnasiosPage() {
             Fidelizá a tus socios, modernizá tu equipamiento y reducí la tasa de abandono con una app personalizada para tu marca.
           </p>
           <div className="mt-8 flex flex-col lg:flex-row gap-4 w-full lg:w-auto">
-            <a href="mailto:ventas@entrenio.app" className="w-full lg:w-auto text-center bg-black text-white dark:bg-white dark:text-black px-8 py-4 rounded-xl font-medium text-lg hover:bg-slate-800 dark:hover:bg-slate-200 hover:-translate-y-1 transition-all shadow-lg cursor-target">
+            <a href="mailto:entrenioapp@gmail.com" className="w-full lg:w-auto text-center bg-black text-white dark:bg-white dark:text-black px-8 py-4 rounded-xl font-medium text-lg hover:bg-slate-800 dark:hover:bg-slate-200 hover:-translate-y-1 transition-all shadow-lg cursor-target">
               Solicitar Demo
             </a>
             <a href="#features" className="w-full lg:w-auto text-center bg-white text-slate-900 dark:bg-black dark:text-white border border-slate-200 dark:border-slate-800 px-8 py-4 rounded-xl font-medium text-lg hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-target">
@@ -178,7 +178,7 @@ export default function GimnasiosPage() {
         <p>© {new Date().getFullYear()} Entrenio Business</p>
         <div className="flex gap-6">
              <a href="/" className="hover:text-black dark:hover:text-white transition-colors">Volver a Entrenio</a>
-             <a href="mailto:negocios@entrenio.app" className="hover:text-black dark:hover:text-white transition-colors">negocios@entrenio.app</a>
+             <a href="mailto:entrenioapp@gmail.com" className="hover:text-black dark:hover:text-white transition-colors">entrenioapp@gmail.com</a>
         </div>
       </footer>
 

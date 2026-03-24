@@ -232,7 +232,7 @@ export default function Home() {
         <div className="flex gap-4">
           <a className="hover:underline" href="/privacy">Privacidad y legales</a>
           <a className="hover:underline" href="/terms">Términos y condiciones</a>
-          <a className="hover:underline" href="mailto:soporte@entrenio.app">soporte@entrenio.app</a>
+          <a className="hover:underline" href="mailto:entrenioapp@gmail.com">entrenioapp@gmail.com</a>
         </div>
         <p className="mt-2">© {new Date().getFullYear()} Entrenio</p>
       </footer>

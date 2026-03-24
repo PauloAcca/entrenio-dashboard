@@ -34,7 +34,7 @@ export default function Terms() {
       <p>Podemos actualizar estos términos en cualquier momento. Publicaremos la fecha de la última modificación.</p>
 
       <h2>9. Contacto</h2>
-      <p>Consultas legales: <a href="mailto:contacto@entrenio.com">contacto@entrenio.com</a></p>
+      <p>Consultas legales: <a href="mailto:entrenioapp@gmail.com">entrenioapp@gmail.com</a></p>
     </main>
   );
 }

@@ -16,8 +16,8 @@ export default function Home() {
 
           <p className="mt-4 text-lg text-slate-600">
             Si querés que nosotros la eliminemos, enviá un correo a 
-            <a href="mailto:contacto@entrenio.com?subject=Eliminar cuenta Entrenio">
-                contacto@entrenio.com
+            <a href="mailto:entrenioapp@gmail.com?subject=Eliminar cuenta Entrenio">
+                entrenioapp@gmail.com
             </a>
             desde la misma dirección que usaste para registrarte.
           </p>
@@ -31,7 +31,7 @@ export default function Home() {
         <div className="flex gap-4">
           <a className="hover:underline" href="/privacy.html">Privacidad y legales</a>
           <a className="hover:underline" href="/terms.html">Términos y condiciones</a>
-          <a className="hover:underline" href="mailto:contacto@entrenio.com">contacto@entrenio.com</a>
+          <a className="hover:underline" href="mailto:entrenioapp@gmail.com">entrenioapp@gmail.com</a>
         </div>
         <p className="mt-2">© {new Date().getFullYear()} Entrenio</p>
       </footer>

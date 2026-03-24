@@ -49,7 +49,7 @@ export default function Privacy() {
       </ul>
 
       <h2>Tus derechos</h2>
-      <p>Escribí a <a href="mailto:contacto@entrenio.com">contacto@entrenio.com</a> para acceso, rectificación, eliminación y portabilidad.</p>
+      <p>Escribí a <a href="mailto:entrenioapp@gmail.com">entrenioapp@gmail.com</a> para acceso, rectificación, eliminación y portabilidad.</p>
 
       <hr />
 
@@ -90,7 +90,7 @@ export default function Privacy() {
       </p>
 
       <h2>Contacto legal</h2>
-      <p><a href="mailto:contacto@entrenio.com">contacto@entrenio.com</a></p>
+      <p><a href="mailto:entrenioapp@gmail.com">entrenioapp@gmail.com</a></p>
     </main>
   );
 }
