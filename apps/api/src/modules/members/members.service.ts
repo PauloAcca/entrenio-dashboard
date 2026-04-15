@@ -7,4 +7,8 @@ export class MembersService {
     async getAppMembers(gymId: string) {
         return this.membersRepository.getAllByGymId(gymId);
     }
+
+    async getMemberRoutine(userId: number, gymId: string) {
+        return this.membersRepository.getMemberRoutine(userId, gymId);
+    }
 }

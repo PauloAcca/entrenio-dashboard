@@ -7,6 +7,11 @@ export async function getAppMembers() {
     return apiFetch<(membership & { user: user })[]>(`/members?gymId=${gymId}`)
 }
 
+export async function getMemberRoutine(userId: number) {
+    const gymId = useAuthStore.getState().gym?.id;
+    return apiFetch<any>(`/members/${userId}/routine?gymId=${gymId}`);
+}
+
 export async function uploadMembersCsv(file: File) {
     const gymId = useAuthStore.getState().gym?.id;
     if (!gymId) throw new Error("No Gym ID");

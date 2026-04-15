@@ -56,4 +56,40 @@ export class MembersRepository {
             } as any;
         });
     }
+
+    async getMemberRoutine(userId: number, gymId: string) {
+        const membership = await this.prisma.memberships.findFirst({
+            where: {
+                user_id: userId,
+                gym_id: gymId
+            }
+        });
+
+        if (!membership) {
+            throw new Error("El usuario no es miembro de este gimnasio o no existe.");
+        }
+
+        const routine = await this.prisma.routines.findFirst({
+            where: {
+                userId: userId,
+                isActive: true
+            },
+            include: {
+                routine_sessions: {
+                    orderBy: {
+                        order: 'asc'
+                    },
+                    include: {
+                        routine_exercises: {
+                            orderBy: {
+                                order: 'asc'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        return routine;
+    }
 }

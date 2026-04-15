@@ -2,11 +2,13 @@
 import { getAppMembers, uploadMembersCsv } from "@/lib/api/members"
 import { useEffect, useState, useRef } from "react"
 import { membership, user } from "@/types/entities"
+import MemberRoutineModal from "@/components/MemberRoutineModal"
 
 export default function Members() {
     const [members, setMembers] = useState<(membership & { user: user })[]>([])
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [loading, setLoading] = useState(true)
+    const [selectedMemberForRoutine, setSelectedMemberForRoutine] = useState<{userId: number, name: string} | null>(null)
 
     const fetchMembers = () => {
         getAppMembers()
@@ -75,7 +77,7 @@ export default function Members() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {members.map((member) => (
-                    <button onClick={() => window.location.href = `/members/${member.id}`} key={member.id} className="flex flex-row items-center gap-4 p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left">
+                    <button onClick={() => setSelectedMemberForRoutine({ userId: member.user_id, name: member.user?.name || 'Sin Nombre' })} key={member.id} className="flex flex-row items-center gap-4 p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left group">
                         {/* Avatar */}
                         {member.user?.avatarUrl ? (
                             <img 
@@ -109,6 +111,14 @@ export default function Members() {
                 ))}
             </div>
         </div>
+        )}
+        
+        {selectedMemberForRoutine && (
+            <MemberRoutineModal 
+                userId={selectedMemberForRoutine.userId}
+                userName={selectedMemberForRoutine.name}
+                onClose={() => setSelectedMemberForRoutine(null)}
+            />
         )}
         </>
     )
