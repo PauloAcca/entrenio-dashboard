@@ -24,6 +24,16 @@ export class MembersController {
         return this.membersService.getMemberRoutine(userId, gymId);
     }
 
+    @Post(':id/routine/exercises')
+    async updateMemberRoutineExercises(
+        @Param('id', ParseIntPipe) userId: number,
+        @Body('gymId') gymId: string,
+        @Body() payload: any
+    ) {
+        if (!gymId) throw new BadRequestException('GYM_ID_REQUIRED');
+        return this.membersService.updateMemberRoutineExercises(userId, gymId, payload);
+    }
+
     @Post('upload-csv')
     @UseInterceptors(FileInterceptor('file'))
     async uploadCsv(

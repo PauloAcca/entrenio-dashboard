@@ -12,6 +12,24 @@ export async function getMemberRoutine(userId: number) {
     return apiFetch<any>(`/members/${userId}/routine?gymId=${gymId}`);
 }
 
+export async function updateMemberRoutineExercises(
+    userId: number, 
+    payload: {
+        updates: any[],
+        adds: any[],
+        removes: number[]
+    }
+) {
+    const gymId = useAuthStore.getState().gym?.id;
+    return apiFetch<any>(`/members/${userId}/routine/exercises`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ gymId, ...payload }),
+    });
+}
+
 export async function uploadMembersCsv(file: File) {
     const gymId = useAuthStore.getState().gym?.id;
     if (!gymId) throw new Error("No Gym ID");

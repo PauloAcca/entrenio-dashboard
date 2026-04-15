@@ -8,6 +8,7 @@ import { SupabaseModule } from './integrations/supabase/supabase.module';
 import { MachinesModule } from './modules/machines/machines.module';
 import { MembersModule } from './modules/members/members.module';
 import { MetricsModule } from './modules/metrics/metrics.modules';
+import { ExercisesModule } from './modules/exercises/exercises.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { MetricsModule } from './modules/metrics/metrics.modules';
     SupabaseModule,
     MachinesModule,
     MembersModule,
-    MetricsModule
+    MetricsModule,
+    ExercisesModule
   ],
   controllers: [AppController],
   providers: [AppService],

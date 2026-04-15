@@ -11,4 +11,8 @@ export class MembersService {
     async getMemberRoutine(userId: number, gymId: string) {
         return this.membersRepository.getMemberRoutine(userId, gymId);
     }
+
+    async updateMemberRoutineExercises(userId: number, gymId: string, payload: any) {
+        return this.membersRepository.updateMemberRoutineExercises(userId, gymId, payload);
+    }
 }
