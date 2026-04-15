@@ -42,6 +42,18 @@ export default function Members() {
             }
         }
     }
+
+    const isExpired = (date: string | null) => {
+        if (!date) return false;
+        return new Date(date) < new Date();
+    }
+
+    const totals = {
+        total: members.length,
+        active: members.filter(m => m.status === 'active' && !isExpired(m.ends_at)).length,
+        expired: members.filter(m => isExpired(m.ends_at)).length,
+        inactive: members.filter(m => m.status !== 'active' && !isExpired(m.ends_at)).length
+    }
     
     return (
         <>
@@ -69,10 +81,23 @@ export default function Members() {
                 </button>
             </div>
             
-            <div className="bg-muted p-4 mb-4 rounded border border-border">
-                <p className="text-foreground"><strong>Información:</strong></p>
-                <p className="text-muted-foreground">Cantidad de miembros: {members.length}</p>
-                <p className="text-muted-foreground">Cantidad de miembros activos: {members.filter((member) => member.status === 'active').length}</p>
+            <div className="bg-muted p-4 mb-4 rounded border border-border grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <p className="text-xs text-muted-foreground uppercase font-bold">Total</p>
+                    <p className="text-2xl font-bold text-foreground">{totals.total}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-green-600 dark:text-green-400 uppercase font-bold">Activos</p>
+                    <p className="text-2xl font-bold text-foreground">{totals.active}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 uppercase font-bold">Vencidos</p>
+                    <p className="text-2xl font-bold text-foreground">{totals.expired}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-red-600 dark:text-red-400 uppercase font-bold">Inactivos</p>
+                    <p className="text-2xl font-bold text-foreground">{totals.inactive}</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -100,11 +125,19 @@ export default function Members() {
                                 {member.user?.phone && <p className="text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
                             </div>
                             <div className="flex flex-col items-end gap-1">
-                                <span className={`px-2 py-1 text-xs rounded-full ${member.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
-                                    {member.status === 'active' ? 'Activo' : 'Inactivo'}
-                                </span>
+                                {isExpired(member.ends_at) ? (
+                                    <span className="px-2 py-1 text-xs rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
+                                        Vencido
+                                    </span>
+                                ) : (
+                                    <span className={`px-2 py-1 text-xs rounded-full ${member.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
+                                        {member.status === 'active' ? 'Activo' : 'Inactivo'}
+                                    </span>
+                                )}
                                 <p className="text-xs text-muted-foreground mt-2">Desde: {member.starts_at ? new Date(member.starts_at).toLocaleDateString() : '-'}</p>
-                                <p className="text-xs text-muted-foreground">Hasta: {member.ends_at ? new Date(member.ends_at).toLocaleDateString() : '-'}</p>
+                                <p className={`text-xs mt-0.5 ${isExpired(member.ends_at) ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-muted-foreground'}`}>
+                                    Hasta: {member.ends_at ? new Date(member.ends_at).toLocaleDateString() : '-'}
+                                </p>
                             </div>
                         </div>
                     </button>
