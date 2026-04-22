@@ -12,6 +12,10 @@ export class MembersService {
         return this.membersRepository.getMemberRoutine(userId, gymId);
     }
 
+    async createMemberRoutine(userId: number, gymId: string, days: number) {
+        return this.membersRepository.createMemberRoutine(userId, gymId, days);
+    }
+
     async updateMemberRoutineExercises(userId: number, gymId: string, payload: any) {
         return this.membersRepository.updateMemberRoutineExercises(userId, gymId, payload);
     }

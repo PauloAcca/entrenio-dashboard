@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMemberRoutine, updateMemberRoutineExercises, getMemberProfile } from "@/lib/api/members";
+import { getMemberRoutine, updateMemberRoutineExercises, getMemberProfile, createMemberRoutine } from "@/lib/api/members";
 import { searchExercises, ExerciseData } from "@/lib/api/exercises";
 import { membership, user } from "@/types/entities";
 
@@ -19,6 +19,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
     const [routine, setRoutine] = useState<any>(null);
     const [loadingRoutine, setLoadingRoutine] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isCreatingRoutine, setIsCreatingRoutine] = useState(false);
 
     // Edit state
     const [isEditing, setIsEditing] = useState(false);
@@ -75,6 +76,23 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
             .finally(() => {
                 setLoadingRoutine(false);
             });
+    }
+
+    const handleCreateRoutine = async (days: number) => {
+        if (!userId) return;
+        setIsCreatingRoutine(true);
+        try {
+            const data = await createMemberRoutine(userId, days);
+            setRoutine(data);
+            setLocalRoutine(JSON.parse(JSON.stringify(data)));
+            setError(null);
+            setIsEditing(true); // Automatically jump to edit mode
+        } catch (err) {
+            console.error(err);
+            alert("Error al crear la rutina.");
+        } finally {
+            setIsCreatingRoutine(false);
+        }
     }
 
     // Effect for searching
@@ -415,9 +433,27 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                             ) : error ? (
                                 <div className="text-center text-red-500 py-8">{error}</div>
                             ) : !displayRoutine ? (
-                                <div className="text-center text-muted-foreground py-8 border border-dashed border-border rounded-lg h-64 flex flex-col items-center justify-center">
-                                    <p className="mb-4 text-lg">El cliente no tiene una rutina activa.</p>
-                                    {/* Maybe add button to generate or create one? For now keep original logic */}
+                                <div className="text-center text-muted-foreground py-10 border border-dashed border-border rounded-xl h-64 flex flex-col items-center justify-center bg-muted/20">
+                                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                                        <span className="text-2xl">📋</span>
+                                    </div>
+                                    <p className="mb-6 text-foreground font-medium">El cliente no tiene una rutina activa.</p>
+                                    
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm">Generar rutina de:</span>
+                                        <div className="flex gap-2">
+                                            {[3, 4, 5].map(days => (
+                                                <button
+                                                    key={days}
+                                                    onClick={() => handleCreateRoutine(days)}
+                                                    disabled={isCreatingRoutine}
+                                                    className="px-3 py-1.5 bg-primary/10 text-primary font-bold rounded-md hover:bg-primary/20 transition-all text-sm disabled:opacity-50"
+                                                >
+                                                    {days} días
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-6">

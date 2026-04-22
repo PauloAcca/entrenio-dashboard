@@ -93,6 +93,50 @@ export class MembersRepository {
         return routine;
     }
 
+    async createMemberRoutine(userId: number, gymId: string, days: number) {
+        const membership = await this.prisma.memberships.findFirst({
+            where: { user_id: userId, gym_id: gymId }
+        });
+        if (!membership) throw new Error("No permission");
+
+        // Invalidate any existing active routine
+        await this.prisma.routines.updateMany({
+            where: { userId, isActive: true },
+            data: { isActive: false }
+        });
+
+        // Create new routine
+        const routine = await this.prisma.routines.create({
+            data: {
+                userId,
+                name: "Rutina Personalizada",
+                goal: "General",
+                days_per_week: days,
+                isActive: true,
+                generation_status: 'completed',
+                routine_sessions: {
+                    create: Array.from({ length: days }).map((_, i) => ({
+                        day_label: ['Lunes', 'Miércoles', 'Viernes', 'Martes', 'Sábado'][i] || `Día ${i + 1}`,
+                        focus: "General",
+                        order: i,
+                    }))
+                }
+            },
+            include: {
+                routine_sessions: {
+                    orderBy: { order: 'asc' },
+                    include: {
+                        routine_exercises: {
+                            orderBy: { order: 'asc' }
+                        }
+                    }
+                }
+            }
+        });
+
+        return routine;
+    }
+
     async updateMemberRoutineExercises(userId: number, gymId: string, payload: {
         updates: { id: number, reps?: string, sets?: number, rest?: string, weight_kg?: number, name?: string, exerciseId?: number, order?: number }[];
         adds: { sessionId: number, reps: string, sets: number, rest?: string, weight_kg?: number, name: string, exerciseId?: number, order: number }[];
