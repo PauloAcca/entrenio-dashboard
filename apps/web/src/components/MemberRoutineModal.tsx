@@ -470,14 +470,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                                             {session.routine_exercises?.map((exercise: any) => (
                                                                 <tr key={exercise.id} className="hover:bg-muted/10">
                                                                     <td className="px-4 py-3 font-medium text-foreground">
-                                                                        {isEditing ? (
-                                                                            <input 
-                                                                                type="text" 
-                                                                                value={exercise.name} 
-                                                                                onChange={(e) => updateExerciseField(session.id, exercise.id, 'name', e.target.value)}
-                                                                                className="w-full bg-background border border-border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-                                                                            />
-                                                                        ) : exercise.name}
+                                                                        {exercise.name}
                                                                     </td>
                                                                     <td className="px-4 py-3">
                                                                         {isEditing ? (
