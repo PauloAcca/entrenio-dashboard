@@ -12,15 +12,6 @@ export async function getMemberRoutine(userId: number) {
     return apiFetch<any>(`/members/${userId}/routine?gymId=${gymId}`);
 }
 
-export async function createMemberRoutine(userId: number, days: number = 3) {
-    const gymId = useAuthStore.getState().gym?.id;
-    return apiFetch<any>(`/members/${userId}/routine`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gymId, days }),
-    });
-}
-
 export async function getMemberProfile(userId: number) {
     return apiFetch<any>(`/members/${userId}/profile`);
 }

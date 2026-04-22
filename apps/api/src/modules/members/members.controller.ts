@@ -24,16 +24,6 @@ export class MembersController {
         return this.membersService.getMemberRoutine(userId, gymId);
     }
 
-    @Post(':id/routine')
-    async createMemberRoutine(
-        @Param('id', ParseIntPipe) userId: number,
-        @Body('gymId') gymId: string,
-        @Body('days') days?: number
-    ) {
-        if (!gymId) throw new BadRequestException('GYM_ID_REQUIRED');
-        return this.membersService.createMemberRoutine(userId, gymId, days || 3);
-    }
-
     @Get(':id/profile')
     async getMemberProfile(
         @Param('id', ParseIntPipe) userId: number
