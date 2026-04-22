@@ -212,6 +212,18 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
         return new Date(date) < new Date();
     }
 
+    const calculateAge = (birthDate: string | null) => {
+        if (!birthDate) return null;
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-card w-full max-w-4xl max-h-[90vh] rounded-xl shadow-2xl flex flex-col border border-border overflow-hidden">
@@ -343,7 +355,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <p className="text-[10px] text-muted-foreground uppercase font-bold">Edad</p>
-                                                <p className="text-sm font-medium">{profile.edad || '-'} años</p>
+                                                <p className="text-sm font-medium">{profile.fechaNacimiento ? calculateAge(profile.fechaNacimiento) : (profile.edad || '-')} años</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] text-muted-foreground uppercase font-bold">Sexo</p>
