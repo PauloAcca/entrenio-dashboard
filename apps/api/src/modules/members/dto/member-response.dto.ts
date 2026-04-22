@@ -18,6 +18,7 @@ export class MemberResponseDto {
     user_id: number | null;
     starts_at: Date | null;
     ends_at: Date | null;
+    external_member_id: string | null;
     status: string;
     created_at: Date;
     updated_at: Date;

@@ -12,6 +12,10 @@ export async function getMemberRoutine(userId: number) {
     return apiFetch<any>(`/members/${userId}/routine?gymId=${gymId}`);
 }
 
+export async function getMemberProfile(userId: number) {
+    return apiFetch<any>(`/members/${userId}/profile`);
+}
+
 export async function updateMemberRoutineExercises(
     userId: number, 
     payload: {

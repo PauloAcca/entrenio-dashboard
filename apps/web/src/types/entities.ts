@@ -39,23 +39,24 @@ export interface Gym {
 export interface membership {
     id: string;
     gym_id: string;
-    user_id: number;
-    starts_at: string;
-    ends_at: string;
+    user_id: number | null;
+    starts_at: string | null;
+    ends_at: string | null;
+    external_member_id?: string | null;
     status: string;
     created_at: string;
     updated_at: string;
 }
 
 export interface user {
-    id: number;
-    email: string;
+    id: number | null;
+    email: string | null;
     email_verified: boolean;
-    name?: string;
-    phone?: string;
-    dni?: string;
-    avatarUrl?: string;
-    claimed_at?: Date;
-    created_at: Date;
-    updated_at: Date;
+    name?: string | null;
+    phone?: string | null;
+    dni?: string | null;
+    avatarUrl?: string | null;
+    claimed_at?: string | null;
+    created_at: string;
+    updated_at: string;
 }

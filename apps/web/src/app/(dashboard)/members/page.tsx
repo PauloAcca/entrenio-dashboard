@@ -102,7 +102,7 @@ export default function Members() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {members.map((member) => (
-                    <button onClick={() => setSelectedMemberForRoutine({ userId: member.user_id, name: member.user?.name || 'Sin Nombre' })} key={member.id} className="flex flex-row items-center gap-4 p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left group">
+                    <button onClick={() => setSelectedMember(member)} key={member.id} className="flex flex-row items-center gap-4 p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left group">
                         {/* Avatar */}
                         {member.user?.avatarUrl ? (
                             <img 

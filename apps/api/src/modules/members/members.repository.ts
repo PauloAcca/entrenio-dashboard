@@ -37,6 +37,7 @@ export class MembersRepository {
                 user_id: registry.claimed_by_user_id,
                 starts_at: registry.starts_at,
                 ends_at: registry.ends_at,
+                external_member_id: registry.external_member_id,
                 status: registry.claimed_by_user_id && registry.status === 'active' ? 'active' : 'inactive',
                 created_at: registry.created_at,
                 updated_at: registry.updated_at,
@@ -148,5 +149,11 @@ export class MembersRepository {
         });
 
         return { success: true };
+    }
+
+    async getMemberProfile(userId: number) {
+        return this.prisma.user_training_profile.findUnique({
+            where: { userId }
+        });
     }
 }

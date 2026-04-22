@@ -24,6 +24,13 @@ export class MembersController {
         return this.membersService.getMemberRoutine(userId, gymId);
     }
 
+    @Get(':id/profile')
+    async getMemberProfile(
+        @Param('id', ParseIntPipe) userId: number
+    ) {
+        return this.membersService.getMemberProfile(userId);
+    }
+
     @Post(':id/routine/exercises')
     async updateMemberRoutineExercises(
         @Param('id', ParseIntPipe) userId: number,
