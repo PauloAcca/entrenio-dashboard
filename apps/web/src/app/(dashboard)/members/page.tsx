@@ -8,7 +8,7 @@ export default function Members() {
     const [members, setMembers] = useState<(membership & { user: user })[]>([])
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [loading, setLoading] = useState(true)
-    const [selectedMemberForRoutine, setSelectedMemberForRoutine] = useState<{userId: number, name: string} | null>(null)
+    const [selectedMember, setSelectedMember] = useState<(membership & { user: user }) | null>(null)
 
     const fetchMembers = () => {
         getAppMembers()
@@ -147,11 +147,10 @@ export default function Members() {
         </div>
         )}
         
-        {selectedMemberForRoutine && (
+        {selectedMember && (
             <MemberRoutineModal 
-                userId={selectedMemberForRoutine.userId}
-                userName={selectedMemberForRoutine.name}
-                onClose={() => setSelectedMemberForRoutine(null)}
+                member={selectedMember}
+                onClose={() => setSelectedMember(null)}
             />
         )}
         </>
