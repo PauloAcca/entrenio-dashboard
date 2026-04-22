@@ -113,7 +113,7 @@ export class MembersRepository {
                 goal: "General",
                 days_per_week: days,
                 isActive: true,
-                generation_status: 'completed',
+                source: "manual",
                 routine_sessions: {
                     create: Array.from({ length: days }).map((_, i) => ({
                         day_label: ['Lunes', 'Miércoles', 'Viernes', 'Martes', 'Sábado'][i] || `Día ${i + 1}`,
