@@ -7,51 +7,50 @@ export class MembersRepository {
     constructor(private readonly prisma: PrismaService) { }
 
     async getAllByGymId(gymId: string): Promise<MemberResponseDto[]> {
-        const members = await this.prisma.memberships.findMany({
+        const registryEntries = await this.prisma.gym_member_registry.findMany({
             where: {
                 gym_id: gymId
             },
-            include: {
-                user: true
+            orderBy: {
+                nombre: 'asc'
             }
         });
 
-        const userIds = members.map(m => m.user_id);
+        const claimedUserIds = registryEntries
+            .map(r => r.claimed_by_user_id)
+            .filter((id): id is number => id !== null);
 
-        const registryEntries = await this.prisma.gym_member_registry.findMany({
+        const users = await this.prisma.user.findMany({
             where: {
-                gym_id: gymId,
-                claimed_by_user_id: {
-                    in: userIds
-                }
+                id: { in: claimedUserIds }
             }
         });
 
-        const registryMap = new Map(
-            registryEntries.map(entry => [entry.claimed_by_user_id, entry])
-        );
+        const userMap = new Map(users.map(u => [u.id, u]));
 
-        return members.map(member => {
-            const registryEntry = registryMap.get(member.user_id);
+        return registryEntries.map(registry => {
+            const user = registry.claimed_by_user_id ? userMap.get(registry.claimed_by_user_id) : null;
+
             return {
-                id: member.id,
-                gym_id: member.gym_id,
-                user_id: member.user_id,
-                starts_at: member.starts_at,
-                ends_at: member.ends_at,
-                status: member.status,
-                created_at: member.created_at,
-                updated_at: member.updated_at,
+                id: registry.id,
+                gym_id: registry.gym_id,
+                user_id: registry.claimed_by_user_id,
+                starts_at: registry.starts_at,
+                ends_at: registry.ends_at,
+                status: registry.status,
+                created_at: registry.created_at,
+                updated_at: registry.updated_at,
                 user: {
-                    id: member.user.id,
-                    email: member.user.email,
-                    email_verified: member.user.email_verified || false,
-                    created_at: member.created_at,
-                    updated_at: member.updated_at,
-                    name: registryEntry?.nombre || null,
-                    phone: registryEntry?.phone || null,
-                    dni: registryEntry?.dni || null,
-                    claimed_at: registryEntry?.claimed_at || null,
+                    id: user?.id || null,
+                    email: user?.email || registry.email || null,
+                    email_verified: user?.email_verified || false,
+                    avatarUrl: user?.avatarUrl || null,
+                    created_at: registry.created_at,
+                    updated_at: registry.updated_at,
+                    name: registry.nombre || null,
+                    phone: registry.phone || null,
+                    dni: registry.dni || null,
+                    claimed_at: registry.claimed_at || null,
                 }
             } as any;
         });

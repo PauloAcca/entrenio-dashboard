@@ -6,6 +6,7 @@ export class UserInfoDto {
     name: string | null;
     phone: string | null;
     dni: string | null;
+    avatarUrl: string | null;
     claimed_at: Date | null;
     created_at: Date | null;
     updated_at: Date | null;
