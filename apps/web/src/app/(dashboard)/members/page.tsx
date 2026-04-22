@@ -121,7 +121,8 @@ export default function Members() {
                             <div className="flex flex-col gap-1 min-w-0">
                                 <h1 className="font-bold text-lg text-foreground truncate">{member.user?.name || 'Sin Nombre'}</h1>
                                 <p className="text-sm text-muted-foreground truncate">{member.user?.email || 'Sin Email'}</p>
-                                {member.user?.dni && <p className="text-xs text-muted-foreground">DNI: {member.user.dni}</p>}
+                                {!member.user_id && <span className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded w-fit font-bold uppercase tracking-wider mt-0.5 border border-amber-200 dark:border-amber-800/50">Sin App</span>}
+                                {member.user?.dni && <p className="text-xs text-muted-foreground mt-0.5">DNI: {member.user.dni}</p>}
                                 {member.user?.phone && <p className="text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
                             </div>
                             <div className="flex flex-col items-end gap-1 flex-shrink-0">

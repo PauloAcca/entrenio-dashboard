@@ -37,7 +37,7 @@ export class MembersRepository {
                 user_id: registry.claimed_by_user_id,
                 starts_at: registry.starts_at,
                 ends_at: registry.ends_at,
-                status: registry.status,
+                status: registry.claimed_by_user_id && registry.status === 'active' ? 'active' : 'inactive',
                 created_at: registry.created_at,
                 updated_at: registry.updated_at,
                 user: {
