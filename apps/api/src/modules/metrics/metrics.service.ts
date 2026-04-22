@@ -179,9 +179,15 @@ export class MetricsService {
     // console.log(`[Metrics] Found ${members.length} members for age dist.`);
     for (const member of members) {
       const profile = member.user?.user_training_profile;
-      // console.log(`[Metrics] User ${member.user_id} age: ${profile?.edad} (type: ${typeof profile?.edad})`);
-      if (profile && profile.edad !== null && profile.edad !== undefined) {
-        const age = profile.edad;
+      // console.log(`[Metrics] User ${member.user_id} birth: ${profile?.fechaNacimiento}`);
+      if (profile && profile.fechaNacimiento) {
+        const today = new Date();
+        const birth = new Date(profile.fechaNacimiento);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
         let range = '';
 
         if (age < 18) range = '<18';
@@ -302,7 +308,7 @@ export class MetricsService {
           select: {
             user_training_profile: {
               select: {
-                edad: true,
+                fechaNacimiento: true,
               },
             },
           },
@@ -320,9 +326,19 @@ export class MetricsService {
     };
 
     for (const record of attendanceRecords) {
-      const age = record.user?.user_training_profile?.edad;
+      const birthDate = record.user?.user_training_profile?.fechaNacimiento;
+      let age: number | null = null;
+      if (birthDate) {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+      }
 
-      if (age !== null && age !== undefined) {
+      if (age !== null) {
         let range = '';
         if (age < 18) range = '<18';
         else if (age >= 18 && age <= 24) range = '18-24';

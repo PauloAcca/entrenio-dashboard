@@ -184,12 +184,15 @@ async function main() {
       },
     });
 
+    const birthYear = new Date().getFullYear() - age;
+    const fechaNacimiento = new Date(`${birthYear}-01-01`);
+
     await prisma.user_training_profile.upsert({
       where: { userId: user.id },
       update: {
         objetivo: goal,
         sexo: gender,
-        edad: age,
+        fechaNacimiento,
       },
       create: {
         userId: user.id,
@@ -200,7 +203,7 @@ async function main() {
         enfoque: 'hybrid',
         intensidad: 'medium',
         sexo: gender,
-        edad: age,
+        fechaNacimiento,
       },
     });
 
