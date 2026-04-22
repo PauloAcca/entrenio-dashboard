@@ -117,14 +117,14 @@ export default function Members() {
                                 </span>
                             </div>
                         )}
-                        <div className="flex flex-1 justify-between items-start">
-                            <div className="flex flex-col gap-1">
-                                <h1 className="font-bold text-lg text-foreground">{member.user?.name || 'Sin Nombre'}</h1>
-                                <p className="text-sm text-muted-foreground">{member.user?.email || 'Sin Email'}</p>
+                        <div className="flex flex-1 justify-between items-start gap-4 min-w-0">
+                            <div className="flex flex-col gap-1 min-w-0">
+                                <h1 className="font-bold text-lg text-foreground truncate">{member.user?.name || 'Sin Nombre'}</h1>
+                                <p className="text-sm text-muted-foreground truncate">{member.user?.email || 'Sin Email'}</p>
                                 {member.user?.dni && <p className="text-xs text-muted-foreground">DNI: {member.user.dni}</p>}
                                 {member.user?.phone && <p className="text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
                             </div>
-                            <div className="flex flex-col items-end gap-1">
+                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                 {isExpired(member.ends_at) ? (
                                     <span className="px-2 py-1 text-xs rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
                                         Vencido
