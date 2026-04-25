@@ -126,16 +126,22 @@ export default function Members() {
                                 {member.user?.phone && <p className="text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
                             </div>
                             <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                                {isExpired(member.ends_at) ? (
-                                    <span className="px-2 py-1 text-xs rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
-                                        Vencido
+                                <div className="flex gap-2">
+                                    {isExpired(member.ends_at) ? (
+                                        <span className="px-2 py-1 text-xs rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
+                                            Vencido
+                                        </span>
+                                    ) : (
+                                        <span className={`px-2 py-1 text-xs rounded-full ${member.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
+                                            {member.status === 'active' ? 'Activo' : 'Inactivo'}
+                                        </span>
+                                    )}
+                                    <span className={`px-2 py-1 text-xs rounded-full ${member.has_routine ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50' : 'bg-slate-100 dark:bg-slate-800/30 text-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-800/50'}`}>
+                                        {member.has_routine ? 'Con Rutina' : 'Sin Rutina'}
                                     </span>
-                                ) : (
-                                    <span className={`px-2 py-1 text-xs rounded-full ${member.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
-                                        {member.status === 'active' ? 'Activo' : 'Inactivo'}
-                                    </span>
-                                )}
-                                <p className="text-xs text-muted-foreground mt-2">Desde: {member.starts_at ? new Date(member.starts_at).toLocaleDateString() : '-'}</p>
+                                </div>
+                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider mt-2">Membresía Gimnasio</p>
+                                <p className="text-xs text-muted-foreground">Desde: {member.starts_at ? new Date(member.starts_at).toLocaleDateString() : '-'}</p>
                                 <p className={`text-xs mt-0.5 ${isExpired(member.ends_at) ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-muted-foreground'}`}>
                                     Hasta: {member.ends_at ? new Date(member.ends_at).toLocaleDateString() : '-'}
                                 </p>

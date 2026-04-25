@@ -224,6 +224,45 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
         return age;
     }
 
+    const normalizeValue = (value: string | null) => {
+        if (!value) return '-';
+        
+        const mapping: Record<string, string> = {
+            // Objetivo
+            'ganar_masa_muscular': 'Ganar masa muscular',
+            'perder_peso': 'Perder peso',
+            'mantener_peso': 'Mantener peso',
+            'mejorar_salud': 'Mejorar salud',
+            
+            // Enfoque
+            'strength': 'Fuerza',
+            'hybrid': 'Híbrido',
+            'cardio': 'Cardio',
+            'hypertrophy': 'Hipertrofia',
+            'fuerza': 'Fuerza',
+            'hipertrofia': 'Hipertrofia',
+            
+            // Intensidad
+            'low': 'Baja',
+            'medium': 'Media',
+            'high': 'Alta',
+            'baja': 'Baja',
+            'media': 'Media',
+            'alta': 'Alta',
+
+            // Sexo
+            'male': 'Hombre',
+            'female': 'Mujer',
+            'other': 'Otro',
+        };
+
+        const key = value.toLowerCase().trim();
+        if (mapping[key]) return mapping[key];
+
+        const normalized = value.replace(/_/g, ' ');
+        return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+    }
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-card w-full max-w-4xl max-h-[90vh] rounded-xl shadow-2xl flex flex-col border border-border overflow-hidden">
@@ -317,7 +356,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                 </div>
 
                                 <div>
-                                    <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">Membresía</h3>
+                                    <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">Membresía Gimnasio</h3>
                                     <div className="bg-muted/50 rounded-lg p-4 space-y-3">
                                         <div className="flex justify-between border-b border-border/50 pb-2">
                                             <span className="text-sm text-muted-foreground">Estado</span>
@@ -337,9 +376,15 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                             <span className="text-sm text-muted-foreground">Vencimiento</span>
                                             <span className="text-sm font-medium">{member.ends_at ? new Date(member.ends_at).toLocaleDateString() : '-'}</span>
                                         </div>
-                                        <div className="flex justify-between">
+                                        <div className="flex justify-between border-b border-border/50 pb-2">
                                             <span className="text-sm text-muted-foreground">Registrado en App</span>
                                             <span className="text-sm font-medium">{member.user_id ? 'Sí' : 'No'}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-sm text-muted-foreground">Tiene Rutina Activa</span>
+                                            <span className={`text-sm font-bold ${member.has_routine ? 'text-blue-600' : 'text-slate-500'}`}>
+                                                {member.has_routine ? 'Sí' : 'No'}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -359,7 +404,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                             </div>
                                             <div>
                                                 <p className="text-[10px] text-muted-foreground uppercase font-bold">Sexo</p>
-                                                <p className="text-sm font-medium">{profile.sexo || '-'}</p>
+                                                <p className="text-sm font-medium">{normalizeValue(profile.sexo)}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] text-muted-foreground uppercase font-bold">Peso</p>
@@ -372,15 +417,15 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                         </div>
                                         <div className="pt-2 border-t border-border/50">
                                             <p className="text-[10px] text-muted-foreground uppercase font-bold">Objetivo</p>
-                                            <p className="text-sm font-medium">{profile.objetivo || '-'}</p>
+                                            <p className="text-sm font-medium">{normalizeValue(profile.objetivo)}</p>
                                         </div>
                                         <div className="pt-2 border-t border-border/50">
                                             <p className="text-[10px] text-muted-foreground uppercase font-bold">Enfoque Principal</p>
-                                            <p className="text-sm font-medium">{profile.enfoque || '-'}</p>
+                                            <p className="text-sm font-medium">{normalizeValue(profile.enfoque)}</p>
                                         </div>
                                         <div className="pt-2 border-t border-border/50">
                                             <p className="text-[10px] text-muted-foreground uppercase font-bold">Intensidad deseada</p>
-                                            <p className="text-sm font-medium">{profile.intensidad || '-'}</p>
+                                            <p className="text-sm font-medium">{normalizeValue(profile.intensidad)}</p>
                                         </div>
                                         {profile.lesion && (
                                             <div className="pt-2 border-t border-border/50 italic">
@@ -423,14 +468,14 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                 <div className="flex flex-col gap-6">
                                     <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
                                         <h3 className="text-lg font-bold text-primary mb-1">{displayRoutine.name}</h3>
-                                        {displayRoutine.goal && <p className="text-sm text-foreground/80 mb-2">Objetivo: {displayRoutine.goal}</p>}
+                                        {displayRoutine.goal && <p className="text-sm text-foreground/80 mb-2">Objetivo: {normalizeValue(displayRoutine.goal)}</p>}
                                         <div className="flex flex-wrap gap-2 mt-3">
                                             <span className="px-2 py-1 bg-background rounded-md text-xs border border-border shadow-sm">
                                                 {displayRoutine.days_per_week} días/sem
                                             </span>
                                             {displayRoutine.intensity && (
                                                 <span className="px-2 py-1 bg-background rounded-md text-xs border border-border shadow-sm">
-                                                    Intensidad: {displayRoutine.intensity}
+                                                    Intensidad: {normalizeValue(displayRoutine.intensity)}
                                                 </span>
                                             )}
                                         </div>

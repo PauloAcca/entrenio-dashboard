@@ -44,6 +44,7 @@ export interface membership {
     ends_at: string | null;
     external_member_id?: string | null;
     status: string;
+    has_routine?: boolean;
     created_at: string;
     updated_at: string;
 }

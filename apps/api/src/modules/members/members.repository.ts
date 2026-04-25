@@ -20,16 +20,29 @@ export class MembersRepository {
             .map(r => r.claimed_by_user_id)
             .filter((id): id is number => id !== null);
 
-        const users = await this.prisma.user.findMany({
-            where: {
-                id: { in: claimedUserIds }
-            }
-        });
+        const [users, routines] = await Promise.all([
+            this.prisma.user.findMany({
+                where: {
+                    id: { in: claimedUserIds }
+                }
+            }),
+            this.prisma.routines.findMany({
+                where: {
+                    userId: { in: claimedUserIds },
+                    isActive: true
+                },
+                select: {
+                    userId: true
+                }
+            })
+        ]);
 
         const userMap = new Map(users.map(u => [u.id, u]));
+        const routineUserIds = new Set(routines.map(r => r.userId));
 
         return registryEntries.map(registry => {
             const user = registry.claimed_by_user_id ? userMap.get(registry.claimed_by_user_id) : null;
+            const hasRoutine = registry.claimed_by_user_id ? routineUserIds.has(registry.claimed_by_user_id) : false;
 
             return {
                 id: registry.id,
@@ -41,6 +54,7 @@ export class MembersRepository {
                 status: registry.claimed_by_user_id && registry.status === 'active' ? 'active' : 'inactive',
                 created_at: registry.created_at,
                 updated_at: registry.updated_at,
+                has_routine: hasRoutine,
                 user: {
                     id: user?.id || null,
                     email: user?.email || registry.email || null,

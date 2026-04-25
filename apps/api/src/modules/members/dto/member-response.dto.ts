@@ -22,5 +22,6 @@ export class MemberResponseDto {
     status: string;
     created_at: Date;
     updated_at: Date;
+    has_routine?: boolean;
     user: UserInfoDto;
 }
