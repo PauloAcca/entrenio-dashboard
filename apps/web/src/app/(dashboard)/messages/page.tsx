@@ -1,7 +1,7 @@
 "use client"
 import { getGymMessages, GymMessage } from "@/lib/api/gymMessages"
 import { useEffect, useState } from "react"
-import { MessageCircle, Lightbulb, AlertCircle, HelpCircle, MoreHorizontal, User, Calendar } from "lucide-react"
+import { MessageCircle, Lightbulb, AlertCircle, HelpCircle, MoreHorizontal, User, Calendar, Megaphone } from "lucide-react"
 import { useAuthStore } from "@/store/authStore"
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string; border: string }> = {
@@ -33,6 +33,13 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ReactNode; co
         bg: "bg-purple-50 dark:bg-purple-900/20",
         border: "border-purple-200 dark:border-purple-800/50",
     },
+    notice: {
+        label: "Aviso",
+        icon: <Megaphone className="w-4 h-4" />,
+        color: "text-teal-600 dark:text-teal-400",
+        bg: "bg-teal-50 dark:bg-teal-900/20",
+        border: "border-teal-200 dark:border-teal-800/50",
+    },
 }
 
 function formatDate(dateStr: string) {
@@ -62,8 +69,8 @@ export default function MessagesPage() {
             .finally(() => setLoading(false))
     }, [])
 
-    type CategoryKey = "all" | "suggestion" | "complaint" | "question" | "other"
-    const categories: CategoryKey[] = ["all", "suggestion", "complaint", "question", "other"]
+    type CategoryKey = "all" | "suggestion" | "complaint" | "question" | "other" | "notice"
+    const categories: CategoryKey[] = ["all", "suggestion", "complaint", "question", "notice", "other"]
     const filtered = filter === "all" ? messages : messages.filter(m => m.category === filter)
 
     const counts = {
@@ -71,6 +78,7 @@ export default function MessagesPage() {
         suggestion: messages.filter(m => m.category === "suggestion").length,
         complaint: messages.filter(m => m.category === "complaint").length,
         question: messages.filter(m => m.category === "question").length,
+        notice: messages.filter(m => m.category === "notice").length,
         other: messages.filter(m => m.category === "other").length,
     }
 
@@ -101,8 +109,8 @@ export default function MessagesPage() {
             )}
 
             {/* Stats row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                {(["suggestion", "complaint", "question", "other"] as const).map(cat => {
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                {(["suggestion", "complaint", "question", "notice", "other"] as const).map(cat => {
                     const cfg = CATEGORY_CONFIG[cat]
                     return (
                         <button
