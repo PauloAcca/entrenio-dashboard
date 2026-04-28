@@ -9,6 +9,7 @@ import { MachinesModule } from './modules/machines/machines.module';
 import { MembersModule } from './modules/members/members.module';
 import { MetricsModule } from './modules/metrics/metrics.modules';
 import { ExercisesModule } from './modules/exercises/exercises.module';
+import { GymMessagesModule } from './modules/gym-messages/gym-messages.module';
 
 @Module({
   imports: [
@@ -21,9 +22,11 @@ import { ExercisesModule } from './modules/exercises/exercises.module';
     MachinesModule,
     MembersModule,
     MetricsModule,
-    ExercisesModule
+    ExercisesModule,
+    GymMessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+

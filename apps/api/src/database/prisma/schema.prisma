@@ -407,6 +407,7 @@ model user {
   routines              routines[]
   user_training_profile user_training_profile?
   user_weight_progress  user_weight_progress[]
+  gym_messages          gym_messages[]
   deletedAt             DateTime?
 }
 
@@ -443,4 +444,17 @@ enum gym_attendance_type_enum {
   ROUTINE
   MANUAL
   CLASS
+}
+
+model gym_messages {
+  id        Int      @id @default(autoincrement())
+  message   String
+  category  String   @default("suggestion") @db.VarChar(50)
+  userId    Int?
+  gymId     String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      user?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([gymId])
+  @@index([userId])
 }

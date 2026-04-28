@@ -19,5 +19,5 @@ export interface GymMessage {
 export async function getGymMessages(): Promise<GymMessage[]> {
     const gymId = useAuthStore.getState().gym?.id;
     if (!gymId) return [];
-    return apiFetch<GymMessage[]>(`/feedback/gym-messages/${gymId}`);
+    return apiFetch<GymMessage[]>(`/feedback/gym-messages?gymId=${gymId}`);
 }
