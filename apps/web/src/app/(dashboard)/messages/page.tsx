@@ -2,7 +2,6 @@
 import { getGymMessages, GymMessage } from "@/lib/api/gymMessages"
 import { useEffect, useState } from "react"
 import { MessageCircle, Lightbulb, AlertCircle, HelpCircle, MoreHorizontal, User, Calendar, Megaphone } from "lucide-react"
-import { useAuthStore } from "@/store/authStore"
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string; border: string }> = {
     suggestion: {
@@ -50,22 +49,12 @@ function formatDate(dateStr: string) {
 export default function MessagesPage() {
     const [messages, setMessages] = useState<GymMessage[]>([])
     const [loading, setLoading] = useState(true)
-    const [filter, setFilter] = useState<string>("all") // kept as string for CATEGORY_CONFIG lookup flexibility
-    const [error, setError] = useState<string | null>(null)
-    const gym = useAuthStore(s => s.gym)
+    const [filter, setFilter] = useState<string>("all")
 
     useEffect(() => {
-        console.log("[Messages] gymId:", gym?.id)
-        console.log("[Messages] API_URL:", process.env.NEXT_PUBLIC_API_URL)
         getGymMessages()
-            .then(data => {
-                console.log("[Messages] response:", data)
-                setMessages(data)
-            })
-            .catch(err => {
-                console.error("[Messages] error:", err)
-                setError(err?.message ?? "Error desconocido")
-            })
+            .then(setMessages)
+            .catch(console.error)
             .finally(() => setLoading(false))
     }, [])
 
@@ -94,19 +83,6 @@ export default function MessagesPage() {
                     <p className="text-sm text-muted-foreground">Sugerencias, reclamos y consultas de tus socios</p>
                 </div>
             </div>
-
-            {/* Debug / Error banner */}
-            {error && (
-                <div className="mb-4 p-3 rounded-xl border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm font-mono">
-                    <strong>Error:</strong> {error}<br />
-                    <span className="text-xs opacity-70">GymId: {gym?.id ?? "null"} · API: {process.env.NEXT_PUBLIC_API_URL ?? "undefined"}</span>
-                </div>
-            )}
-            {!error && !loading && (
-                <p className="text-xs text-muted-foreground/40 mb-4 font-mono">
-                    gym: {gym?.id ?? "null"} · api: {process.env.NEXT_PUBLIC_API_URL ?? "undefined"}
-                </p>
-            )}
 
             {/* Stats row */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
