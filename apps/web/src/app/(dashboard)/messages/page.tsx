@@ -42,7 +42,7 @@ function formatDate(dateStr: string) {
 export default function MessagesPage() {
     const [messages, setMessages] = useState<GymMessage[]>([])
     const [loading, setLoading] = useState(true)
-    const [filter, setFilter] = useState<string>("all")
+    const [filter, setFilter] = useState<string>("all") // kept as string for CATEGORY_CONFIG lookup flexibility
 
     useEffect(() => {
         getGymMessages()
@@ -51,7 +51,8 @@ export default function MessagesPage() {
             .finally(() => setLoading(false))
     }, [])
 
-    const categories = ["all", "suggestion", "complaint", "question", "other"]
+    type CategoryKey = "all" | "suggestion" | "complaint" | "question" | "other"
+    const categories: CategoryKey[] = ["all", "suggestion", "complaint", "question", "other"]
     const filtered = filter === "all" ? messages : messages.filter(m => m.category === filter)
 
     const counts = {
@@ -107,7 +108,7 @@ export default function MessagesPage() {
                                 : "bg-muted text-muted-foreground border-border hover:border-border/60"
                         }`}
                     >
-                        {cat === "all" ? `Todos (${counts.all})` : `${CATEGORY_CONFIG[cat].label} (${counts[cat]})`}
+                        {cat === "all" ? `Todos (${counts.all})` : `${CATEGORY_CONFIG[cat]?.label} (${counts[cat]})`}
                     </button>
                 ))}
             </div>
