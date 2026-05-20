@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value
   const { pathname } = request.nextUrl
 
-  const publicRoutes = ['/login', '/gimnasios', '/privacy', '/deleteAccount', '/terms', '/auth']
+  const publicRoutes = ['/login', '/gimnasios', '/privacy', '/deleteAccount', '/terms', '/auth', '/share']
   
   const isPublicRoute = pathname === '/' || publicRoutes.some(route => pathname.startsWith(route))
 
