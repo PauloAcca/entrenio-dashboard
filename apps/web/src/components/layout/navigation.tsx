@@ -1,5 +1,5 @@
 "use client"
-import { Menu, ChartNoAxesCombined, UsersRound, Dumbbell, MessageCircleWarning, Cog, LogOut, LayoutDashboard, Inbox } from "lucide-react"
+import { Menu, ChartNoAxesCombined, UsersRound, Dumbbell, MessageCircleWarning, Cog, LogOut, LayoutDashboard, Inbox, QrCode } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/authStore"
@@ -43,6 +43,7 @@ export default function Navigation() {
                     <li onClick={() => {router.push('/metrics'); setOpen(false)}} className="cursor-pointer flex items-center gap-2 hover:bg-sidebar-accent p-2 rounded-lg"> <ChartNoAxesCombined /> {open && 'Métricas' }</li>
                     <li onClick={() => {router.push('/members'); setOpen(false)}} className="cursor-pointer flex items-center gap-2 hover:bg-sidebar-accent p-2 rounded-lg"> <UsersRound /> {open && 'Clientes' }</li>
                     <li onClick={() => {router.push('/machines'); setOpen(false)}} className="cursor-pointer flex items-center gap-2 hover:bg-sidebar-accent p-2 rounded-lg"> <Dumbbell /> {open && 'Maquinas' }</li>
+                    <li onClick={() => {router.push('/qr-codes'); setOpen(false)}} className="cursor-pointer flex items-center gap-2 hover:bg-sidebar-accent p-2 rounded-lg"> <QrCode /> {open && 'Códigos QR' }</li>
                     <li onClick={() => {router.push('/messages'); setOpen(false)}} className="cursor-pointer flex items-center gap-2 hover:bg-sidebar-accent p-2 rounded-lg"> <Inbox /> {open && 'Mensajes' }</li>
                     <li onClick={() => {router.push('/reports'); setOpen(false)}} className="cursor-pointer flex items-center gap-2 hover:bg-sidebar-accent p-2 rounded-lg"> <MessageCircleWarning /> {open && 'Reportes' }</li>
                 </ul> 
