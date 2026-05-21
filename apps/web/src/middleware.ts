@@ -5,15 +5,15 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value
   const { pathname } = request.nextUrl
 
-  const publicRoutes = ['/login', '/gimnasios', '/privacy', '/deleteAccount', '/terms', '/auth', '/share']
-  
+  const publicRoutes = ['/login', '/gimnasios', '/privacy', '/deleteAccount', '/terms', '/auth', '/share', '/qr']
+
   const isPublicRoute = pathname === '/' || publicRoutes.some(route => pathname.startsWith(route))
 
   if (!token && !isPublicRoute) {
     if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.includes('.')) {
       return NextResponse.next()
     }
-    
+
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
