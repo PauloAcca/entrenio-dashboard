@@ -106,9 +106,9 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
       ? "flex items-center justify-between border-t border-white/10 pt-8 pb-4 mb-4"
       : "flex items-center justify-between border-t border-white/10 pt-3";
 
-    // Custom CSS for brackets line thickness
-    const bracketSize = isPrint ? "w-12 h-12" : "w-5 h-5";
-    const borderRadius = isPrint ? "rounded-[12px]" : "rounded";
+    // Bracket line dimensions
+    const bracketLen = isPrint ? "48px" : "20px";
+    const bracketThick = isPrint ? "7px" : "3px";
 
     return (
       <div ref={ref} style={posterStyle} className={containerClasses}>
@@ -124,8 +124,8 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
             <ChevronDown className={arrowIconClasses} />
           </div>
 
-          {/* Spacer separating header and QR code */}
-          <div className={isPrint ? "h-14" : "h-5"} />
+          {/* Minimal Spacer separating header and QR code to reduce excessive gap */}
+          <div className={isPrint ? "h-2" : "h-0.5"} />
 
           {/* QR Code Section (Large & Focused) */}
           <div className={qrSectionClasses}>
@@ -133,49 +133,75 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
 
             {/* Brackets around QR frame */}
             <div className={qrBracketsClasses}>
-              {/* Clean outer corner brackets with style overrides for precise pixel borders */}
+              {/* Top Left Bracket */}
               <div
-                className={`absolute top-0 left-0 ${bracketSize} ${borderRadius}`}
+                className="absolute top-0 left-0"
                 style={{
-                  borderColor: config.posterTextColor,
-                  borderTopWidth: isPrint ? "7px" : "3px",
-                  borderLeftWidth: isPrint ? "7px" : "3px",
-                  borderRightWidth: "0px",
-                  borderBottomWidth: "0px",
-                  borderStyle: "solid"
+                  width: bracketLen,
+                  height: bracketThick,
+                  backgroundColor: config.posterTextColor,
                 }}
               />
               <div
-                className={`absolute top-0 right-0 ${bracketSize} ${borderRadius}`}
+                className="absolute top-0 left-0"
                 style={{
-                  borderColor: config.posterTextColor,
-                  borderTopWidth: isPrint ? "7px" : "3px",
-                  borderRightWidth: isPrint ? "7px" : "3px",
-                  borderLeftWidth: "0px",
-                  borderBottomWidth: "0px",
-                  borderStyle: "solid"
+                  width: bracketThick,
+                  height: bracketLen,
+                  backgroundColor: config.posterTextColor,
+                }}
+              />
+
+              {/* Top Right Bracket */}
+              <div
+                className="absolute top-0 right-0"
+                style={{
+                  width: bracketLen,
+                  height: bracketThick,
+                  backgroundColor: config.posterTextColor,
                 }}
               />
               <div
-                className={`absolute bottom-0 left-0 ${bracketSize} ${borderRadius}`}
+                className="absolute top-0 right-0"
                 style={{
-                  borderColor: config.posterTextColor,
-                  borderBottomWidth: isPrint ? "7px" : "3px",
-                  borderLeftWidth: isPrint ? "7px" : "3px",
-                  borderRightWidth: "0px",
-                  borderTopWidth: "0px",
-                  borderStyle: "solid"
+                  width: bracketThick,
+                  height: bracketLen,
+                  backgroundColor: config.posterTextColor,
+                }}
+              />
+
+              {/* Bottom Left Bracket */}
+              <div
+                className="absolute bottom-0 left-0"
+                style={{
+                  width: bracketLen,
+                  height: bracketThick,
+                  backgroundColor: config.posterTextColor,
                 }}
               />
               <div
-                className={`absolute bottom-0 right-0 ${bracketSize} ${borderRadius}`}
+                className="absolute bottom-0 left-0"
                 style={{
-                  borderColor: config.posterTextColor,
-                  borderBottomWidth: isPrint ? "7px" : "3px",
-                  borderRightWidth: isPrint ? "7px" : "3px",
-                  borderLeftWidth: "0px",
-                  borderTopWidth: "0px",
-                  borderStyle: "solid"
+                  width: bracketThick,
+                  height: bracketLen,
+                  backgroundColor: config.posterTextColor,
+                }}
+              />
+
+              {/* Bottom Right Bracket */}
+              <div
+                className="absolute bottom-0 right-0"
+                style={{
+                  width: bracketLen,
+                  height: bracketThick,
+                  backgroundColor: config.posterTextColor,
+                }}
+              />
+              <div
+                className="absolute bottom-0 right-0"
+                style={{
+                  width: bracketThick,
+                  height: bracketLen,
+                  backgroundColor: config.posterTextColor,
                 }}
               />
 

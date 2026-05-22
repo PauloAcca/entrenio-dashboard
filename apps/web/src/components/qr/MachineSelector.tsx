@@ -191,9 +191,9 @@ export default function MachineSelector({
                           onPreviewChange(tmpl.qrCode, tmpl.name);
                         }
                       }}
-                      className="flex-1 text-left min-w-0"
+                      className="flex-1 text-left min-w-0 py-0.5"
                     >
-                      <p className={`text-sm font-medium truncate ${isPreviewing ? "text-primary" : "text-foreground"}`}>
+                      <p className={`text-sm font-medium break-words whitespace-normal leading-snug ${isPreviewing ? "text-primary font-bold" : "text-foreground"}`}>
                         {tmpl?.name ?? "Sin nombre"}
                       </p>
                       <p className="text-xs text-muted-foreground font-mono truncate">

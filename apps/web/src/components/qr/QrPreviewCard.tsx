@@ -35,7 +35,7 @@ export default function QrPreviewCard({
         </div>
         <span className="font-semibold text-foreground text-sm">Vista Previa</span>
         {machineName && (
-          <span className="text-sm text-muted-foreground truncate">
+          <span className="text-sm text-muted-foreground break-words whitespace-normal leading-normal">
             — {machineName} ({isPosterMode ? "Póster" : "Solo QR"})
           </span>
         )}

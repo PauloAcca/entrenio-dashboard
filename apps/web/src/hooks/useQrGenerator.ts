@@ -28,12 +28,27 @@ export function useQrGenerator() {
   const gymName = gym?.name ?? "Mi Gimnasio";
   const gymLogoUrl = gym?.logo_url ?? null;
 
+  const hasInitializedGym = useRef(false);
+
+  // Initialize config with gym branding once loaded
+  useEffect(() => {
+    if (gym && !hasInitializedGym.current) {
+      hasInitializedGym.current = true;
+      setConfig((prev) => ({
+        ...prev,
+        customGymName: prev.customGymName || gym.name || "",
+        logo: prev.logo || gym.logo_url || null,
+      }));
+    }
+  }, [gym]);
+
   // Build or update the QR preview (Standard QR only)
   useEffect(() => {
     if (!previewMachineQrCode || !previewRef.current || config.exportMode === "poster") return;
 
     const url = buildQrUrl(previewMachineQrCode);
     const previewConfig: QrConfig = { ...config, size: 300 };
+    const showLogo = previewConfig.logo && previewConfig.showQrLogo !== false;
 
     if (!qrInstanceRef.current) {
       const qr = createQrInstance(url, previewConfig);
@@ -51,7 +66,7 @@ export function useQrGenerator() {
         imageOptions: {
           crossOrigin: "anonymous",
           margin: 6,
-          imageSize: previewConfig.logo ? previewConfig.logoSize : 0,
+          imageSize: showLogo ? previewConfig.logoSize : 0,
         },
         dotsOptions: {
           color: previewConfig.dotsColor,
@@ -66,7 +81,7 @@ export function useQrGenerator() {
           color: previewConfig.dotsColor,
           type: previewConfig.cornersDotType,
         },
-        image: previewConfig.logo ?? undefined,
+        image: showLogo ? (previewConfig.logo ?? undefined) : undefined,
       });
     }
   }, [config, previewMachineQrCode]);
