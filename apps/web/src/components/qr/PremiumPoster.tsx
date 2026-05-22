@@ -19,9 +19,12 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
     const [qrUrl, setQrUrl] = useState<string | null>(null);
 
     const showGymName = config.showGymName !== false;
-    const activeGymName = config.customGymName && config.customGymName.trim() !== ""
+    const rawGymName = config.customGymName && config.customGymName.trim() !== ""
       ? config.customGymName
-      : (gymName || "Mi Gimnasio");
+      : (gymName || "");
+
+    const hasGymName = showGymName && rawGymName.trim() !== "";
+    const activeGymName = hasGymName ? rawGymName : "";
 
     useEffect(() => {
       if (!qrCode) {
@@ -88,8 +91,8 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
     const qrSectionClasses = "flex flex-col items-center w-full";
     
     const qrInstructionClasses = isPrint
-      ? "text-3xl font-black tracking-[0.15em] uppercase opacity-90 mb-4"
-      : "text-[10px] font-black tracking-[0.15em] uppercase opacity-90 mb-2";
+      ? "text-[46px] font-black tracking-[0.15em] uppercase opacity-95 mb-6"
+      : "text-[14px] font-black tracking-[0.15em] uppercase opacity-95 mb-3";
 
     const qrBracketsClasses = isPrint ? "relative p-5" : "relative p-2.5";
     
@@ -98,13 +101,13 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
       : "rounded-2xl overflow-hidden bg-white p-3 shadow-md flex items-center justify-center w-[200px] h-[200px] sm:w-[240px] sm:h-[240px]";
 
     const qrAlternativeClasses = isPrint
-      ? "text-3xl font-black tracking-[0.15em] uppercase opacity-90 mt-5"
-      : "text-[10px] font-black tracking-[0.15em] uppercase opacity-90 mt-2";
+      ? "text-[46px] font-black tracking-[0.15em] uppercase opacity-95 mt-6"
+      : "text-[14px] font-black tracking-[0.15em] uppercase opacity-95 mt-3";
 
     // Footer section
     const footerClasses = isPrint
-      ? "flex items-center justify-between border-t border-white/10 pt-8 pb-4 mb-4"
-      : "flex items-center justify-between border-t border-white/10 pt-3";
+      ? "flex items-center justify-between border-t border-white/10 pt-6 pb-4 mb-4"
+      : "flex items-center justify-between border-t border-white/10 pt-2";
 
     // Bracket line dimensions
     const bracketLen = isPrint ? "48px" : "20px";
@@ -124,8 +127,8 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
             <ChevronDown className={arrowIconClasses} />
           </div>
 
-          {/* Minimal Spacer separating header and QR code to reduce excessive gap */}
-          <div className={isPrint ? "h-2" : "h-0.5"} />
+          {/* Flexible spacer to push QR Section all the way down, reducing bottom empty space */}
+          <div className="flex-1" />
 
           {/* QR Code Section (Large & Focused) */}
           <div className={qrSectionClasses}>
@@ -224,15 +227,84 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
 
             <span className={qrAlternativeClasses}>Descubre alternativas</span>
           </div>
+
+          {/* Small, tight breathing room spacing before the footer top-border line */}
+          <div className={isPrint ? "h-2" : "h-0.5"} />
         </div>
 
         {/* 3. Footer Branding Section */}
         <div className={footerClasses}>
           {activeGymLogo ? (
-            /* CASE A: Gym Logo & Entrenio branding next to each other */
-            <>
-              {/* Gym logo area */}
-              <div className="flex items-center gap-4 max-w-[55%]">
+            hasGymName ? (
+              /* CASE A: Gym Logo (with Gym Name) & Entrenio branding next to each other (left & right sides) */
+              <>
+                {/* Gym logo area */}
+                <div className="flex items-center gap-4 max-w-[55%]">
+                  <div
+                    className={`rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 border border-white/20 ${
+                      isPrint ? "w-28 h-28" : "w-11 h-11"
+                    }`}
+                  >
+                    <img
+                      src={activeGymLogo}
+                      alt="Gym Logo"
+                      crossOrigin="anonymous"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        // Fallback if image fails to load
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className={`font-black uppercase tracking-wider truncate leading-tight ${
+                        isPrint ? "text-4xl" : "text-sm"
+                      }`}
+                    >
+                      {activeGymName}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Entrenio logo area */}
+                <div className="flex items-center gap-4 max-w-[45%] text-left">
+                  <img
+                    src="/entrenio-logo.png"
+                    alt="Entrenio Logo"
+                    className={`rounded-2xl shrink-0 object-cover shadow-lg bg-black ${
+                      isPrint ? "w-28 h-28" : "w-11 h-11"
+                    }`}
+                  />
+                  <div className="min-w-0">
+                    <p
+                      className={`font-semibold opacity-70 leading-none ${
+                        isPrint ? "text-xl mb-1" : "text-[8px]"
+                      }`}
+                    >
+                      Powered by
+                    </p>
+                    <p
+                      className={`font-black uppercase tracking-wider leading-none my-0.5 ${
+                        isPrint ? "text-4xl" : "text-xs"
+                      }`}
+                    >
+                      ENTRENIO
+                    </p>
+                    <p
+                      className={`font-semibold opacity-70 leading-none ${
+                        isPrint ? "text-xl mt-1" : "text-[8px]"
+                      }`}
+                    >
+                      Descarga la App
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              /* CASE C: Centered Gym Logo + Centered Entrenio branding side-by-side (when gym name is hidden) */
+              <div className="flex items-center justify-center gap-8 md:gap-12 w-full">
+                {/* Gym logo area */}
                 <div
                   className={`rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 border border-white/20 ${
                     isPrint ? "w-28 h-28" : "w-11 h-11"
@@ -244,58 +316,49 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
                     crossOrigin="anonymous"
                     className="w-full h-full object-contain"
                     onError={(e) => {
-                      // Fallback if image fails to load
                       (e.target as HTMLElement).style.display = "none";
                     }}
                   />
                 </div>
-                {showGymName && (
+
+                {/* Elegant separator line */}
+                <div className={`bg-white/20 shrink-0 ${isPrint ? "w-0.5 h-16" : "w-[1px] h-8"}`} />
+
+                {/* Entrenio logo area */}
+                <div className="flex items-center gap-4 text-left">
+                  <img
+                    src="/entrenio-logo.png"
+                    alt="Entrenio Logo"
+                    className={`rounded-2xl shrink-0 object-cover shadow-lg bg-black ${
+                      isPrint ? "w-28 h-28" : "w-11 h-11"
+                    }`}
+                  />
                   <div className="min-w-0">
                     <p
-                      className={`font-black uppercase tracking-wider truncate leading-tight ${
-                        isPrint ? "text-4xl" : "text-sm"
+                      className={`font-semibold opacity-70 leading-none ${
+                        isPrint ? "text-xl mb-1" : "text-[8px]"
                       }`}
                     >
-                      {activeGymName}
+                      Powered by
+                    </p>
+                    <p
+                      className={`font-black uppercase tracking-wider leading-none my-0.5 ${
+                        isPrint ? "text-4xl" : "text-xs"
+                      }`}
+                    >
+                      ENTRENIO
+                    </p>
+                    <p
+                      className={`font-semibold opacity-70 leading-none ${
+                        isPrint ? "text-xl mt-1" : "text-[8px]"
+                      }`}
+                    >
+                      Descarga la App
                     </p>
                   </div>
-                )}
-              </div>
-
-              {/* Entrenio logo area */}
-              <div className="flex items-center gap-4 max-w-[45%] text-left">
-                <img
-                  src="/entrenio-logo.png"
-                  alt="Entrenio Logo"
-                  className={`rounded-2xl shrink-0 object-cover shadow-lg bg-black ${
-                    isPrint ? "w-28 h-28" : "w-11 h-11"
-                  }`}
-                />
-                <div className="min-w-0">
-                  <p
-                    className={`font-semibold opacity-70 leading-none ${
-                      isPrint ? "text-xl mb-1" : "text-[8px]"
-                    }`}
-                  >
-                    Powered by
-                  </p>
-                  <p
-                    className={`font-black uppercase tracking-wider leading-none my-0.5 ${
-                      isPrint ? "text-4xl" : "text-xs"
-                    }`}
-                  >
-                    ENTRENIO
-                  </p>
-                  <p
-                    className={`font-semibold opacity-70 leading-none ${
-                      isPrint ? "text-xl mt-1" : "text-[8px]"
-                    }`}
-                  >
-                    Descarga la App
-                  </p>
                 </div>
               </div>
-            </>
+            )
           ) : (
             /* CASE B: Centered Entrenio branding ONLY */
             <div className="flex items-center justify-center gap-4 w-full">

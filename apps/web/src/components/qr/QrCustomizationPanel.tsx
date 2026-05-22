@@ -289,29 +289,6 @@ export default function QrCustomizationPanel({
                   Mostrar logo dentro del QR
                 </label>
               </div>
-
-              {/* Logo size slider */}
-              {(config.showQrLogo ?? true) && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs text-muted-foreground">Tamaño del logo</label>
-                    <span className="text-xs font-mono text-muted-foreground">
-                      {Math.round(config.logoSize * 100)}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={10}
-                    max={35}
-                    step={1}
-                    value={Math.round(config.logoSize * 100)}
-                    onChange={(e) =>
-                      onConfigChange("logoSize", parseInt(e.target.value) / 100)
-                    }
-                    className="w-full accent-primary"
-                  />
-                </div>
-              )}
             </div>
           ) : (
             <div className="space-y-2">
