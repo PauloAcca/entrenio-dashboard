@@ -9,6 +9,8 @@ import {
   generateQrBlob,
   generateQrZip,
 } from "@/lib/utils/qrGenerator";
+import { generatePosterCanvas } from "@/lib/utils/posterGenerator";
+import { useAuthStore } from "@/store/authStore";
 import { saveAs } from "file-saver";
 
 export function useQrGenerator() {
@@ -20,6 +22,11 @@ export function useQrGenerator() {
 
   const previewRef = useRef<HTMLDivElement>(null);
   const qrInstanceRef = useRef<QRCodeStyling | null>(null);
+
+  // Retrieve current gym branding from Zustand store
+  const gym = useAuthStore((state) => state.gym);
+  const gymName = gym?.name ?? "Mi Gimnasio";
+  const gymLogoUrl = gym?.logo_url ?? null;
 
   // Build or update the QR preview
   useEffect(() => {
@@ -86,14 +93,45 @@ export function useQrGenerator() {
     async (qrCode: string, machineName: string, format: "svg" | "png") => {
       setIsDownloading(true);
       try {
-        const blob = await generateQrBlob(qrCode, config, format);
         const safeName = machineName.replace(/[^a-zA-Z0-9_-]/g, "_");
-        saveAs(blob, `QR_${safeName}_${qrCode}.${format}`);
+        
+        if (config.exportMode === "poster") {
+          // Poster Mode: Draw high-res canvas poster and save as PNG
+          const qrBlob = await generateQrBlob(qrCode, config, "png");
+          const qrBlobUrl = URL.createObjectURL(qrBlob);
+          
+          try {
+            const canvas = await generatePosterCanvas(
+              machineName,
+              qrBlobUrl,
+              config,
+              gymName,
+              gymLogoUrl
+            );
+
+            const posterBlob = await new Promise<Blob>((resolve, reject) => {
+              canvas.toBlob((blob) => {
+                if (blob) resolve(blob);
+                else reject(new Error("Canvas toBlob failed"));
+              }, "image/png");
+            });
+
+            saveAs(posterBlob, `POSTER_${safeName}_${qrCode}.png`);
+          } finally {
+            URL.revokeObjectURL(qrBlobUrl);
+          }
+        } else {
+          // Standard QR Mode: Download SVG/PNG of QR code
+          const blob = await generateQrBlob(qrCode, config, format);
+          saveAs(blob, `QR_${safeName}_${qrCode}.${format}`);
+        }
+      } catch (err) {
+        console.error("Failed to download file:", err);
       } finally {
         setIsDownloading(false);
       }
     },
-    [config]
+    [config, gymName, gymLogoUrl]
   );
 
   const downloadZip = useCallback(
@@ -103,13 +141,55 @@ export function useQrGenerator() {
     ) => {
       setIsGeneratingZip(true);
       try {
-        const blob = await generateQrZip(machines, config, format);
-        saveAs(blob, `QR_Maquinas_${Date.now()}.zip`);
+        if (config.exportMode === "poster") {
+          // Poster Mode Bulk: Generate posters and zip them
+          const JSZip = (await import("jszip")).default;
+          const zip = new JSZip();
+
+          await Promise.all(
+            machines.map(async (machine) => {
+              try {
+                const qrBlob = await generateQrBlob(machine.qrCode, config, "png");
+                const qrBlobUrl = URL.createObjectURL(qrBlob);
+
+                try {
+                  const canvas = await generatePosterCanvas(
+                    machine.name,
+                    qrBlobUrl,
+                    config,
+                    gymName,
+                    gymLogoUrl
+                  );
+
+                  const posterBlob = await new Promise<Blob>((resolve) => {
+                    canvas.toBlob((b) => resolve(b!), "image/png");
+                  });
+
+                  const safeName = machine.name.replace(/[^a-zA-Z0-9_-]/g, "_");
+                  zip.file(`POSTER_${safeName}_${machine.qrCode}.png`, posterBlob);
+                } finally {
+                  URL.revokeObjectURL(qrBlobUrl);
+                }
+              } catch (err) {
+                console.error(`Failed to generate poster for ${machine.name}:`, err);
+              }
+            })
+          );
+
+          const zipBlob = await zip.generateAsync({ type: "blob" });
+          saveAs(zipBlob, `Posters_Maquinas_${Date.now()}.zip`);
+        } else {
+          // Standard QR Mode Bulk: ZIP of QRs
+          const blob = await generateQrZip(machines, config, format);
+          saveAs(blob, `QR_Maquinas_${Date.now()}.zip`);
+        }
+      } catch (err) {
+        console.error("Failed to generate zip file:", err);
       } finally {
         setIsGeneratingZip(false);
       }
     },
-    [config]
+    [config, gymName, gymLogoUrl]
   );
 
   return {

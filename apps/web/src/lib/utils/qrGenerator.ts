@@ -17,6 +17,10 @@ export interface QrConfig {
   errorCorrectionLevel: ErrorCorrectionLevel;
   format: "svg" | "png";
   size: number;
+  // Poster-specific options
+  exportMode: "qr" | "poster";
+  posterBgColor: string;
+  posterTextColor: string;
 }
 
 export const DEFAULT_QR_CONFIG: QrConfig = {
@@ -28,8 +32,11 @@ export const DEFAULT_QR_CONFIG: QrConfig = {
   logo: null,
   logoSize: 0.22,
   errorCorrectionLevel: "H",
-  format: "svg",
+  format: "png", // default to png to support poster canvas downloads easily
   size: 1024,
+  exportMode: "qr",
+  posterBgColor: "#2C2E30", // Sleek charcoal default
+  posterTextColor: "#FFFFFF", // Premium crisp white text default
 };
 
 export const QR_BASE_URL = "https://entrenio.com/share/recipe";

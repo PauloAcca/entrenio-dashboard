@@ -175,6 +175,9 @@ export default function QrCodesPage() {
               previewRef={previewRef}
               machineName={previewMachineName}
               qrCode={previewMachineQrCode}
+              config={config}
+              gymName={gym?.name}
+              gymLogoUrl={gym?.logo_url}
             />
 
             <QrDownloadActions
@@ -185,6 +188,7 @@ export default function QrCodesPage() {
               isDownloading={isDownloading}
               onDownloadSingle={downloadSingle}
               onDownloadZip={downloadZip}
+              config={config}
             />
           </div>
         </div>

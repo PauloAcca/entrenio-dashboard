@@ -7,6 +7,7 @@ import {
   FileImage,
 } from "lucide-react";
 import { equipment } from "@/types/entities";
+import { QrConfig } from "@/lib/utils/qrGenerator";
 
 interface QrDownloadActionsProps {
   selectedMachines: equipment[];
@@ -19,6 +20,7 @@ interface QrDownloadActionsProps {
     machines: { name: string; qrCode: string }[],
     format: "svg" | "png"
   ) => void;
+  config: QrConfig;
 }
 
 function DownloadButton({
@@ -77,6 +79,7 @@ export default function QrDownloadActions({
   isDownloading,
   onDownloadSingle,
   onDownloadZip,
+  config,
 }: QrDownloadActionsProps) {
   const validMachines = selectedMachines.filter(
     (m) => m.machine_template?.qrCode
@@ -90,6 +93,8 @@ export default function QrDownloadActions({
     qrCode: m.machine_template!.qrCode,
   }));
 
+  const isPosterMode = config.exportMode === "poster";
+
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="flex items-center gap-2 p-4 border-b border-border">
@@ -99,7 +104,7 @@ export default function QrDownloadActions({
         <span className="font-semibold text-foreground text-sm">Descargar</span>
         {hasSelection && (
           <span className="text-xs text-muted-foreground ml-auto">
-            {validMachines.length} QR
+            {validMachines.length} {isPosterMode ? "Póster" : "QR"}
             {validMachines.length !== 1 ? "s" : ""} listo
             {validMachines.length !== 1 ? "s" : ""}
           </span>
@@ -113,29 +118,45 @@ export default function QrDownloadActions({
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">
               Individual — {previewMachineName || "máquina seleccionada"}
             </p>
-            <div className="grid grid-cols-2 gap-2">
-              <DownloadButton
-                onClick={() =>
-                  onDownloadSingle(previewQrCode!, previewMachineName, "svg")
-                }
-                disabled={!hasSingle}
-                loading={isDownloading}
-                icon={ImageDown}
-                label="Descargar SVG"
-                sublabel="Vectorial, ideal para impresión"
-                variant="primary"
-              />
-              <DownloadButton
-                onClick={() =>
-                  onDownloadSingle(previewQrCode!, previewMachineName, "png")
-                }
-                disabled={!hasSingle}
-                loading={isDownloading}
-                icon={FileImage}
-                label="Descargar PNG"
-                sublabel="Imagen rasterizada"
-              />
-            </div>
+            {isPosterMode ? (
+              <div className="grid grid-cols-1">
+                <DownloadButton
+                  onClick={() =>
+                    onDownloadSingle(previewQrCode!, previewMachineName, "png")
+                  }
+                  disabled={!hasSingle}
+                  loading={isDownloading}
+                  icon={FileImage}
+                  label="Descargar Póster (PNG)"
+                  sublabel="Diseño premium listo para imprimir"
+                  variant="primary"
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <DownloadButton
+                  onClick={() =>
+                    onDownloadSingle(previewQrCode!, previewMachineName, "svg")
+                  }
+                  disabled={!hasSingle}
+                  loading={isDownloading}
+                  icon={ImageDown}
+                  label="Descargar SVG"
+                  sublabel="Vectorial, ideal para imprenta"
+                  variant="primary"
+                />
+                <DownloadButton
+                  onClick={() =>
+                    onDownloadSingle(previewQrCode!, previewMachineName, "png")
+                  }
+                  disabled={!hasSingle}
+                  loading={isDownloading}
+                  icon={FileImage}
+                  label="Descargar PNG"
+                  sublabel="Imagen estándar"
+                />
+              </div>
+            )}
           </>
         )}
 
@@ -148,25 +169,39 @@ export default function QrDownloadActions({
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">
               {isMulti ? `Pack masivo — ${validMachines.length} máquinas` : "Descarga"}
             </p>
-            <div className={isMulti ? "grid grid-cols-2 gap-2" : "grid grid-cols-2 gap-2"}>
-              <DownloadButton
-                onClick={() => onDownloadZip(machineList, "svg")}
-                disabled={!hasSelection}
-                loading={isGeneratingZip}
-                icon={FolderArchive}
-                label={isMulti ? "ZIP — SVG" : "SVG individual"}
-                sublabel={isMulti ? `${validMachines.length} archivos` : "Vectorial"}
-                variant={!hasSingle ? "primary" : "default"}
-              />
-              <DownloadButton
-                onClick={() => onDownloadZip(machineList, "png")}
-                disabled={!hasSelection}
-                loading={isGeneratingZip}
-                icon={FolderArchive}
-                label={isMulti ? "ZIP — PNG" : "PNG individual"}
-                sublabel={isMulti ? `${validMachines.length} archivos` : "Imagen"}
-              />
-            </div>
+            {isPosterMode ? (
+              <div className="grid grid-cols-1">
+                <DownloadButton
+                  onClick={() => onDownloadZip(machineList, "png")}
+                  disabled={!hasSelection}
+                  loading={isGeneratingZip}
+                  icon={FolderArchive}
+                  label={isMulti ? "Descargar Pack ZIP (Pósters PNG)" : "Descargar Póster (PNG)"}
+                  sublabel={isMulti ? `${validMachines.length} imágenes PNG compiladas` : "Imagen PNG"}
+                  variant={!hasSingle ? "primary" : "default"}
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <DownloadButton
+                  onClick={() => onDownloadZip(machineList, "svg")}
+                  disabled={!hasSelection}
+                  loading={isGeneratingZip}
+                  icon={FolderArchive}
+                  label={isMulti ? "ZIP — SVG" : "SVG individual"}
+                  sublabel={isMulti ? `${validMachines.length} archivos` : "Vectorial"}
+                  variant={!hasSingle ? "primary" : "default"}
+                />
+                <DownloadButton
+                  onClick={() => onDownloadZip(machineList, "png")}
+                  disabled={!hasSelection}
+                  loading={isGeneratingZip}
+                  icon={FolderArchive}
+                  label={isMulti ? "ZIP — PNG" : "PNG individual"}
+                  sublabel={isMulti ? `${validMachines.length} archivos` : "Imagen"}
+                />
+              </div>
+            )}
           </>
         )}
 

@@ -120,6 +120,35 @@ export default function QrCustomizationPanel({
         <span className="font-semibold text-foreground text-sm">Personalización</span>
       </div>
 
+      {/* Export mode tabs */}
+      <div className="p-4 pb-0">
+        <label className="text-xs font-semibold text-muted-foreground block mb-2 uppercase tracking-widest">
+          Modo de Exportación
+        </label>
+        <div className="grid grid-cols-2 gap-1 bg-muted/65 p-1 rounded-xl">
+          <button
+            onClick={() => onConfigChange("exportMode", "qr")}
+            className={`py-2 text-xs font-semibold rounded-lg cursor-pointer transition-all ${
+              config.exportMode === "qr"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Solo Código QR
+          </button>
+          <button
+            onClick={() => onConfigChange("exportMode", "poster")}
+            className={`py-2 text-xs font-semibold rounded-lg cursor-pointer transition-all ${
+              config.exportMode === "poster"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Póster de Máquina
+          </button>
+        </div>
+      </div>
+
       <div className="p-4 space-y-5">
         {/* Colors */}
         <div>
@@ -135,6 +164,21 @@ export default function QrCustomizationPanel({
               value={config.backgroundColor}
               onChange={(v) => onConfigChange("backgroundColor", v)}
             />
+            {config.exportMode === "poster" && (
+              <>
+                <div className="border-t border-border/50 my-2 pt-2" />
+                <ColorInput
+                  label="Fondo del Póster"
+                  value={config.posterBgColor}
+                  onChange={(v) => onConfigChange("posterBgColor", v)}
+                />
+                <ColorInput
+                  label="Texto del Póster"
+                  value={config.posterTextColor}
+                  onChange={(v) => onConfigChange("posterTextColor", v)}
+                />
+              </>
+            )}
           </div>
         </div>
 
