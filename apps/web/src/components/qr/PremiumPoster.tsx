@@ -1,7 +1,7 @@
 "use client";
 import React, { forwardRef, useState, useEffect } from "react";
 import { QrConfig, generateQrBlob } from "@/lib/utils/qrGenerator";
-import { ChevronDown, Dumbbell } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 interface PremiumPosterProps {
   mode: "preview" | "print";
@@ -17,6 +17,11 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
     const isPrint = mode === "print";
     const activeGymLogo = config.logo ?? gymLogoUrl;
     const [qrUrl, setQrUrl] = useState<string | null>(null);
+
+    const showGymName = config.showGymName !== false;
+    const activeGymName = config.customGymName && config.customGymName.trim() !== ""
+      ? config.customGymName
+      : (gymName || "Mi Gimnasio");
 
     useEffect(() => {
       if (!qrCode) {
@@ -62,16 +67,16 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
       : "w-full max-w-[420px] aspect-[2/3] rounded-2xl shadow-xl overflow-hidden p-6 flex flex-col justify-between relative select-none font-sans transition-all duration-300";
 
     const headerClasses = isPrint
-      ? "text-center space-y-3 mt-4"
-      : "text-center space-y-1.5";
+      ? "text-center space-y-2 mt-4 w-full"
+      : "text-center space-y-1 w-full";
 
     const titlePrefixClasses = isPrint
       ? "text-2xl tracking-[0.25em] font-black uppercase opacity-90 block"
       : "text-[11px] tracking-[0.25em] font-black uppercase opacity-90 block";
 
     const titleClasses = isPrint
-      ? "text-[92px] font-black uppercase tracking-wide leading-none truncate px-4 font-mono font-bold"
-      : "text-3xl font-black uppercase tracking-wide leading-none truncate px-2 font-mono font-bold";
+      ? "text-[76px] font-black uppercase tracking-wide leading-[1.1] px-4 font-sans break-words whitespace-normal font-bold"
+      : "text-2xl sm:text-3xl font-black uppercase tracking-wide leading-tight px-2 font-sans break-words whitespace-normal font-bold";
 
     const subTitleClasses = isPrint
       ? "text-4xl tracking-[0.15em] font-black uppercase opacity-80 block pt-2"
@@ -80,7 +85,7 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
     const arrowIconClasses = isPrint ? "w-14 h-14 mx-auto opacity-80 mt-1" : "w-5 h-5 mx-auto opacity-80 mt-0.5 animate-bounce";
 
     // QR container area
-    const qrSectionClasses = isPrint ? "flex flex-col items-center my-6" : "flex flex-col items-center my-2";
+    const qrSectionClasses = "flex flex-col items-center w-full";
     
     const qrInstructionClasses = isPrint
       ? "text-3xl font-black tracking-[0.15em] uppercase opacity-90 mb-4"
@@ -102,65 +107,97 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
       : "flex items-center justify-between border-t border-white/10 pt-3";
 
     // Custom CSS for brackets line thickness
-    const borderThickness = isPrint ? "border-[7px]" : "border-[3px]";
     const bracketSize = isPrint ? "w-12 h-12" : "w-5 h-5";
     const borderRadius = isPrint ? "rounded-[12px]" : "rounded";
-    const bracketOffset = isPrint ? "top-[-10px] left-[-10px]" : "top-[-6px] left-[-6px]";
 
     return (
       <div ref={ref} style={posterStyle} className={containerClasses}>
-        {/* 1. Header Section */}
-        <div className={headerClasses}>
-          <span className={titlePrefixClasses}>MÁQUINA:</span>
-          <h3 className={titleClasses} title={machineName}>
-            {machineName || "Nombre de Máquina"}
-          </h3>
-          <span className={subTitleClasses}>Info & Variaciones</span>
-          <ChevronDown className={arrowIconClasses} />
-        </div>
-
-        {/* 2. QR Code Section (Large & Focused) */}
-        <div className={qrSectionClasses}>
-          <span className={qrInstructionClasses}>Escaneá aquí para más info</span>
-
-          {/* Brackets around QR frame */}
-          <div className={qrBracketsClasses}>
-            {/* Brackets */}
-            <div
-              className={`absolute top-0 left-0 ${bracketSize} ${borderThickness} border-t border-l ${borderRadius}`}
-              style={{ borderColor: config.posterTextColor }}
-            />
-            <div
-              className={`absolute top-0 right-0 ${bracketSize} ${borderThickness} border-t border-r ${borderRadius}`}
-              style={{ borderColor: config.posterTextColor }}
-            />
-            <div
-              className={`absolute bottom-0 left-0 ${bracketSize} ${borderThickness} border-b border-l ${borderRadius}`}
-              style={{ borderColor: config.posterTextColor }}
-            />
-            <div
-              className={`absolute bottom-0 right-0 ${bracketSize} ${borderThickness} border-b border-r ${borderRadius}`}
-              style={{ borderColor: config.posterTextColor }}
-            />
-
-            {/* White QR Code Frame */}
-            <div className={qrCardClasses}>
-              {qrUrl ? (
-                <img
-                  src={qrUrl}
-                  alt="QR Code"
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-zinc-400 gap-2">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-800" />
-                  {isPrint && <span className="text-xl">Generando QR...</span>}
-                </div>
-              )}
-            </div>
+        {/* 1 & 2. Main Group for tighter spacing between header and QR */}
+        <div className="flex flex-col items-center w-full flex-1 justify-start">
+          {/* Header Section */}
+          <div className={headerClasses}>
+            <span className={titlePrefixClasses}>MÁQUINA:</span>
+            <h3 className={titleClasses} title={machineName}>
+              {machineName || "Nombre de Máquina"}
+            </h3>
+            <span className={subTitleClasses}>Info & Variaciones</span>
+            <ChevronDown className={arrowIconClasses} />
           </div>
 
-          <span className={qrAlternativeClasses}>Descubre alternativas</span>
+          {/* Spacer separating header and QR code */}
+          <div className={isPrint ? "h-14" : "h-5"} />
+
+          {/* QR Code Section (Large & Focused) */}
+          <div className={qrSectionClasses}>
+            <span className={qrInstructionClasses}>Escaneá aquí para más info</span>
+
+            {/* Brackets around QR frame */}
+            <div className={qrBracketsClasses}>
+              {/* Clean outer corner brackets with style overrides for precise pixel borders */}
+              <div
+                className={`absolute top-0 left-0 ${bracketSize} ${borderRadius}`}
+                style={{
+                  borderColor: config.posterTextColor,
+                  borderTopWidth: isPrint ? "7px" : "3px",
+                  borderLeftWidth: isPrint ? "7px" : "3px",
+                  borderRightWidth: "0px",
+                  borderBottomWidth: "0px",
+                  borderStyle: "solid"
+                }}
+              />
+              <div
+                className={`absolute top-0 right-0 ${bracketSize} ${borderRadius}`}
+                style={{
+                  borderColor: config.posterTextColor,
+                  borderTopWidth: isPrint ? "7px" : "3px",
+                  borderRightWidth: isPrint ? "7px" : "3px",
+                  borderLeftWidth: "0px",
+                  borderBottomWidth: "0px",
+                  borderStyle: "solid"
+                }}
+              />
+              <div
+                className={`absolute bottom-0 left-0 ${bracketSize} ${borderRadius}`}
+                style={{
+                  borderColor: config.posterTextColor,
+                  borderBottomWidth: isPrint ? "7px" : "3px",
+                  borderLeftWidth: isPrint ? "7px" : "3px",
+                  borderRightWidth: "0px",
+                  borderTopWidth: "0px",
+                  borderStyle: "solid"
+                }}
+              />
+              <div
+                className={`absolute bottom-0 right-0 ${bracketSize} ${borderRadius}`}
+                style={{
+                  borderColor: config.posterTextColor,
+                  borderBottomWidth: isPrint ? "7px" : "3px",
+                  borderRightWidth: isPrint ? "7px" : "3px",
+                  borderLeftWidth: "0px",
+                  borderTopWidth: "0px",
+                  borderStyle: "solid"
+                }}
+              />
+
+              {/* White QR Code Frame */}
+              <div className={qrCardClasses}>
+                {qrUrl ? (
+                  <img
+                    src={qrUrl}
+                    alt="QR Code"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-zinc-400 gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-800" />
+                    {isPrint && <span className="text-xl">Generando QR...</span>}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <span className={qrAlternativeClasses}>Descubre alternativas</span>
+          </div>
         </div>
 
         {/* 3. Footer Branding Section */}
@@ -186,15 +223,17 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
                     }}
                   />
                 </div>
-                <div className="min-w-0">
-                  <p
-                    className={`font-black uppercase tracking-wider truncate leading-tight ${
-                      isPrint ? "text-4xl" : "text-sm"
-                    }`}
-                  >
-                    {gymName || "Mi Gimnasio"}
-                  </p>
-                </div>
+                {showGymName && (
+                  <div className="min-w-0">
+                    <p
+                      className={`font-black uppercase tracking-wider truncate leading-tight ${
+                        isPrint ? "text-4xl" : "text-sm"
+                      }`}
+                    >
+                      {activeGymName}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Entrenio logo area */}

@@ -253,7 +253,7 @@ export default function QrCustomizationPanel({
 
         {/* Logo */}
         <div>
-          <SectionTitle icon={ImageIcon} label="Logo" />
+          <SectionTitle icon={ImageIcon} label="Logo en QR" />
           {activeLogo ? (
             <div className="space-y-3">
               <div className="relative flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
@@ -276,26 +276,42 @@ export default function QrCustomizationPanel({
                 </button>
               </div>
 
-              {/* Logo size slider */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs text-muted-foreground">Tamaño del logo</label>
-                  <span className="text-xs font-mono text-muted-foreground">
-                    {Math.round(config.logoSize * 100)}%
-                  </span>
-                </div>
+              {/* Toggle to show/hide logo in QR code */}
+              <div className="flex items-center gap-2 pt-1">
                 <input
-                  type="range"
-                  min={10}
-                  max={35}
-                  step={1}
-                  value={Math.round(config.logoSize * 100)}
-                  onChange={(e) =>
-                    onConfigChange("logoSize", parseInt(e.target.value) / 100)
-                  }
-                  className="w-full accent-primary"
+                  type="checkbox"
+                  id="showQrLogo"
+                  checked={config.showQrLogo ?? true}
+                  onChange={(e) => onConfigChange("showQrLogo", e.target.checked)}
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
                 />
+                <label htmlFor="showQrLogo" className="text-sm font-medium text-foreground cursor-pointer select-none">
+                  Mostrar logo dentro del QR
+                </label>
               </div>
+
+              {/* Logo size slider */}
+              {(config.showQrLogo ?? true) && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs text-muted-foreground">Tamaño del logo</label>
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {Math.round(config.logoSize * 100)}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={10}
+                    max={35}
+                    step={1}
+                    value={Math.round(config.logoSize * 100)}
+                    onChange={(e) =>
+                      onConfigChange("logoSize", parseInt(e.target.value) / 100)
+                    }
+                    className="w-full accent-primary"
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
@@ -325,6 +341,42 @@ export default function QrCustomizationPanel({
             onChange={handleLogoUpload}
           />
         </div>
+
+        {/* Poster Branding */}
+        {config.exportMode === "poster" && (
+          <div>
+            <SectionTitle icon={Building2} label="Identidad del Gimnasio" />
+            <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/20">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="showGymName"
+                  checked={config.showGymName ?? true}
+                  onChange={(e) => onConfigChange("showGymName", e.target.checked)}
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
+                />
+                <label htmlFor="showGymName" className="text-sm font-medium text-foreground cursor-pointer select-none">
+                  Mostrar nombre del gimnasio
+                </label>
+              </div>
+
+              {(config.showGymName ?? true) && (
+                <div className="space-y-1">
+                  <label className="text-[11px] text-muted-foreground block font-medium">
+                    Nombre personalizado
+                  </label>
+                  <input
+                    type="text"
+                    value={config.customGymName ?? ""}
+                    placeholder="Escribe un nombre..."
+                    onChange={(e) => onConfigChange("customGymName", e.target.value)}
+                    className="w-full px-3 py-2 text-sm bg-muted/50 border border-input rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Error correction */}
         <div>

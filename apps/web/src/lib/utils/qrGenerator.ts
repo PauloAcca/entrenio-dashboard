@@ -21,6 +21,9 @@ export interface QrConfig {
   exportMode: "qr" | "poster";
   posterBgColor: string;
   posterTextColor: string;
+  showQrLogo?: boolean;
+  showGymName?: boolean;
+  customGymName?: string;
 }
 
 export const DEFAULT_QR_CONFIG: QrConfig = {
@@ -37,6 +40,9 @@ export const DEFAULT_QR_CONFIG: QrConfig = {
   exportMode: "qr",
   posterBgColor: "#2C2E30", // Sleek charcoal default
   posterTextColor: "#FFFFFF", // Premium crisp white text default
+  showQrLogo: true,
+  showGymName: true,
+  customGymName: "",
 };
 
 export const QR_BASE_URL = "https://entrenio.com/share/recipe";
@@ -46,6 +52,7 @@ export function buildQrUrl(qrCode: string): string {
 }
 
 export function createQrInstance(url: string, config: QrConfig): QRCodeStyling {
+  const showLogo = config.logo && config.showQrLogo !== false;
   return new QRCodeStyling({
     width: config.size,
     height: config.size,
@@ -58,7 +65,7 @@ export function createQrInstance(url: string, config: QrConfig): QRCodeStyling {
     imageOptions: {
       crossOrigin: "anonymous",
       margin: 8,
-      imageSize: config.logo ? config.logoSize : 0,
+      imageSize: showLogo ? config.logoSize : 0,
     },
     dotsOptions: {
       color: config.dotsColor,
@@ -75,7 +82,7 @@ export function createQrInstance(url: string, config: QrConfig): QRCodeStyling {
       color: config.dotsColor,
       type: config.cornersDotType,
     },
-    image: config.logo ?? undefined,
+    image: showLogo ? (config.logo ?? undefined) : undefined,
   });
 }
 
