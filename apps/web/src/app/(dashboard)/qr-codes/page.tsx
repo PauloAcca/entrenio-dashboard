@@ -8,6 +8,7 @@ import MachineSelector from "@/components/qr/MachineSelector";
 import QrCustomizationPanel from "@/components/qr/QrCustomizationPanel";
 import QrPreviewCard from "@/components/qr/QrPreviewCard";
 import QrDownloadActions from "@/components/qr/QrDownloadActions";
+import { PremiumPoster } from "@/components/qr/PremiumPoster";
 import { AlertCircle, QrCode, Wifi } from "lucide-react";
 
 export default function QrCodesPage() {
@@ -22,6 +23,7 @@ export default function QrCodesPage() {
     config,
     updateConfig,
     previewRef,
+    printRef,
     previewMachineQrCode,
     previewMachineName,
     setPreviewing,
@@ -173,6 +175,7 @@ export default function QrCodesPage() {
           <div className="space-y-4">
             <QrPreviewCard
               previewRef={previewRef}
+              printRef={printRef}
               machineName={previewMachineName}
               qrCode={previewMachineQrCode}
               config={config}
@@ -191,6 +194,24 @@ export default function QrCodesPage() {
               config={config}
             />
           </div>
+        </div>
+      )}
+
+      {/* Batch rendering for zip downloads */}
+      {config.exportMode === "poster" && eligibleMachines.length > 0 && (
+        <div className="absolute top-[-9999px] left-[-9999px] pointer-events-none select-none overflow-hidden" aria-hidden="true">
+          {eligibleMachines.map((m) => (
+            <div key={m.machineTemplateId} id={`poster-print-${m.machine_template?.qrCode}`}>
+              <PremiumPoster
+                mode="print"
+                machineName={m.machine_template!.name}
+                qrCode={m.machine_template!.qrCode}
+                config={config}
+                gymName={gym?.name}
+                gymLogoUrl={gym?.logo_url}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -1,9 +1,12 @@
 "use client";
+import React from "react";
 import { buildQrUrl, QrConfig } from "@/lib/utils/qrGenerator";
-import { ExternalLink, ScanQrCode, ChevronDown, Dumbbell } from "lucide-react";
+import { ExternalLink, ScanQrCode } from "lucide-react";
+import { PremiumPoster } from "@/components/qr/PremiumPoster";
 
 interface QrPreviewCardProps {
   previewRef: React.RefObject<HTMLDivElement | null>;
+  printRef: React.RefObject<HTMLDivElement | null>;
   machineName: string;
   qrCode: string | null;
   config: QrConfig;
@@ -13,6 +16,7 @@ interface QrPreviewCardProps {
 
 export default function QrPreviewCard({
   previewRef,
+  printRef,
   machineName,
   qrCode,
   config,
@@ -21,7 +25,6 @@ export default function QrPreviewCard({
 }: QrPreviewCardProps) {
   const url = qrCode ? buildQrUrl(qrCode) : null;
   const isPosterMode = config.exportMode === "poster";
-  const activeGymLogo = config.logo ?? gymLogoUrl;
 
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden transition-all shadow-sm">
@@ -44,133 +47,29 @@ export default function QrPreviewCard({
           <>
             {isPosterMode ? (
               /* PREMIUM POSTER VIEW */
-              <div
-                className="w-full max-w-[420px] aspect-[2/3] rounded-2xl shadow-xl overflow-hidden p-6 flex flex-col justify-between transition-all duration-300 relative select-none"
-                style={{
-                  backgroundColor: config.posterBgColor,
-                  color: config.posterTextColor,
-                }}
-              >
-                {/* Header text */}
-                <div className="text-center space-y-1">
-                  <span className="text-[10px] tracking-[0.25em] font-extrabold uppercase opacity-85 block">
-                    Máquina:
-                  </span>
-                  <h3 className="text-2xl font-black uppercase tracking-wide leading-tight truncate px-2">
-                    {machineName || "Nombre de Máquina"}
-                  </h3>
-                  <span className="text-[9px] tracking-widest font-bold uppercase opacity-75 block pt-0.5">
-                    Info & Variaciones
-                  </span>
-                  <ChevronDown className="w-4 h-4 mx-auto opacity-75 animate-bounce mt-0.5" />
+              <>
+                <PremiumPoster
+                  mode="preview"
+                  machineName={machineName}
+                  qrCode={qrCode}
+                  config={config}
+                  gymName={gymName}
+                  gymLogoUrl={gymLogoUrl}
+                />
+
+                {/* Offscreen high-res poster container for clean DOM capturing */}
+                <div className="absolute top-[-9999px] left-[-9999px] pointer-events-none select-none overflow-hidden">
+                  <PremiumPoster
+                    mode="print"
+                    ref={printRef}
+                    machineName={machineName}
+                    qrCode={qrCode}
+                    config={config}
+                    gymName={gymName}
+                    gymLogoUrl={gymLogoUrl}
+                  />
                 </div>
-
-                {/* QR Code Container with Brackets */}
-                <div className="flex flex-col items-center my-3">
-                  <span className="text-[9px] font-bold tracking-widest uppercase opacity-85 mb-2.5">
-                    Escaneá aquí para más info
-                  </span>
-
-                  {/* The card brackets */}
-                  <div className="relative p-2.5">
-                    {/* Brackets */}
-                    <div
-                      className="absolute top-0 left-0 w-5 h-5 border-t-[3px] border-l-[3px] rounded-tl"
-                      style={{ borderColor: config.posterTextColor }}
-                    />
-                    <div
-                      className="absolute top-0 right-0 w-5 h-5 border-t-[3px] border-r-[3px] rounded-tr"
-                      style={{ borderColor: config.posterTextColor }}
-                    />
-                    <div
-                      className="absolute bottom-0 left-0 w-5 h-5 border-b-[3px] border-l-[3px] rounded-bl"
-                      style={{ borderColor: config.posterTextColor }}
-                    />
-                    <div
-                      className="absolute bottom-0 right-0 w-5 h-5 border-b-[3px] border-r-[3px] rounded-br"
-                      style={{ borderColor: config.posterTextColor }}
-                    />
-
-                    {/* QR Code Frame */}
-                    <div className="rounded-xl overflow-hidden bg-white p-2.5 shadow-md flex items-center justify-center w-[170px] h-[170px] sm:w-[200px] sm:h-[200px]">
-                      <div
-                        ref={previewRef}
-                        className="w-full h-full [&_canvas]:!w-full [&_canvas]:!h-full [&_svg]:!w-full [&_svg]:!h-full"
-                      />
-                    </div>
-                  </div>
-
-                  <span className="text-[9px] font-bold tracking-widest uppercase opacity-85 mt-2.5">
-                    Descubre alternativas
-                  </span>
-                </div>
-
-                {/* Footer Section */}
-                <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-2">
-                  {activeGymLogo ? (
-                    /* CASE A: Gym Logo & Entrenio Right-aligned */
-                    <>
-                      <div className="flex items-center gap-2 max-w-[55%]">
-                        <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 border border-white/20">
-                          {activeGymLogo ? (
-                            <img
-                              src={activeGymLogo}
-                              alt="Gym Logo"
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <Dumbbell className="w-4 h-4 text-zinc-800" />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-black uppercase tracking-wider truncate leading-tight">
-                            {gymName || "Mi Gimnasio"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 max-w-[45%] text-left">
-                        <img
-                          src="/entrenio-logo.png"
-                          alt="Entrenio Logo"
-                          className="w-8 h-8 rounded-lg shrink-0 object-cover shadow-sm bg-black"
-                        />
-                        <div className="min-w-0">
-                          <p className="text-[7px] font-semibold opacity-70 leading-none">
-                            Powered by
-                          </p>
-                          <p className="text-[11px] font-black uppercase tracking-wider leading-none my-0.5">
-                            ENTRENIO
-                          </p>
-                          <p className="text-[7px] font-semibold opacity-70 leading-none">
-                            Descarga la App
-                          </p>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    /* CASE B: Centered Entrenio only */
-                    <div className="flex items-center justify-center gap-2.5 w-full">
-                      <img
-                        src="/entrenio-logo.png"
-                        alt="Entrenio Logo"
-                        className="w-8 h-8 rounded-lg shrink-0 object-cover shadow-sm bg-black"
-                      />
-                      <div className="text-left">
-                        <p className="text-[7px] font-semibold opacity-70 leading-none">
-                          Powered by
-                        </p>
-                        <p className="text-[11px] font-black uppercase tracking-wider leading-none my-0.5">
-                          ENTRENIO
-                        </p>
-                        <p className="text-[7px] font-semibold opacity-70 leading-none">
-                          Descarga la App
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              </>
             ) : (
               /* STANDARD QR ONLY PREVIEW */
               <>

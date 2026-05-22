@@ -9,7 +9,6 @@ import {
   generateQrBlob,
   generateQrZip,
 } from "@/lib/utils/qrGenerator";
-import { generatePosterCanvas } from "@/lib/utils/posterGenerator";
 import { useAuthStore } from "@/store/authStore";
 import { saveAs } from "file-saver";
 
@@ -21,6 +20,7 @@ export function useQrGenerator() {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const previewRef = useRef<HTMLDivElement>(null);
+  const printRef = useRef<HTMLDivElement>(null);
   const qrInstanceRef = useRef<QRCodeStyling | null>(null);
 
   // Retrieve current gym branding from Zustand store
@@ -28,9 +28,9 @@ export function useQrGenerator() {
   const gymName = gym?.name ?? "Mi Gimnasio";
   const gymLogoUrl = gym?.logo_url ?? null;
 
-  // Build or update the QR preview
+  // Build or update the QR preview (Standard QR only)
   useEffect(() => {
-    if (!previewMachineQrCode || !previewRef.current) return;
+    if (!previewMachineQrCode || !previewRef.current || config.exportMode === "poster") return;
 
     const url = buildQrUrl(previewMachineQrCode);
     const previewConfig: QrConfig = { ...config, size: 300 };
@@ -90,38 +90,48 @@ export function useQrGenerator() {
   }, []);
 
   const downloadSingle = useCallback(
-    async (qrCode: string, machineName: string, format: "svg" | "png") => {
+    async (qrCode: string, machineName: string, format: "svg" | "png" | "pdf") => {
       setIsDownloading(true);
       try {
         const safeName = machineName.replace(/[^a-zA-Z0-9_-]/g, "_");
         
         if (config.exportMode === "poster") {
-          // Poster Mode: Draw high-res canvas poster and save as PNG
-          const qrBlob = await generateQrBlob(qrCode, config, "png");
-          const qrBlobUrl = URL.createObjectURL(qrBlob);
-          
-          try {
-            const canvas = await generatePosterCanvas(
-              machineName,
-              qrBlobUrl,
-              config,
-              gymName,
-              gymLogoUrl
-            );
+          // Poster Mode: Render using html-to-image & jsPDF
+          const htmlToImage = await import("html-to-image");
+          const element = printRef.current;
 
-            const posterBlob = await new Promise<Blob>((resolve, reject) => {
-              canvas.toBlob((blob) => {
-                if (blob) resolve(blob);
-                else reject(new Error("Canvas toBlob failed"));
-              }, "image/png");
+          if (!element) {
+            throw new Error("No print ref available for poster rendering");
+          }
+
+          if (format === "png") {
+            const dataUrl = await htmlToImage.toPng(element, {
+              pixelRatio: 2,
+              cacheBust: true,
             });
-
-            saveAs(posterBlob, `POSTER_${safeName}_${qrCode}.png`);
-          } finally {
-            URL.revokeObjectURL(qrBlobUrl);
+            saveAs(dataUrl, `POSTER_${safeName}_${qrCode}.png`);
+          } else if (format === "svg") {
+            const dataUrl = await htmlToImage.toSvg(element, {
+              cacheBust: true,
+            });
+            saveAs(dataUrl, `POSTER_${safeName}_${qrCode}.svg`);
+          } else if (format === "pdf") {
+            const { jsPDF } = await import("jspdf");
+            const dataUrl = await htmlToImage.toPng(element, {
+              pixelRatio: 2,
+              cacheBust: true,
+            });
+            const pdf = new jsPDF({
+              orientation: "portrait",
+              unit: "px",
+              format: [1200, 1800],
+            });
+            pdf.addImage(dataUrl, "PNG", 0, 0, 1200, 1800);
+            pdf.save(`POSTER_${safeName}_${qrCode}.pdf`);
           }
         } else {
           // Standard QR Mode: Download SVG/PNG of QR code
+          if (format === "pdf") return;
           const blob = await generateQrBlob(qrCode, config, format);
           saveAs(blob, `QR_${safeName}_${qrCode}.${format}`);
         }
@@ -131,47 +141,65 @@ export function useQrGenerator() {
         setIsDownloading(false);
       }
     },
-    [config, gymName, gymLogoUrl]
+    [config]
   );
 
   const downloadZip = useCallback(
     async (
       machines: { name: string; qrCode: string }[],
-      format: "svg" | "png"
+      format: "svg" | "png" | "pdf"
     ) => {
       setIsGeneratingZip(true);
       try {
+        const JSZip = (await import("jszip")).default;
+        const zip = new JSZip();
+
         if (config.exportMode === "poster") {
-          // Poster Mode Bulk: Generate posters and zip them
-          const JSZip = (await import("jszip")).default;
-          const zip = new JSZip();
+          const htmlToImage = await import("html-to-image");
 
           await Promise.all(
             machines.map(async (machine) => {
               try {
-                const qrBlob = await generateQrBlob(machine.qrCode, config, "png");
-                const qrBlobUrl = URL.createObjectURL(qrBlob);
+                const element = document.getElementById(`poster-print-${machine.qrCode}`);
+                if (!element) {
+                  throw new Error(`Poster element for ${machine.name} not found in DOM`);
+                }
 
-                try {
-                  const canvas = await generatePosterCanvas(
-                    machine.name,
-                    qrBlobUrl,
-                    config,
-                    gymName,
-                    gymLogoUrl
-                  );
+                const safeName = machine.name.replace(/[^a-zA-Z0-9_-]/g, "_");
 
-                  const posterBlob = await new Promise<Blob>((resolve) => {
-                    canvas.toBlob((b) => resolve(b!), "image/png");
+                if (format === "png") {
+                  const dataUrl = await htmlToImage.toPng(element, {
+                    pixelRatio: 2,
+                    cacheBust: true,
                   });
-
-                  const safeName = machine.name.replace(/[^a-zA-Z0-9_-]/g, "_");
-                  zip.file(`POSTER_${safeName}_${machine.qrCode}.png`, posterBlob);
-                } finally {
-                  URL.revokeObjectURL(qrBlobUrl);
+                  const base64Data = dataUrl.split("base64,")[1];
+                  zip.file(`POSTER_${safeName}_${machine.qrCode}.png`, base64Data, { base64: true });
+                } else if (format === "svg") {
+                  const dataUrl = await htmlToImage.toSvg(element, {
+                    cacheBust: true,
+                  });
+                  const content = dataUrl.includes("base64,")
+                    ? dataUrl.split("base64,")[1]
+                    : decodeURIComponent(dataUrl.split(",")[1]);
+                  const options = dataUrl.includes("base64,") ? { base64: true } : {};
+                  zip.file(`POSTER_${safeName}_${machine.qrCode}.svg`, content, options);
+                } else if (format === "pdf") {
+                  const { jsPDF } = await import("jspdf");
+                  const dataUrl = await htmlToImage.toPng(element, {
+                    pixelRatio: 2,
+                    cacheBust: true,
+                  });
+                  const pdf = new jsPDF({
+                    orientation: "portrait",
+                    unit: "px",
+                    format: [1200, 1800],
+                  });
+                  pdf.addImage(dataUrl, "PNG", 0, 0, 1200, 1800);
+                  const pdfBlob = pdf.output("blob");
+                  zip.file(`POSTER_${safeName}_${machine.qrCode}.pdf`, pdfBlob);
                 }
               } catch (err) {
-                console.error(`Failed to generate poster for ${machine.name}:`, err);
+                console.error(`Failed to generate poster zip item for ${machine.name}:`, err);
               }
             })
           );
@@ -180,6 +208,7 @@ export function useQrGenerator() {
           saveAs(zipBlob, `Posters_Maquinas_${Date.now()}.zip`);
         } else {
           // Standard QR Mode Bulk: ZIP of QRs
+          if (format === "pdf") return;
           const blob = await generateQrZip(machines, config, format);
           saveAs(blob, `QR_Maquinas_${Date.now()}.zip`);
         }
@@ -189,7 +218,7 @@ export function useQrGenerator() {
         setIsGeneratingZip(false);
       }
     },
-    [config, gymName, gymLogoUrl]
+    [config]
   );
 
   return {
@@ -197,6 +226,7 @@ export function useQrGenerator() {
     updateConfig,
     setConfig,
     previewRef,
+    printRef,
     previewMachineQrCode,
     previewMachineName,
     setPreviewing,
