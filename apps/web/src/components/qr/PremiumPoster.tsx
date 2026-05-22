@@ -17,6 +17,7 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
     const isPrint = mode === "print";
     const activeGymLogo = config.logo ?? gymLogoUrl;
     const [qrUrl, setQrUrl] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const showGymName = config.showGymName !== false;
     const rawGymName = config.customGymName && config.customGymName.trim() !== ""
@@ -31,6 +32,7 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
         setQrUrl(null);
         return;
       }
+      setIsGenerating(true);
       let active = true;
       let localUrl: string | null = null;
 
@@ -39,9 +41,11 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
           if (!active) return;
           localUrl = URL.createObjectURL(blob);
           setQrUrl(localUrl);
+          setIsGenerating(false);
         })
         .catch((err) => {
           console.error("Error generating QR inside poster:", err);
+          if (active) setIsGenerating(false);
         });
 
       return () => {
@@ -209,13 +213,22 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
               />
 
               {/* White QR Code Frame */}
-              <div className={qrCardClasses}>
+              <div className={`${qrCardClasses} relative`}>
                 {qrUrl ? (
-                  <img
-                    src={qrUrl}
-                    alt="QR Code"
-                    className="w-full h-full object-contain"
-                  />
+                  <>
+                    <img
+                      src={qrUrl}
+                      alt="QR Code"
+                      className={`w-full h-full object-contain transition-opacity duration-200 ${
+                        isGenerating ? "opacity-35" : "opacity-100"
+                      }`}
+                    />
+                    {isGenerating && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[1px]">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-800" />
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="flex flex-col items-center justify-center text-zinc-400 gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-800" />
@@ -228,8 +241,8 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
             <span className={qrAlternativeClasses}>Descubre alternativas</span>
           </div>
 
-          {/* Small, tight breathing room spacing before the footer top-border line */}
-          <div className={isPrint ? "h-2" : "h-0.5"} />
+          {/* Flexible spacer to push QR Section up, keeping it perfectly centered and symmetric */}
+          <div className="flex-1" />
         </div>
 
         {/* 3. Footer Branding Section */}

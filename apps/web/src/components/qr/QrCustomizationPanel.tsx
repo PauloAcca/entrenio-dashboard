@@ -184,7 +184,7 @@ export default function QrCustomizationPanel({
 
         {/* Shapes */}
         <div>
-          <SectionTitle icon={Shapes} label="Formas" />
+          <SectionTitle icon={Shapes} label="Formas del QR" />
           <div className="space-y-3">
             <div>
               <label className="text-xs text-muted-foreground block mb-1">
@@ -251,109 +251,109 @@ export default function QrCustomizationPanel({
           </div>
         </div>
 
-        {/* Logo */}
+        {/* Logo e Identidad del Gimnasio */}
         <div>
-          <SectionTitle icon={ImageIcon} label="Logo en QR" />
-          {activeLogo ? (
-            <div className="space-y-3">
-              <div className="relative flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                <img
-                  src={activeLogo}
-                  alt="Logo"
-                  className="w-10 h-10 object-contain rounded"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-foreground">Logo activo</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {activeLogo.startsWith("data:") ? "Imagen subida" : activeLogo}
-                  </p>
-                </div>
-                <button
-                  onClick={clearLogo}
-                  className="shrink-0 p-1 rounded-md hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Toggle to show/hide logo in QR code */}
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="showQrLogo"
-                  checked={config.showQrLogo ?? true}
-                  onChange={(e) => onConfigChange("showQrLogo", e.target.checked)}
-                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
-                />
-                <label htmlFor="showQrLogo" className="text-sm font-medium text-foreground cursor-pointer select-none">
-                  Mostrar logo dentro del QR
-                </label>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <button
-                onClick={() => logoInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 text-sm text-muted-foreground hover:text-foreground transition-all"
-              >
-                <ImageIcon className="w-4 h-4" />
-                Subir logo (PNG, SVG, JPG)
-              </button>
-              {gymLogoUrl && (
-                <button
-                  onClick={useGymLogo}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-muted/50 text-sm text-muted-foreground hover:text-foreground transition-all"
-                >
-                  <Building2 className="w-4 h-4" />
-                  Usar logo del gimnasio
-                </button>
-              )}
-            </div>
-          )}
-          <input
-            ref={logoInputRef}
-            type="file"
-            accept="image/png,image/svg+xml,image/jpeg,image/jpg"
-            className="hidden"
-            onChange={handleLogoUpload}
-          />
-        </div>
-
-        {/* Poster Branding */}
-        {config.exportMode === "poster" && (
-          <div>
-            <SectionTitle icon={Building2} label="Identidad del Gimnasio" />
-            <div className="space-y-3 p-3 rounded-lg border border-border bg-muted/20">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="showGymName"
-                  checked={config.showGymName ?? true}
-                  onChange={(e) => onConfigChange("showGymName", e.target.checked)}
-                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
-                />
-                <label htmlFor="showGymName" className="text-sm font-medium text-foreground cursor-pointer select-none">
-                  Mostrar nombre del gimnasio
-                </label>
-              </div>
-
-              {(config.showGymName ?? true) && (
-                <div className="space-y-1">
-                  <label className="text-[11px] text-muted-foreground block font-medium">
-                    Nombre personalizado
-                  </label>
-                  <input
-                    type="text"
-                    value={config.customGymName ?? ""}
-                    placeholder="Escribe un nombre..."
-                    onChange={(e) => onConfigChange("customGymName", e.target.value)}
-                    className="w-full px-3 py-2 text-sm bg-muted/50 border border-input rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+          <SectionTitle icon={Building2} label="Logo e Identidad del Gimnasio" />
+          <div className="space-y-4 p-3 rounded-lg border border-border bg-muted/20">
+            {/* Logo Part */}
+            {activeLogo ? (
+              <div className="space-y-3">
+                <div className="relative flex items-center gap-3 p-3 rounded-lg border border-border bg-card">
+                  <img
+                    src={activeLogo}
+                    alt="Logo"
+                    className="w-10 h-10 object-contain rounded"
                   />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-foreground">Logo activo</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {activeLogo.startsWith("data:") ? "Imagen subida" : activeLogo}
+                    </p>
+                  </div>
+                  <button
+                    onClick={clearLogo}
+                    className="shrink-0 p-1 rounded-md hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-              )}
-            </div>
+
+                {/* Toggle to show/hide logo in QR code */}
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="showQrLogo"
+                    checked={config.showQrLogo ?? true}
+                    onChange={(e) => onConfigChange("showQrLogo", e.target.checked)}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
+                  />
+                  <label htmlFor="showQrLogo" className="text-sm font-medium text-foreground cursor-pointer select-none">
+                    Mostrar logo dentro del QR
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <button
+                  onClick={() => logoInputRef.current?.click()}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 text-sm text-muted-foreground hover:text-foreground transition-all"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  Subir logo (PNG, SVG, JPG)
+                </button>
+                {gymLogoUrl && (
+                  <button
+                    onClick={useGymLogo}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-muted/50 text-sm text-muted-foreground hover:text-foreground transition-all"
+                  >
+                    <Building2 className="w-4 h-4" />
+                    Usar logo del gimnasio
+                  </button>
+                )}
+              </div>
+            )}
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/png,image/svg+xml,image/jpeg,image/jpg"
+              className="hidden"
+              onChange={handleLogoUpload}
+            />
+
+            {/* Poster Branding / Gym Name (only in poster mode) */}
+            {config.exportMode === "poster" && (
+              <div className="border-t border-border/50 pt-3 mt-1 space-y-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="showGymName"
+                    checked={config.showGymName ?? true}
+                    onChange={(e) => onConfigChange("showGymName", e.target.checked)}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
+                  />
+                  <label htmlFor="showGymName" className="text-sm font-medium text-foreground cursor-pointer select-none">
+                    Mostrar nombre del gimnasio
+                  </label>
+                </div>
+
+                {(config.showGymName ?? true) && (
+                  <div className="space-y-1">
+                    <label className="text-[11px] text-muted-foreground block font-medium">
+                      Nombre personalizado
+                    </label>
+                    <input
+                      type="text"
+                      value={config.customGymName ?? ""}
+                      placeholder="Escribe un nombre..."
+                      onChange={(e) => onConfigChange("customGymName", e.target.value)}
+                      className="w-full px-3 py-2 text-sm bg-card border border-input rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-muted-foreground/40"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Error correction */}
         <div>
