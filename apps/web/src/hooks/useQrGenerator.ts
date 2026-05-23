@@ -109,6 +109,7 @@ export function useQrGenerator() {
       setIsDownloading(true);
       try {
         const safeName = machineName.replace(/[^a-zA-Z0-9_-]/g, "_");
+        const imagePlaceholder = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
         
         if (config.exportMode === "poster") {
           // Poster Mode: Render using html-to-image & jsPDF
@@ -123,11 +124,13 @@ export function useQrGenerator() {
             const dataUrl = await htmlToImage.toPng(element, {
               pixelRatio: 2,
               cacheBust: true,
+              imagePlaceholder,
             });
             saveAs(dataUrl, `POSTER_${safeName}_${qrCode}.png`);
           } else if (format === "svg") {
             const dataUrl = await htmlToImage.toSvg(element, {
               cacheBust: true,
+              imagePlaceholder,
             });
             saveAs(dataUrl, `POSTER_${safeName}_${qrCode}.svg`);
           } else if (format === "pdf") {
@@ -135,6 +138,7 @@ export function useQrGenerator() {
             const dataUrl = await htmlToImage.toPng(element, {
               pixelRatio: 2,
               cacheBust: true,
+              imagePlaceholder,
             });
             const pdf = new jsPDF({
               orientation: "portrait",
@@ -171,53 +175,67 @@ export function useQrGenerator() {
 
         if (config.exportMode === "poster") {
           const htmlToImage = await import("html-to-image");
+          const imagePlaceholder = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
-          await Promise.all(
-            machines.map(async (machine) => {
-              try {
-                const element = document.getElementById(`poster-print-${machine.qrCode}`);
-                if (!element) {
-                  throw new Error(`Poster element for ${machine.name} not found in DOM`);
-                }
-
-                const safeName = machine.name.replace(/[^a-zA-Z0-9_-]/g, "_");
-
-                if (format === "png") {
-                  const dataUrl = await htmlToImage.toPng(element, {
-                    pixelRatio: 2,
-                    cacheBust: true,
-                  });
-                  const base64Data = dataUrl.split("base64,")[1];
-                  zip.file(`POSTER_${safeName}_${machine.qrCode}.png`, base64Data, { base64: true });
-                } else if (format === "svg") {
-                  const dataUrl = await htmlToImage.toSvg(element, {
-                    cacheBust: true,
-                  });
-                  const content = dataUrl.includes("base64,")
-                    ? dataUrl.split("base64,")[1]
-                    : decodeURIComponent(dataUrl.split(",")[1]);
-                  const options = dataUrl.includes("base64,") ? { base64: true } : {};
-                  zip.file(`POSTER_${safeName}_${machine.qrCode}.svg`, content, options);
-                } else if (format === "pdf") {
-                  const { jsPDF } = await import("jspdf");
-                  const dataUrl = await htmlToImage.toPng(element, {
-                    pixelRatio: 2,
-                    cacheBust: true,
-                  });
-                  const pdf = new jsPDF({
-                    orientation: "portrait",
-                    unit: "px",
-                    format: [1200, 1800],
-                  });
-                  pdf.addImage(dataUrl, "PNG", 0, 0, 1200, 1800);
-                  const pdfBlob = pdf.output("blob");
-                  zip.file(`POSTER_${safeName}_${machine.qrCode}.pdf`, pdfBlob);
-                }
-              } catch (err) {
-                console.error(`Failed to generate poster zip item for ${machine.name}:`, err);
+          // Render sequentially to prevent resource allocation limits and out-of-memory crash
+          for (const machine of machines) {
+            try {
+              const element = document.getElementById(`poster-print-${machine.qrCode}`);
+              if (!element) {
+                console.warn(`Poster element for ${machine.name} not found in DOM`);
+                continue;
               }
-            })
-          );
+
+              const safeName = machine.name.replace(/[^a-zA-Z0-9_-]/g, "_");
+
+              if (format === "png") {
+                const dataUrl = await htmlToImage.toPng(element, {
+                  pixelRatio: 2,
+                  cacheBust: true,
+                  imagePlaceholder,
+                });
+                const base64Data = dataUrl.split("base64,")[1];
+                zip.file(`POSTER_${safeName}_${machine.qrCode}.png`, base64Data, { base64: true });
+              } else if (format === "svg") {
+                const dataUrl = await htmlToImage.toSvg(element, {
+                  cacheBust: true,
+                  imagePlaceholder,
+                });
+                const content = dataUrl.includes("base64,")
+                  ? dataUrl.split("base64,")[1]
+                  : decodeURIComponent(dataUrl.split(",")[1]);
+                const options = dataUrl.includes("base64,") ? { base64: true } : {};
+                zip.file(`POSTER_${safeName}_${machine.qrCode}.svg`, content, options);
+              } else if (format === "pdf") {
+                const { jsPDF } = await import("jspdf");
+                const dataUrl = await htmlToImage.toPng(element, {
+                  pixelRatio: 2,
+                  cacheBust: true,
+                  imagePlaceholder,
+                });
+                const pdf = new jsPDF({
+                  orientation: "portrait",
+                  unit: "px",
+                  format: [1200, 1800],
+                });
+                pdf.addImage(dataUrl, "PNG", 0, 0, 1200, 1800);
+                const pdfBlob = pdf.output("blob");
+                zip.file(`POSTER_${safeName}_${machine.qrCode}.pdf`, pdfBlob);
+              }
+
+              // Tiny pause to give the main thread breathing room and avoid locking the browser
+              await new Promise((resolve) => setTimeout(resolve, 60));
+            } catch (err) {
+              console.error(`Failed to generate poster zip item for ${machine.name}:`, err);
+            }
+          }
+
+          // Check if any files were successfully added to the zip before downloading
+          const fileCount = Object.keys(zip.files).length;
+          if (fileCount === 0) {
+            alert("No se pudieron generar los pósters para el pack. Por favor, verificá que los elementos estén cargados correctamente.");
+            return;
+          }
 
           const zipBlob = await zip.generateAsync({ type: "blob" });
           saveAs(zipBlob, `Posters_Maquinas_${Date.now()}.zip`);

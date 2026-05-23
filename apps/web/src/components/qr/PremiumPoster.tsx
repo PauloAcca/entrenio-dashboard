@@ -34,14 +34,17 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
       }
       setIsGenerating(true);
       let active = true;
-      let localUrl: string | null = null;
 
       generateQrBlob(qrCode, config, "png")
         .then((blob) => {
           if (!active) return;
-          localUrl = URL.createObjectURL(blob);
-          setQrUrl(localUrl);
-          setIsGenerating(false);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (!active) return;
+            setQrUrl(reader.result as string);
+            setIsGenerating(false);
+          };
+          reader.readAsDataURL(blob);
         })
         .catch((err) => {
           console.error("Error generating QR inside poster:", err);
@@ -50,9 +53,6 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
 
       return () => {
         active = false;
-        if (localUrl) {
-          URL.revokeObjectURL(localUrl);
-        }
       };
     }, [qrCode, config]);
     
