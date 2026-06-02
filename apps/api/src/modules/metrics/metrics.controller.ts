@@ -39,4 +39,14 @@ export class MetricsController {
   async getAverageWorkoutDurationByAge(@Query('gymId') gymId: string) {
     return this.metricsService.getAverageWorkoutDurationByAge(gymId);
   }
+
+  @Get('routine-days')
+  async getUserRoutineDays(@Query('gymId') gymId: string) {
+    return this.metricsService.getUserRoutineDaysDistribution(gymId);
+  }
+
+  @Get('workout-time')
+  async getWorkoutTimeDistribution(@Query('gymId') gymId: string) {
+    return this.metricsService.getWorkoutTimeDistribution(gymId);
+  }
 }

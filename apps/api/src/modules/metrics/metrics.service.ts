@@ -357,4 +357,93 @@ export class MetricsService {
       averageMinutes: data.count > 0 ? Math.round(data.totalMinutes / data.count) : 0,
     }));
   }
+
+  async getUserRoutineDaysDistribution(gymId: string) {
+    const members = await this.prisma.memberships.findMany({
+      where: {
+        gym_id: gymId,
+        status: 'active',
+      },
+      include: {
+        user: {
+          include: {
+            routines: {
+              where: { isActive: true },
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+            },
+            user_training_profile: true,
+          },
+        },
+      },
+    });
+
+    const daysMap = new Map<string, number>();
+    let totalUsers = 0;
+
+    for (const member of members) {
+      const activeRoutine = member.user?.routines?.[0];
+      const profile = member.user?.user_training_profile;
+      
+      const days = activeRoutine?.days_per_week || profile?.dias;
+      
+      if (days) {
+        const key = `${days} días`;
+        daysMap.set(key, (daysMap.get(key) || 0) + 1);
+        totalUsers++;
+      }
+    }
+
+    const result: { days: string; count: number; percentage: number }[] = [];
+    daysMap.forEach((count, days) => {
+      result.push({
+        days,
+        count,
+        percentage: totalUsers > 0 ? (count / totalUsers) * 100 : 0,
+      });
+    });
+
+    return result.sort((a, b) => parseInt(a.days) - parseInt(b.days));
+  }
+
+  async getWorkoutTimeDistribution(gymId: string) {
+    const attendances = await this.prisma.gym_attendance.findMany({
+      where: {
+        user: {
+          memberships: {
+            some: {
+              gym_id: gymId,
+              status: 'active',
+            },
+          },
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    let morning = 0;   // < 12:00
+    let afternoon = 0; // 12:00 - 19:59
+    let night = 0;     // >= 20:00
+
+    for (const record of attendances) {
+      const hour = new Date(record.createdAt).getHours();
+      if (hour < 12) {
+        morning++;
+      } else if (hour < 20) {
+        afternoon++;
+      } else {
+        night++;
+      }
+    }
+
+    const total = morning + afternoon + night;
+
+    return [
+      { timeOfDay: 'Mañana', count: morning, percentage: total > 0 ? (morning / total) * 100 : 0 },
+      { timeOfDay: 'Tarde', count: afternoon, percentage: total > 0 ? (afternoon / total) * 100 : 0 },
+      { timeOfDay: 'Noche', count: night, percentage: total > 0 ? (night / total) * 100 : 0 },
+    ];
+  }
 }

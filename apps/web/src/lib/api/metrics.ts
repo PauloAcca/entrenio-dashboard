@@ -72,3 +72,22 @@ export async function getAverageWorkoutDurationByAge(gymId: string): Promise<Ave
     return apiFetch<AverageWorkoutDurationByAgeMetric[]>(`/metrics/average-workout-duration-by-age?gymId=${gymId}`)
 }
 
+export interface RoutineDaysMetric {
+    days: string;
+    count: number;
+    percentage: number;
+}
+
+export async function getUserRoutineDaysDistribution(gymId: string): Promise<RoutineDaysMetric[]> {
+    return apiFetch<RoutineDaysMetric[]>(`/metrics/routine-days?gymId=${gymId}`)
+}
+
+export interface WorkoutTimeMetric {
+    timeOfDay: string;
+    count: number;
+    percentage: number;
+}
+
+export async function getWorkoutTimeDistribution(gymId: string): Promise<WorkoutTimeMetric[]> {
+    return apiFetch<WorkoutTimeMetric[]>(`/metrics/workout-time?gymId=${gymId}`)
+}

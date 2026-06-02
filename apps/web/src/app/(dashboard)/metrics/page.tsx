@@ -1,8 +1,8 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useAuthStore } from "@/store/authStore"
-import { getMostUsedMachinesWithGymId, getUserGoalsDistribution, getUserGenderDistribution, getUserAgeDistribution, getMostPopularExercises, getAverageWorkoutDuration, getAverageWorkoutDurationByAge, MachineUsageMetric, UserGoalMetric, UserGenderMetric, UserAgeMetric, PopularExerciseMetric, AverageWorkoutDurationMetric, AverageWorkoutDurationByAgeMetric } from "@/lib/api/metrics"
-import { BarChart, Activity, Dumbbell, UsersRound, Clock, Timer } from "lucide-react"
+import { getMostUsedMachinesWithGymId, getUserGoalsDistribution, getUserGenderDistribution, getUserAgeDistribution, getMostPopularExercises, getAverageWorkoutDuration, getAverageWorkoutDurationByAge, getUserRoutineDaysDistribution, getWorkoutTimeDistribution, MachineUsageMetric, UserGoalMetric, UserGenderMetric, UserAgeMetric, PopularExerciseMetric, AverageWorkoutDurationMetric, AverageWorkoutDurationByAgeMetric, RoutineDaysMetric, WorkoutTimeMetric } from "@/lib/api/metrics"
+import { BarChart, Activity, Dumbbell, UsersRound, Clock, Timer, CalendarDays, Sun } from "lucide-react"
 
 export default function Metrics() {
     const gym = useAuthStore((state) => state.gym)
@@ -13,6 +13,8 @@ export default function Metrics() {
     const [popularExercises, setPopularExercises] = useState<PopularExerciseMetric[]>([])
     const [avgDuration, setAvgDuration] = useState<AverageWorkoutDurationMetric | null>(null)
     const [avgDurationByAge, setAvgDurationByAge] = useState<AverageWorkoutDurationByAgeMetric[]>([])
+    const [routineDays, setRoutineDays] = useState<RoutineDaysMetric[]>([])
+    const [workoutTimes, setWorkoutTimes] = useState<WorkoutTimeMetric[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -24,9 +26,11 @@ export default function Metrics() {
                 getUserAgeDistribution(gym.id),
                 getMostPopularExercises(gym.id),
                 getAverageWorkoutDuration(gym.id),
-                getAverageWorkoutDurationByAge(gym.id)
+                getAverageWorkoutDurationByAge(gym.id),
+                getUserRoutineDaysDistribution(gym.id),
+                getWorkoutTimeDistribution(gym.id)
             ])
-            .then(([machinesData, goalsData, gendersData, agesData, popularExercisesData, avgDurationData, avgDurationByAgeData]) => {
+            .then(([machinesData, goalsData, gendersData, agesData, popularExercisesData, avgDurationData, avgDurationByAgeData, routineDaysData, workoutTimesData]) => {
                 setMetrics(machinesData)
                 setGoals(goalsData)
                 setGenders(gendersData)
@@ -34,6 +38,8 @@ export default function Metrics() {
                 setPopularExercises(popularExercisesData)
                 setAvgDuration(avgDurationData)
                 setAvgDurationByAge(avgDurationByAgeData)
+                setRoutineDays(routineDaysData)
+                setWorkoutTimes(workoutTimesData)
             })
             .catch(console.error)
             .finally(() => setLoading(false))
@@ -55,7 +61,7 @@ export default function Metrics() {
                         <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-muted-foreground">Duración Promedio de Sesión</p>
+                        <p className="text-sm font-medium text-muted-foreground">Duración Promedio de entrenamiento</p>
                         <h3 className="text-2xl font-bold text-foreground">
                             {loading ? "..." : avgDuration ? `${avgDuration.averageMinutes} min` : "N/A"}
                         </h3>
@@ -373,6 +379,114 @@ export default function Metrics() {
                     ) : (
                         <div className="text-center py-12 text-gray-500">
                             No hay datos de ejercicios registrados aún.
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Routine Days Distribution Chart */}
+            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden lg:col-span-2">
+                <div className="p-6 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
+                            <CalendarDays className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                        </div>
+                        <div>
+                            <h2 className="font-semibold text-foreground">Días de Entrenamiento por Semana</h2>
+                            <p className="text-sm text-muted-foreground">Distribución de días en rutinas de usuarios</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="p-6">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600"></div>
+                        </div>
+                    ) : routineDays.length > 0 ? (
+                        <div className="flex justify-between gap-4 h-64 pt-8">
+                            {routineDays.map((metric) => (
+                                <div key={metric.days} className="flex flex-col items-center gap-2 flex-1 group h-full">
+                                    <div className="relative w-full bg-secondary rounded-t-lg flex items-end justify-center flex-1">
+                                        <div 
+                                            className="w-full bg-yellow-500 rounded-t-lg transition-all duration-500 relative group-hover:bg-yellow-600"
+                                            style={{ height: `${Math.max(metric.percentage, 5)}%` }}
+                                        >
+                                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-foreground z-20">
+                                                {Math.round(metric.percentage)}%
+                                            </span>
+                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none border border-border">
+                                                {metric.count} usuarios ({Math.round(metric.percentage)}%)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className="text-xs font-medium text-muted-foreground text-center">{metric.days}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 text-gray-500">
+                            No hay datos de rutinas registrados aún.
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Workout Time Distribution Chart */}
+            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden lg:col-span-2">
+                <div className="p-6 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-amber-100 dark:bg-amber-900/20 rounded-lg">
+                            <Sun className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div>
+                            <h2 className="font-semibold text-foreground">Horarios de Entrenamiento</h2>
+                            <p className="text-sm text-muted-foreground">Distribución de sesiones de entrenamiento a lo largo del día</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="p-6">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+                        </div>
+                    ) : workoutTimes.length > 0 ? (
+                        <div className="flex flex-col md:flex-row items-center justify-around gap-8">
+                            {/* Pie Chart */}
+                            <div className="relative w-48 h-48 rounded-full"
+                                style={{
+                                    background: `conic-gradient(
+                                        #f59e0b 0% ${workoutTimes.find(w => w.timeOfDay === 'Mañana')?.percentage || 0}%,
+                                        #ec4899 ${workoutTimes.find(w => w.timeOfDay === 'Mañana')?.percentage || 0}% ${(workoutTimes.find(w => w.timeOfDay === 'Mañana')?.percentage || 0) + (workoutTimes.find(w => w.timeOfDay === 'Tarde')?.percentage || 0)}%,
+                                        #6366f1 ${(workoutTimes.find(w => w.timeOfDay === 'Mañana')?.percentage || 0) + (workoutTimes.find(w => w.timeOfDay === 'Tarde')?.percentage || 0)}% 100%
+                                    )`
+                                }}
+                            >
+                                <div className="absolute inset-0 m-auto w-32 h-32 bg-card rounded-full flex items-center justify-center">
+                                    <span className="text-sm font-medium text-muted-foreground">Total</span>
+                                </div>
+                            </div>
+
+                            {/* Legend */}
+                            <div className="space-y-4">
+                                {workoutTimes.map((workoutTime) => (
+                                    <div key={workoutTime.timeOfDay} className="flex items-center gap-3">
+                                        <div className={`w-3 h-3 rounded-full ${
+                                            workoutTime.timeOfDay === 'Mañana' ? 'bg-amber-500' :
+                                            workoutTime.timeOfDay === 'Tarde' ? 'bg-pink-500' : 'bg-indigo-500'
+                                        }`} />
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-medium text-foreground">{workoutTime.timeOfDay}</span>
+                                            <span className="text-xs text-muted-foreground">{workoutTime.count} entrenamientos ({Math.round(workoutTime.percentage)}%)</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 text-gray-500">
+                            No hay datos de horarios registrados aún.
                         </div>
                     )}
                 </div>
