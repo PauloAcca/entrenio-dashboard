@@ -44,11 +44,15 @@ export default function QrCodesPage() {
           ? data
           : (data as { machines: equipment[] }).machines ?? [];
         setMachines(list);
-        // Auto-select & preview the first machine that has a qrCode
-        const first = list.find((m) => m.machine_template?.qrCode);
-        if (first?.machine_template?.qrCode) {
-          setSelectedIds(new Set([first.machineTemplateId]));
-          setPreviewing(first.machine_template.qrCode, first.machine_template.name);
+        const eligible = list.filter((m) => m.machine_template?.qrCode);
+        if (eligible.length > 0) {
+          // Select all eligible machines by default
+          const allIds = new Set(eligible.map(m => m.machineTemplateId));
+          setSelectedIds(allIds);
+          
+          // Preview the first one
+          const first = eligible[0];
+          setPreviewing(first.machine_template!.qrCode!, first.machine_template!.name);
         }
       })
       .catch(() => setError("No se pudieron cargar las máquinas. Intentá de nuevo."))

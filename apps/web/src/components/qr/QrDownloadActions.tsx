@@ -200,8 +200,8 @@ export default function QrDownloadActions({
                   disabled={!hasSelection}
                   loading={isGeneratingZip}
                   icon={FolderArchive}
-                  label="Descargar Pack ZIP (PNG)"
-                  sublabel={`${validMachines.length} pósters compilados`}
+                  label={isMulti ? "Descargar Pack ZIP (PNG)" : "ZIP — Póster individual"}
+                  sublabel={isMulti ? `${validMachines.length} pósters compilados` : "1 póster seleccionado"}
                   variant={!hasSingle ? "primary" : "default"}
                 />
                 <div className="grid grid-cols-2 gap-2">
