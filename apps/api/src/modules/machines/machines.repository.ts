@@ -37,9 +37,21 @@ export class MachinesRepository {
     }
 
     async addMachine(templateId: string, gymId: string) {
+        const parsedTemplateId = parseInt(templateId);
+        // Prevent duplicate addition
+        const existing = await this.prisma.equipment.findFirst({
+            where: {
+                machineTemplateId: parsedTemplateId,
+                gymId
+            }
+        });
+        if (existing) {
+            throw new Error("Machine already exists in this gym");
+        }
+
         return this.prisma.equipment.create({
             data: {
-                machineTemplateId: parseInt(templateId),
+                machineTemplateId: parsedTemplateId,
                 gymId,
                 location: "",
                 isActive: true
@@ -48,9 +60,24 @@ export class MachinesRepository {
     }
 
     async addMachinesBulk(templateIds: string[], gymId: string) {
+        const parsedIds = templateIds.map(id => parseInt(id));
+        // Filter out existing machines
+        const existing = await this.prisma.equipment.findMany({
+            where: {
+                machineTemplateId: { in: parsedIds },
+                gymId
+            }
+        });
+        const existingIds = new Set(existing.map(e => e.machineTemplateId));
+        const newIds = parsedIds.filter(id => !existingIds.has(id));
+
+        if (newIds.length === 0) {
+            return { count: 0 };
+        }
+
         return this.prisma.equipment.createMany({
-            data: templateIds.map(templateId => ({
-                machineTemplateId: parseInt(templateId),
+            data: newIds.map(templateId => ({
+                machineTemplateId: templateId,
                 gymId,
                 location: "",
                 isActive: true

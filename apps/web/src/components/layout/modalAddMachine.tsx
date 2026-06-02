@@ -7,9 +7,10 @@ interface ModalAddMachineProps {
     gymId: string
     setShowModalAddMachine: (show: boolean) => void
     onMachinesAdded?: () => void
+    existingMachineTemplateIds: Set<number>
 }
 
-export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachinesAdded }: ModalAddMachineProps) {
+export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachinesAdded, existingMachineTemplateIds }: ModalAddMachineProps) {
     const [templates, setTemplates] = useState<machineTemplate[]>([])
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -22,6 +23,7 @@ export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachi
     const bodyRegions = [...new Set(templates.map(t => t.bodyRegion).filter(Boolean))] as string[]
 
     const filteredTemplates = templates.filter(t => {
+        if (existingMachineTemplateIds.has(t.id)) return false
         const term = searchTerm.toLowerCase()
         const matchesSearch = t.name.toLowerCase().includes(term) || t.description?.toLowerCase().includes(term)
         const matchesCategory = !filterCategory || t.category === filterCategory
