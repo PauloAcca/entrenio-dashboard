@@ -43,6 +43,9 @@ export default function Members() {
         }
     }
 
+    const [searchTerm, setSearchTerm] = useState('')
+    const [statusFilter, setStatusFilter] = useState<'' | 'active' | 'expired' | 'inactive'>('')
+
     const isExpired = (date: string | null) => {
         if (!date) return false;
         return new Date(date) < new Date();
@@ -54,6 +57,22 @@ export default function Members() {
         expired: members.filter(m => isExpired(m.ends_at)).length,
         inactive: members.filter(m => m.status !== 'active' && !isExpired(m.ends_at)).length
     }
+
+    const filteredMembers = members.filter(m => {
+        const term = searchTerm.toLowerCase()
+        const matchesSearch = (m.user?.name?.toLowerCase() || '').includes(term) || (m.user?.email?.toLowerCase() || '').includes(term)
+        
+        let matchesStatus = true
+        if (statusFilter === 'active') {
+            matchesStatus = m.status === 'active' && !isExpired(m.ends_at)
+        } else if (statusFilter === 'expired') {
+            matchesStatus = isExpired(m.ends_at)
+        } else if (statusFilter === 'inactive') {
+            matchesStatus = m.status !== 'active' && !isExpired(m.ends_at)
+        }
+
+        return matchesSearch && matchesStatus
+    })
     
     return (
         <>
@@ -81,27 +100,52 @@ export default function Members() {
                 </button>
             </div>
             
-            <div className="bg-muted p-4 mb-4 rounded border border-border grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-muted p-4 mb-4 rounded border border-border grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                     <p className="text-xs text-muted-foreground uppercase font-bold">Total</p>
                     <p className="text-2xl font-bold text-foreground">{totals.total}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Todos los clientes registrados</p>
                 </div>
                 <div>
                     <p className="text-xs text-green-600 dark:text-green-400 uppercase font-bold">Activos</p>
                     <p className="text-2xl font-bold text-foreground">{totals.active}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Membresía vigente y al día</p>
                 </div>
                 <div>
                     <p className="text-xs text-amber-600 dark:text-amber-400 uppercase font-bold">Vencidos</p>
                     <p className="text-2xl font-bold text-foreground">{totals.expired}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">La fecha de fin ya pasó</p>
                 </div>
                 <div>
                     <p className="text-xs text-red-600 dark:text-red-400 uppercase font-bold">Inactivos</p>
                     <p className="text-2xl font-bold text-foreground">{totals.inactive}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Suspendidos o cancelados manualmente</p>
                 </div>
             </div>
 
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <input 
+                    type="text" 
+                    placeholder="Buscar por nombre o email..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="flex-1 p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                />
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as any)}
+                    className="p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                >
+                    <option value="">Todos los estados</option>
+                    <option value="active">Activos</option>
+                    <option value="expired">Vencidos</option>
+                    <option value="inactive">Inactivos</option>
+                </select>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {members.map((member) => (
+                {filteredMembers.map((member) => (
                     <button onClick={() => setSelectedMember(member)} key={member.id} className="flex flex-row items-center gap-4 p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left group">
                         {/* Avatar */}
                         {member.user?.avatarUrl ? (
