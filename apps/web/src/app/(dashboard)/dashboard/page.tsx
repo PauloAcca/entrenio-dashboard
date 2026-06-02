@@ -56,9 +56,7 @@ export default function Dashboard() {
             {/* Hero Section */}
             <div className="flex items-center gap-6">
                 {gym?.logo_url && (
-                    <div className="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-full border border-border shadow-sm bg-white flex items-center justify-center overflow-hidden">
-                        <img src={gym.logo_url} alt={gym.name} className="w-full h-full object-contain" />
-                    </div>
+                    <img src={gym.logo_url} alt={gym.name} className="w-20 h-20 md:w-28 md:h-28 object-contain shrink-0" />
                 )}
                 <div className="flex flex-col gap-2">
                     <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">

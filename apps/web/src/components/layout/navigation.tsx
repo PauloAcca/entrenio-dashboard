@@ -48,18 +48,20 @@ export default function Navigation() {
                     : 'hidden md:flex md:w-[5%]'
                 }
             `}>
-                <div className="flex flex-col items-center gap-2 w-full">
+                <div className="flex flex-col items-center gap-4 w-full">
                     <button onClick={() => setOpen(!open)} className="flex items-center gap-2 hover:bg-accent hover:text-accent-foreground p-2 rounded-lg cursor-pointer transition-colors text-sidebar-foreground w-full justify-center md:justify-start">
                         <Menu className="shrink-0" />
                         {open && (
-                            <div className="flex items-center gap-2 overflow-hidden">
-                                {gym?.logo_url && (
-                                    <img src={gym.logo_url} alt={gym.name} className="w-5 h-5 object-contain rounded-sm shrink-0" />
-                                )}
-                                <h1 className="font-bold whitespace-nowrap truncate">{gym?.name || "Entrenio Business"}</h1>
-                            </div>
+                            <h1 className="font-bold whitespace-nowrap truncate">{gym?.name || "Entrenio Business"}</h1>
                         )}
                     </button>
+                    
+                    {gym?.logo_url && (
+                        <div className={`flex items-center justify-center transition-all duration-300 ${open ? 'w-20 h-20 mb-2' : 'w-10 h-10 mb-2'}`}>
+                            <img src={gym.logo_url} alt={gym.name} className="w-full h-full object-contain" />
+                        </div>
+                    )}
+
                     <ThemeButton hideText={!open}/>
                 </div>
                 
