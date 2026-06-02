@@ -16,34 +16,63 @@ export default function MachineShareRedirect() {
         const appStoreUrl = "https://apps.apple.com/app/id6755614606";
 
         const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+        const isAndroid = /android/i.test(userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+
+        const storeUrl = isAndroid ? playStoreUrl : (isIOS ? appStoreUrl : "/");
 
         // Intentar abrir la app
-        window.location.replace(appUrl);
+        window.location.href = appUrl;
 
-        // Si la app no se abre en 2.5 segundos, mandar a la tienda correspondiente
-        const timer = setTimeout(() => {
-            setStatus("Redirigiendo a la tienda...");
-            if (/android/i.test(userAgent)) {
-                window.location.replace(playStoreUrl);
-            } else if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-                window.location.replace(appStoreUrl);
-            } else {
-                // En PC, redirigimos a la página principal
-                window.location.replace("/");
+        // Validar si la app se abrió
+        const checkAppOpened = () => {
+            if (document.visibilityState === "hidden") {
+                return true;
             }
-        }, 2500);
+            return false;
+        };
+
+        const timer = setTimeout(() => {
+            if (!checkAppOpened()) {
+                setStatus("Parece que no tienes la app instalada.");
+                // Opcionalmente podemos redirigir automáticamente, pero es mejor dejar que el usuario decida con un botón
+                // si el navegador bloqueó el prompt. Si queremos autoredirigir, descomentar:
+                // window.location.href = storeUrl;
+            }
+        }, 3500);
 
         return () => clearTimeout(timer);
     }, [code]);
+
+    const userAgent = typeof window !== 'undefined' ? navigator.userAgent || navigator.vendor || (window as any).opera : '';
+    const isAndroid = /android/i.test(userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+    const storeUrl = isAndroid ? "https://play.google.com/store/apps/details?id=com.pauloacca.FitnessApp" : (isIOS ? "https://apps.apple.com/app/id6755614606" : "/");
+    const appUrl = `entrenio://qr/resolve/${code}`;
 
     return (
         <div className="flex min-h-screen w-full flex-col items-center justify-center bg-[#0a0a0a] text-white font-sans">
             <div className="flex max-w-md flex-col items-center p-8 text-center" style={{ gap: '1.5rem' }}>
                 <div className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-800 border-t-amber-500" />
                 <h1 className="text-2xl font-bold tracking-tight">{status}</h1>
-                <p className="text-zinc-400">
-                    Si Entrenio no se abre automáticamente, te llevaremos a la tienda de aplicaciones para que la descargues.
+                <p className="text-zinc-400 mb-4">
+                    Si Entrenio no se abre automáticamente, puedes usar los botones de abajo.
                 </p>
+                
+                <div className="flex flex-col gap-3 w-full">
+                    <a 
+                        href={appUrl}
+                        className="w-full rounded-md bg-amber-500 px-4 py-3 text-sm font-semibold text-black shadow-sm hover:bg-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 transition-colors"
+                    >
+                        Ya tengo la app, abrir Entrenio
+                    </a>
+                    <a 
+                        href={storeUrl}
+                        className="w-full rounded-md bg-zinc-800 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-800 transition-colors"
+                    >
+                        Descargar aplicación
+                    </a>
+                </div>
             </div>
         </div>
     );
