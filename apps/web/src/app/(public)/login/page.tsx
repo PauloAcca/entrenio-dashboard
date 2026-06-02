@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useAuthStore } from "@/store/authStore"
 import { apiFetch } from "@/lib/api/http"
 import { Eye, EyeOff, Info } from "lucide-react"
+import ThemeButton from "@/components/theme-button"
 
 export default function Login() {
     const router = useRouter()
@@ -41,16 +42,19 @@ export default function Login() {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center h-dvh">
-            <div className="flex flex-col sm:w-[50%] w-full bg-slate-100 p-6 gap-8 rounded-lg">
+        <div className="flex flex-col items-center justify-center h-dvh bg-background text-foreground relative">
+            <div className="absolute top-4 right-4">
+                <ThemeButton hideText={false} />
+            </div>
+            <div className="flex flex-col sm:w-[50%] w-full bg-secondary text-secondary-foreground p-6 gap-8 rounded-lg border border-border">
                 <h1 className="text-3xl font-bold">Entrenio Business</h1>
-                <p>Ingresa tu usuario y contraseña</p>
+                <p className="text-muted-foreground">Ingresa tu usuario y contraseña</p>
                 {error && <p className="text-red-500">{error}</p>}
                 <div className="flex flex-col gap-4">
                     <input 
                         type="text" 
                         placeholder="Usuario" 
-                        className="border rounded-lg px-6 py-2" 
+                        className="border border-input bg-background rounded-lg px-6 py-2 focus:outline-none focus:ring-2 focus:ring-ring" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
@@ -58,14 +62,14 @@ export default function Login() {
                         <input 
                             type={showPassword ? "text" : "password"} 
                             placeholder="Contraseña" 
-                            className="border rounded-lg px-6 py-2 w-full pr-12" 
+                            className="border border-input bg-background rounded-lg px-6 py-2 w-full pr-12 focus:outline-none focus:ring-2 focus:ring-ring" 
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         >
                             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
@@ -74,16 +78,16 @@ export default function Login() {
                 <button 
                     onClick={handleLogin} 
                     disabled={isLoading}
-                    className="cursor-pointer w-full flex justify-center items-center border rounded-lg px-6 py-2 bg-white hover:bg-slate-50 transition-all disabled:opacity-50"
+                    className="cursor-pointer w-full flex justify-center items-center border border-border rounded-lg px-6 py-2 bg-background hover:bg-muted transition-all disabled:opacity-50"
                 >
                     {isLoading ? 'Cargando...' : 'Entrar'}
                 </button>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg border border-border">
-                <Info className="w-4 h-4" />
-                <p>
-                    Si tienes algun problema con tu contraseña comunicate con nosotros.
-                </p>
-            </div>
+                    <Info className="w-4 h-4 shrink-0" />
+                    <p>
+                        Si tienes algun problema con tu contraseña comunicate con nosotros.
+                    </p>
+                </div>
             </div>
         </div>
     )
