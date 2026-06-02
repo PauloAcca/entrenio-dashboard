@@ -254,15 +254,15 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
                 {/* Gym logo area */}
                 <div className="flex items-center gap-4 max-w-[55%]">
                   <div
-                    className={`rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 border border-white/20 ${
-                      isPrint ? "w-28 h-28" : "w-11 h-11"
+                    className={`flex items-center justify-center shrink-0 ${
+                      isPrint ? "w-40 h-40" : "w-16 h-16"
                     }`}
                   >
                     <img
                       src={activeGymLogo}
                       alt="Gym Logo"
                       crossOrigin="anonymous"
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain drop-shadow-md"
                       onError={(e) => {
                         // Fallback if image fails to load
                         (e.target as HTMLElement).style.display = "none";
@@ -319,15 +319,15 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
               <div className="flex items-center justify-center gap-8 md:gap-12 w-full">
                 {/* Gym logo area */}
                 <div
-                  className={`rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 border border-white/20 ${
-                    isPrint ? "w-28 h-28" : "w-11 h-11"
+                  className={`flex items-center justify-center shrink-0 ${
+                    isPrint ? "w-40 h-40" : "w-16 h-16"
                   }`}
                 >
                   <img
                     src={activeGymLogo}
                     alt="Gym Logo"
                     crossOrigin="anonymous"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain drop-shadow-md"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = "none";
                     }}

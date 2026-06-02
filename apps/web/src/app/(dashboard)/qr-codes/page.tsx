@@ -111,6 +111,16 @@ export default function QrCodesPage() {
         </div>
       )}
 
+      {/* Poster speed warning */}
+      {!error && config.exportMode === "poster" && (
+        <div className="mb-6 flex items-center gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-sm">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <p>
+            <strong>Aviso:</strong> La funcionalidad de póster de máquina puede funcionar un poco lento debido a que tiene que generar la imagen cada vez que se cambia algo en la configuración.
+          </p>
+        </div>
+      )}
+
       {/* No machines with QR */}
       {!error && eligibleMachines.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 text-center">

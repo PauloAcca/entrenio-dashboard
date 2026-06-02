@@ -33,7 +33,7 @@ export const DEFAULT_QR_CONFIG: QrConfig = {
   cornersSquareType: "extra-rounded",
   cornersDotType: "dot",
   logo: null,
-  logoSize: 0.22,
+  logoSize: 0.35,
   errorCorrectionLevel: "H",
   format: "png", // default to png to support poster canvas downloads easily
   size: 1024,
@@ -64,7 +64,7 @@ export function createQrInstance(url: string, config: QrConfig): QRCodeStyling {
     },
     imageOptions: {
       crossOrigin: "anonymous",
-      margin: 8,
+      margin: 4,
       imageSize: showLogo ? config.logoSize : 0,
     },
     dotsOptions: {
