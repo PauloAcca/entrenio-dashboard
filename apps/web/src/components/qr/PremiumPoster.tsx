@@ -271,7 +271,7 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
                   </div>
                   <div className="min-w-0">
                     <p
-                      className={`font-black uppercase tracking-wider truncate leading-tight ${
+                      className={`font-black uppercase tracking-wider break-words whitespace-normal leading-tight ${
                         isPrint ? "text-4xl" : "text-sm"
                       }`}
                     >
