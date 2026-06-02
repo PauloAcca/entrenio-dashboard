@@ -208,7 +208,7 @@ export default function QrCodesPage() {
       )}
 
       {/* Batch rendering for zip downloads */}
-      {config.exportMode === "poster" && eligibleMachines.length > 0 && (
+      {isGeneratingZip && config.exportMode === "poster" && eligibleMachines.length > 0 && (
         <div className="absolute top-[-9999px] left-[-9999px] pointer-events-none select-none overflow-hidden" aria-hidden="true">
           {eligibleMachines.map((m) => (
             <div key={m.machineTemplateId} id={`poster-print-${m.machine_template?.qrCode}`}>

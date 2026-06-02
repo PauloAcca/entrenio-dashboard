@@ -170,6 +170,9 @@ export function useQrGenerator() {
     ) => {
       setIsGeneratingZip(true);
       try {
+        // Wait for React to mount the hidden batch posters
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         const JSZip = (await import("jszip")).default;
         const zip = new JSZip();
 
