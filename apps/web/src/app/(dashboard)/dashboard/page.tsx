@@ -54,13 +54,20 @@ export default function Dashboard() {
     return (
         <div className="w-full min-h-full p-6 md:p-12 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
             {/* Hero Section */}
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
-                    Hola, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">{gym.name}</span>
-                </h1>
-                <p className="text-muted-foreground text-lg md:text-xl max-w-2xl">
-                    Bienvenido a tu panel de control. Aquí tienes un resumen de tu suscripción y herramientas disponibles.
-                </p>
+            <div className="flex items-center gap-6">
+                {gym?.logo_url && (
+                    <div className="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-full border border-border shadow-sm bg-white flex items-center justify-center overflow-hidden">
+                        <img src={gym.logo_url} alt={gym.name} className="w-full h-full object-contain" />
+                    </div>
+                )}
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
+                        Hola, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">{gym.name}</span>
+                    </h1>
+                    <p className="text-muted-foreground text-lg md:text-xl max-w-2xl">
+                        Bienvenido a tu panel de control. Aquí tienes un resumen de tu suscripción y herramientas disponibles.
+                    </p>
+                </div>
             </div>
 
             {/* Plan Card */}

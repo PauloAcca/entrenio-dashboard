@@ -9,7 +9,7 @@ export default function Navigation() {
     const [open, setOpen] = useState(false)
     const router = useRouter()
     const pathname = usePathname()
-    const { logout } = useAuthStore()
+    const { logout, gym } = useAuthStore()
 
     const navItems = [
         { path: '/dashboard', label: 'Inicio', icon: LayoutDashboard },
@@ -32,7 +32,12 @@ export default function Navigation() {
                     >
                         <Menu />
                     </button>
-                    <h1 className="font-bold text-lg text-sidebar-foreground">Entrenio Business</h1>
+                    <div className="flex items-center gap-2">
+                        {gym?.logo_url && (
+                            <img src={gym.logo_url} alt={gym.name} className="w-6 h-6 object-contain rounded-sm" />
+                        )}
+                        <h1 className="font-bold text-lg text-sidebar-foreground">{gym?.name || "Entrenio Business"}</h1>
+                    </div>
                 </div>
             )}
 
@@ -44,9 +49,16 @@ export default function Navigation() {
                 }
             `}>
                 <div className="flex flex-col items-center gap-2 w-full">
-                    <button onClick={() => setOpen(!open)} className="flex items-center gap-2 hover:bg-accent hover:text-accent-foreground p-2 rounded-lg cursor-pointer transition-colors text-sidebar-foreground">
-                        <Menu/>
-                        {open && <h1 className="font-bold whitespace-nowrap">Entrenio Business</h1>}
+                    <button onClick={() => setOpen(!open)} className="flex items-center gap-2 hover:bg-accent hover:text-accent-foreground p-2 rounded-lg cursor-pointer transition-colors text-sidebar-foreground w-full justify-center md:justify-start">
+                        <Menu className="shrink-0" />
+                        {open && (
+                            <div className="flex items-center gap-2 overflow-hidden">
+                                {gym?.logo_url && (
+                                    <img src={gym.logo_url} alt={gym.name} className="w-5 h-5 object-contain rounded-sm shrink-0" />
+                                )}
+                                <h1 className="font-bold whitespace-nowrap truncate">{gym?.name || "Entrenio Business"}</h1>
+                            </div>
+                        )}
                     </button>
                     <ThemeButton hideText={!open}/>
                 </div>
