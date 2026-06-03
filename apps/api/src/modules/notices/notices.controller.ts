@@ -8,7 +8,8 @@ export class NoticesController {
     @Get('gym')
     async getGymNotice(@Query('gymId') gymId: string) {
         if (!gymId) throw new BadRequestException('GYM_ID_REQUIRED');
-        return this.noticesService.getGymNotice(gymId);
+        const notice = await this.noticesService.getGymNotice(gymId);
+        return notice || {};
     }
 
     @Post('gym')
@@ -25,12 +26,15 @@ export class NoticesController {
         if (secret !== process.env.SUPERADMIN_SECRET && secret !== "entrenio_super_admin_123") {
             return { error: 'Unauthorized' };
         }
-        return this.noticesService.getGlobalNotice();
+        const notice = await this.noticesService.getGlobalNotice();
+        return notice || {};
     }
 
     @Post('global')
-    async setGlobalNotice(@Body() body: { message: string, type?: string, isActive?: boolean, secret: string }) {
-        if (body.secret !== process.env.SUPERADMIN_SECRET && body.secret !== "entrenio_super_admin_123") {
+    async setGlobalNotice(@Body() body: any) {
+        console.log("POST /notices/global body:", body);
+        const secret = body?.secret;
+        if (secret !== process.env.SUPERADMIN_SECRET && secret !== "entrenio_super_admin_123") {
             return { error: 'Unauthorized' };
         }
         const type = body.type || 'info';

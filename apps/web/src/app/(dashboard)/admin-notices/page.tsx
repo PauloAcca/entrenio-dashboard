@@ -23,11 +23,11 @@ export default function AdminNoticesPage() {
                 alert("Contraseña incorrecta")
             } else {
                 setAuthenticated(true)
-                if (data) {
+                if (data && Object.keys(data).length > 0) {
                     setNotice(data as Notice)
-                    setMessage(data.message)
-                    setType(data.type)
-                    setIsActive(data.isActive)
+                    setMessage(data.message || "")
+                    setType(data.type || "info")
+                    setIsActive(data.isActive !== undefined ? data.isActive : true)
                 }
             }
         } catch (error) {
