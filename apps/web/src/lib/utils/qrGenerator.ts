@@ -45,7 +45,7 @@ export const DEFAULT_QR_CONFIG: QrConfig = {
   customGymName: "",
 };
 
-export const QR_BASE_URL = "https://entrenio.com/share/recipe";
+export const QR_BASE_URL = "https://entrenio.com/share/machine";
 
 export function buildQrUrl(qrCode: string): string {
   return `${QR_BASE_URL}/${qrCode}`;
