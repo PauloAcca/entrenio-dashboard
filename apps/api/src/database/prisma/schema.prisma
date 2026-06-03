@@ -459,6 +459,8 @@ model gym_messages {
   @@index([userId])
 }
 
+
+
 model notices {
   id        Int      @id @default(autoincrement())
   message   String
@@ -467,7 +469,4 @@ model notices {
   type      String   @default("info") @db.VarChar(50)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
-
-  @@index([gymId])
-  @@index([isActive])
 }
