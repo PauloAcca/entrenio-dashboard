@@ -9,7 +9,6 @@ import { MachinesModule } from './modules/machines/machines.module';
 import { MembersModule } from './modules/members/members.module';
 import { MetricsModule } from './modules/metrics/metrics.modules';
 import { ExercisesModule } from './modules/exercises/exercises.module';
-import { OwnersModule } from './modules/owners/owners.module';
 import { GymMessagesModule } from './modules/gym-messages/gym-messages.module';
 import { NoticesModule } from './modules/notices/notices.module';
 

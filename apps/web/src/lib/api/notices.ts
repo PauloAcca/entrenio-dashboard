@@ -12,11 +12,11 @@ export interface Notice {
     updatedAt: string;
 }
 
-export async function getGymNotice(): Promise<Notice | null> {
-    return apiFetch<Notice | null>("/notices/gym")
+export async function getGymNotice(gymId: string): Promise<Notice | null> {
+    return apiFetch<Notice | null>(`/notices/gym?gymId=${gymId}`)
 }
 
-export async function setGymNotice(data: { message: string, type: string, isActive: boolean }): Promise<Notice> {
+export async function setGymNotice(data: { gymId: string, message: string, type: string, isActive: boolean }): Promise<Notice> {
     return apiFetch<Notice>("/notices/gym", {
         method: "POST",
         body: JSON.stringify(data)

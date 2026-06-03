@@ -1,26 +1,22 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, BadRequestException } from '@nestjs/common';
 import { NoticesService } from './notices.service';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('notices')
 export class NoticesController {
     constructor(private readonly noticesService: NoticesService) {}
 
-    @UseGuards(JwtAuthGuard)
     @Get('gym')
-    async getGymNotice(@Request() req) {
-        // req.user has gymId in dashboard
-        const gymId = req.user?.gymId;
+    async getGymNotice(@Query('gymId') gymId: string) {
+        if (!gymId) throw new BadRequestException('GYM_ID_REQUIRED');
         return this.noticesService.getGymNotice(gymId);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Post('gym')
-    async setGymNotice(@Request() req, @Body() body: { message: string, type?: string, isActive?: boolean }) {
-        const gymId = req.user?.gymId;
+    async setGymNotice(@Body() body: { gymId: string, message: string, type?: string, isActive?: boolean }) {
+        if (!body.gymId) throw new BadRequestException('GYM_ID_REQUIRED');
         const type = body.type || 'info';
         const isActive = body.isActive !== undefined ? body.isActive : true;
-        return this.noticesService.setGymNotice(gymId, body.message, type, isActive);
+        return this.noticesService.setGymNotice(body.gymId, body.message, type, isActive);
     }
 
     // Unprotected or custom protection for superadmin

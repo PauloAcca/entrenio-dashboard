@@ -2,6 +2,7 @@
 import { getGymNotice, setGymNotice, Notice } from "@/lib/api/notices"
 import { useEffect, useState } from "react"
 import { Megaphone, Save, Info, AlertTriangle } from "lucide-react"
+import { useAuthStore } from "@/store/authStore"
 
 export default function NoticesPage() {
     const [notice, setNotice] = useState<Notice | null>(null)
@@ -13,8 +14,11 @@ export default function NoticesPage() {
     const [type, setType] = useState<"info" | "warning">("info")
     const [isActive, setIsActive] = useState(true)
 
+    const { gym } = useAuthStore()
+
     useEffect(() => {
-        getGymNotice()
+        if (!gym?.id) return;
+        getGymNotice(gym.id)
             .then(data => {
                 setNotice(data)
                 if (data) {
@@ -25,13 +29,14 @@ export default function NoticesPage() {
             })
             .catch(console.error)
             .finally(() => setLoading(false))
-    }, [])
+    }, [gym?.id])
 
     const handleSave = async () => {
+        if (!gym?.id) return alert("Error: No se encontró el gimnasio");
         if (!message.trim()) return alert("El mensaje no puede estar vacío");
         setSaving(true)
         try {
-            const updated = await setGymNotice({ message, type, isActive })
+            const updated = await setGymNotice({ gymId: gym.id, message, type, isActive })
             setNotice(updated)
             alert("Aviso guardado correctamente")
         } catch (error: any) {
