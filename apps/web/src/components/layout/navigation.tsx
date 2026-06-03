@@ -1,5 +1,5 @@
 "use client"
-import { Menu, ChartNoAxesCombined, UsersRound, Dumbbell, MessageCircleWarning, Cog, LogOut, LayoutDashboard, Inbox, QrCode } from "lucide-react"
+import { Menu, ChartNoAxesCombined, UsersRound, Dumbbell, MessageCircleWarning, Cog, LogOut, LayoutDashboard, Inbox, QrCode, Megaphone } from "lucide-react"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuthStore } from "@/store/authStore"
@@ -18,6 +18,7 @@ export default function Navigation() {
         { path: '/machines', label: 'Maquinas', icon: Dumbbell },
         { path: '/qr-codes', label: 'Códigos QR', icon: QrCode },
         { path: '/messages', label: 'Mensajes', icon: Inbox },
+        { path: '/notices', label: 'Avisos', icon: Megaphone },
         { path: '/reports', label: 'Reportes', icon: MessageCircleWarning },
     ]
 

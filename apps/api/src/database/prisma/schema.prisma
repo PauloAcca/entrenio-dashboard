@@ -458,3 +458,16 @@ model gym_messages {
   @@index([gymId])
   @@index([userId])
 }
+
+model notices {
+  id        Int      @id @default(autoincrement())
+  message   String
+  isActive  Boolean  @default(true)
+  gymId     String?  @db.Uuid
+  type      String   @default("info") @db.VarChar(50)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([gymId])
+  @@index([isActive])
+}
