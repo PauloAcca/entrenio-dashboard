@@ -164,6 +164,86 @@ export default function GimnasiosPage() {
         </div>
       </section>
 
+      {/* Comprehensive Features Section */}
+      <section className="mx-auto max-w-7xl px-4 py-16 md:py-24">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 text-foreground">
+            Todo lo que tu gimnasio necesita en una sola plataforma
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Descubrí todas las herramientas que incluye el <strong>Dashboard Profesional</strong> para llevar la gestión de tu centro al siguiente nivel.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[
+            {
+              icon: "👥",
+              title: "Gestión de Socios",
+              description: "Administrá usuarios, accedé a su información, progreso y objetivos desde un único panel."
+            },
+            {
+              icon: "🤖",
+              title: "Rutinas con IA",
+              description: "Generá rutinas automáticamente según objetivos, experiencia y tu equipamiento disponible."
+            },
+            {
+              icon: "✍️",
+              title: "Edición Manual",
+              description: "Modificá y ajustá cualquier rutina cuando lo necesites para un seguimiento más específico."
+            },
+            {
+              icon: "🏋️",
+              title: "Gestión de Equipamiento",
+              description: "Cargá tus máquinas para que las rutinas se adapten a los recursos reales de tu gimnasio."
+            },
+            {
+              icon: "🔗",
+              title: "QRs Inteligentes",
+              description: "Códigos en cada máquina para acceder al instante a instrucciones y videos explicativos."
+            },
+            {
+              icon: "📈",
+              title: "Seguimiento de Progreso",
+              description: "Visualizá la evolución de cada socio con un seguimiento detallado de sus avances."
+            },
+            {
+              icon: "🥗",
+              title: "Control Nutricional",
+              description: "Registrá y visualizá planes de alimentación para complementar el entrenamiento de tus socios."
+            },
+            {
+              icon: "📊",
+              title: "Métricas y Analítica",
+              description: "Estadísticas avanzadas sobre el uso de la app y rendimiento general de tu gimnasio."
+            },
+            {
+              icon: "🏛️",
+              title: "Biblioteca de Ejercicios",
+              description: "Gestioná y personalizá el catálogo de ejercicios disponible para todos tus usuarios."
+            },
+            {
+              icon: "💬",
+              title: "Feedback de Usuarios",
+              description: "Recibí opiniones directamente desde la app para mejorar el servicio continuamente."
+            },
+            {
+              icon: "📢",
+              title: "Comunicación Directa",
+              description: "Enviá notificaciones y avisos a todos los usuarios sobre novedades y promociones."
+            }
+          ].map((feature, i) => (
+            <div key={i} className="group p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl dark:hover:shadow-2xl dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-slate-100 dark:border-slate-700/50">
+                {feature.icon}
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{feature.title}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* CTA Footer */}
       <section className="mx-auto max-w-4xl px-4 py-6 text-center">
         <h2 className="text-4xl md:text-5xl font-bold mb-8 text-foreground">¿Listo para modernizar tu gimnasio?</h2>
