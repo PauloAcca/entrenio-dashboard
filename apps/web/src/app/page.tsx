@@ -214,6 +214,91 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Comprehensive Features Section (B2C) */}
+      <section className="mx-auto max-w-7xl px-4 py-16 md:py-24">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 text-foreground">
+            Todo lo que necesitás para alcanzar tus objetivos
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto italic font-medium">
+            “Entrená, alimentate y progresá con una IA que conoce tus objetivos.”
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[
+            {
+              icon: "🤖",
+              title: "Rutinas con IA",
+              description: "Recibí rutinas generadas automáticamente según tus objetivos, experiencia y equipamiento disponible."
+            },
+            {
+              icon: "🔄",
+              title: "Ajuste Inteligente",
+              description: "La IA analiza tu rendimiento y feedback para adaptar y optimizar tus entrenamientos a tu evolución."
+            },
+            {
+              icon: "📈",
+              title: "Seguimiento de Progreso",
+              description: "Registrá pesos, repeticiones y rendimiento en cada ejercicio para visualizar tu evolución."
+            },
+            {
+              icon: "🏋️",
+              title: "Biblioteca de Ejercicios",
+              description: "Accedé a una amplia biblioteca con videos explicativos y guías paso a paso para entrenar con confianza."
+            },
+            {
+              icon: "🔗",
+              title: "Escaneo por QR",
+              description: "Escaneá las máquinas de tu gimnasio para acceder al instante a instrucciones y videos relacionados."
+            },
+            {
+              icon: "🍎",
+              title: "Registro de Comidas",
+              description: "Tomá una foto a tu comida y la IA analizará automáticamente tus calorías y macronutrientes."
+            },
+            {
+              icon: "🥗",
+              title: "Planes de Alimentación",
+              description: "Recibí planes nutricionales adaptados para ganar músculo, perder grasa o mejorar rendimiento."
+            },
+            {
+              icon: "👨‍🍳",
+              title: "Recetas y Compras",
+              description: "Descubrí recetas adaptadas a tus necesidades y obtené listas de compras organizadas."
+            },
+            {
+              icon: "💬",
+              title: "Asistente con IA",
+              description: "Consultá dudas sobre entrenamiento y nutrición a un asistente que conoce todo tu progreso."
+            },
+            {
+              icon: "📊",
+              title: "Análisis Integral",
+              description: "Toda tu info de entrenamiento y nutrición centralizada para tomar mejores decisiones."
+            },
+            {
+              icon: "📱",
+              title: "Compartí tus Logros",
+              description: "Publicá tus entrenamientos y compartí tu progreso con amigos y toda la comunidad."
+            },
+            {
+              icon: "📨",
+              title: "Comunicación Directa",
+              description: "Recibí avisos de tu gimnasio y enviá comentarios o sugerencias desde la app."
+            }
+          ].map((feature, i) => (
+            <div key={i} className="group p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl dark:hover:shadow-2xl dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
+              <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform duration-300 shadow-sm border border-slate-100 dark:border-slate-700/50">
+                {feature.icon}
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{feature.title}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-4 mt-14 mb-10">
         <div className="bg-[#1c1c1e] dark:bg-slate-800 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 text-white">
           <div className="max-w-xl">
