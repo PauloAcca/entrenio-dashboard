@@ -79,7 +79,7 @@ export default function GimnasiosPage() {
     };
   }, []);
   return (
-    <main className="min-h-dvh w-full p-4 md:p-6 lg:p-8 overflow-x-hidden bg-background text-foreground transition-colors duration-300">
+    <main className="min-h-dvh w-full p-4 md:p-6 lg:p-8 overflow-x-clip bg-background text-foreground transition-colors duration-300">
       <TargetCursor
         targetSelector=".cursor-target"
         spinDuration={4}
@@ -261,7 +261,7 @@ export default function GimnasiosPage() {
                 ))}
             </div>
             <div className="lg:w-[55%] hidden lg:block relative">
-                <div className="sticky top-1/4 h-[60vh] w-full flex items-center justify-center">
+                <div className="sticky top-32 h-[60vh] w-full flex items-center justify-center">
                     {stickyFeatures.map((feat, i) => (
                         <div 
                             key={i} 
