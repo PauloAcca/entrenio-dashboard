@@ -4,14 +4,75 @@ import SplitText from "@/components/SplitText";
 import Particles from "@/components/Particles";
 import Image from "next/image";
 import Lanyard from "@/components/Lanyard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ThemeButton from "@/components/theme-button";
 
 export default function GimnasiosPage() {
   const [showInfo, setShowInfo] = useState<number>(0);
+  const [activeFeature, setActiveFeature] = useState<number>(0);
   const router = useRouter();
 
+  const stickyFeatures = [
+    {
+      title: "Panel Principal",
+      description: "Tené un control total de tu gimnasio desde un solo lugar. Visualizá el estado de tu plan y accedé rápidamente a todas las herramientas activas.",
+      image: "/dash-home.png",
+    },
+    {
+      title: "Gestión de Miembros",
+      description: "Administrá todos tus usuarios, controlá sus estados y accedé a su información personal desde un único panel organizado e intuitivo.",
+      image: "/dash-miembros.png",
+    },
+    {
+      title: "Control de Equipamiento",
+      description: "Cargá y organizá tus máquinas para que las rutinas generadas se adapten exactamente a los recursos reales de tu gimnasio.",
+      image: "/dash-maquinas.png",
+    },
+    {
+      title: "Métricas y Analítica",
+      description: "Estadísticas avanzadas sobre el uso de las instalaciones, tiempos promedio de entrenamiento, uso de máquinas y rendimiento general de tu centro.",
+      image: "/dash-metricas.png",
+    },
+    {
+      title: "Digitalización con QRs",
+      description: "Generá códigos QR personalizados para tus máquinas. Al escanearlos, el socio ve instantáneamente un video tutorial y ejercicios alternativos.",
+      image: "/dash-qrs.png",
+    },
+    {
+      title: "Comunicación y Avisos",
+      description: "Enviá notificaciones globales a todos tus socios y gestioná los mensajes, reclamos o sugerencias de forma centralizada y eficiente.",
+      image: "/dash-mensajes.png",
+    }
+  ];
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    const options = {
+      root: null,
+      rootMargin: "-40% 0px -40% 0px",
+      threshold: 0
+    };
+
+    stickyFeatures.forEach((_, index) => {
+      const el = document.getElementById(`feature-item-${index}`);
+      if (el) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveFeature(index);
+            }
+          });
+        }, options);
+        observer.observe(el);
+        observers.push(observer);
+      }
+    });
+
+    return () => {
+      observers.forEach(obs => obs.disconnect());
+    };
+  }, []);
   return (
     <main className="min-h-dvh w-full p-4 md:p-6 lg:p-8 overflow-x-hidden bg-background text-foreground transition-colors duration-300">
       <TargetCursor
@@ -173,6 +234,43 @@ export default function GimnasiosPage() {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Descubrí todas las herramientas que incluye el <strong>Dashboard Profesional</strong> para llevar la gestión de tu centro al siguiente nivel.
           </p>
+        </div>
+
+        {/* Sticky Scroll Section */}
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 mb-24 relative">
+            <div className="lg:w-[45%] flex flex-col gap-24 py-10 lg:py-32">
+                {stickyFeatures.map((feat, i) => (
+                    <div 
+                        key={i} 
+                        id={`feature-item-${i}`}
+                        className={`transition-opacity duration-500 ${activeFeature === i ? 'opacity-100' : 'opacity-40'}`}
+                    >
+                        <h3 className="text-2xl md:text-4xl font-bold mb-4 text-foreground">{feat.title}</h3>
+                        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6">{feat.description}</p>
+                        <img 
+                            src={feat.image} 
+                            alt={feat.title} 
+                            className="w-full lg:hidden rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800"
+                        />
+                    </div>
+                ))}
+            </div>
+            <div className="lg:w-[55%] hidden lg:block relative">
+                <div className="sticky top-1/4 h-[60vh] w-full flex items-center justify-center">
+                    {stickyFeatures.map((feat, i) => (
+                        <div 
+                            key={i} 
+                            className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out ${activeFeature === i ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}
+                        >
+                            <img 
+                                src={feat.image} 
+                                alt={feat.title} 
+                                className="w-full max-h-full object-contain drop-shadow-2xl filter"
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
