@@ -41,8 +41,13 @@ export default function GimnasiosPage() {
     },
     {
       title: "Comunicación y Avisos",
-      description: "Enviá notificaciones globales a todos tus socios y gestioná los mensajes, reclamos o sugerencias de forma centralizada y eficiente.",
+      description: "Gestioná los mensajes, reclamos o sugerencias de tus socios de forma centralizada y eficiente para dar soporte rápido.",
       image: "/dash-mensajes.png",
+    },
+    {
+      title: "Avisos Globales",
+      description: "Mantené a toda tu comunidad informada. Publicá notificaciones masivas en la app sobre novedades, feriados o recordatorios importantes.",
+      image: "/dash-avisos.png",
     }
   ];
 
