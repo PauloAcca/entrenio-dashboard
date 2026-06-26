@@ -73,31 +73,31 @@ export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachi
 
     return (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-2 md:p-0">
-            <div className="bg-card p-4 md:p-6 rounded-lg w-full max-w-7xl md:w-[90vw] lg:w-[80vw] xl:w-[70vw] border border-border shadow-lg flex flex-col max-h-[95vh] md:max-h-[85vh]">
+            <div className="bg-card p-4 md:p-6 rounded-lg w-full max-w-7xl md:w-[90vw] lg:w-[80vw] xl:w-[70vw] border border-border shadow-lg flex flex-col max-h-[95vh] md:max-h-[85vh] overflow-hidden">
                 {/* Header */}
-                <div className="flex flex-row justify-between items-center mb-4">
+                <div className="flex flex-row justify-between items-center mb-4 shrink-0">
                     <h1 className="text-xl font-bold text-foreground">Agregar Máquinas</h1>
                     <button 
                         onClick={() => setShowModalAddMachine(false)} 
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-bold py-2 px-4 rounded cursor-pointer"
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90 font-bold py-2 px-4 rounded cursor-pointer shrink-0"
                     >
                         Cerrar
                     </button>
                 </div>
                 
                 {/* Search and filters */}
-                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <div className="flex flex-col sm:flex-row gap-3 mb-4 shrink-0">
                     <input 
                         type="text" 
                         placeholder="Buscar máquina..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="flex-1 p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="flex-1 p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary min-w-0"
                     />
                     <select
                         value={filterCategory}
                         onChange={(e) => setFilterCategory(e.target.value)}
-                        className="p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                        className="p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm min-w-[140px]"
                     >
                         <option value="">Todas las categorías</option>
                         {categories.map(cat => (
@@ -107,7 +107,7 @@ export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachi
                     <select
                         value={filterBodyRegion}
                         onChange={(e) => setFilterBodyRegion(e.target.value)}
-                        className="p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                        className="p-2 border border-input rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm min-w-[140px]"
                     >
                         <option value="">Todas las zonas</option>
                         {bodyRegions.map(region => (
@@ -117,8 +117,8 @@ export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachi
                 </div>
                 
                 {/* Templates grid */}
-                {loading ? <p className="text-muted-foreground">Cargando templates...</p> : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1">
+                {loading ? <p className="text-muted-foreground shrink-0">Cargando templates...</p> : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto flex-1 min-h-0 pr-1">
                          {filteredTemplates.map(t => {
                             const isSelected = selectedIds.has(t.id)
                             return (
@@ -152,13 +152,13 @@ export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachi
                     </div>
                 )}
 
-                <p className="mt-4 text-xs text-muted-foreground">
+                <p className="mt-4 text-xs text-muted-foreground shrink-0">
                     Mostrando {filteredTemplates.length} de {templates.length}
                 </p>
 
                 {/* Floating action bar */}
                 {selectionCount > 0 && (
-                    <div className="mt-4 flex items-center justify-between bg-muted border border-border rounded-lg p-4 animate-in slide-in-from-bottom-2">
+                    <div className="mt-4 flex items-center justify-between bg-muted border border-border rounded-lg p-4 animate-in slide-in-from-bottom-2 shrink-0">
                         <p className="text-sm font-medium text-foreground">
                             {selectionCount} máquina{selectionCount !== 1 ? 's' : ''} seleccionada{selectionCount !== 1 ? 's' : ''}
                         </p>
