@@ -1,5 +1,5 @@
 "use client"
-import { getGymMachines } from "@/lib/api/machines"
+import { getGymMachines, deleteMachine } from "@/lib/api/machines"
 import { useEffect, useState } from "react"
 import { equipment, machineTemplate } from "@/types/entities"
 import ModalAddMachine from "@/components/layout/modalAddMachine"
@@ -13,6 +13,34 @@ export default function Machines() {
     const [showModalAddMachine, setShowModalAddMachine] = useState(false)
     const [selectedMachine, setSelectedMachine] = useState<equipment | null>(null)
     const gym = useAuthStore((state) => state.gym)
+
+    const [isSelectionMode, setIsSelectionMode] = useState(false)
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+    const [isDeleting, setIsDeleting] = useState(false)
+
+    const handleBulkDelete = async () => {
+        if (!gym?.id || selectedIds.size === 0) return;
+        
+        if (!confirm(`¿Estás seguro de que quieres eliminar ${selectedIds.size} máquina(s)? Esta acción no se puede deshacer.`)) {
+            return;
+        }
+
+        setIsDeleting(true);
+        try {
+            const ids = Array.from(selectedIds);
+            for (const id of ids) {
+                await deleteMachine(id, gym.id);
+            }
+            setSelectedIds(new Set());
+            setIsSelectionMode(false);
+            fetchMachines();
+        } catch (error) {
+            console.error("Error bulk deleting machines:", error);
+            alert("Ocurrió un error al eliminar algunas máquinas. Por favor, intenta de nuevo.");
+        } finally {
+            setIsDeleting(false);
+        }
+    }
 
     const fetchMachines = () => {
         setLoading(true)
@@ -71,9 +99,22 @@ export default function Machines() {
             </div>
         ) : (
             <div className="p-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold mb-4 text-foreground">Equipamiento</h1>
-                <button onClick={() => setShowModalAddMachine(!showModalAddMachine)} className="px-4 py-2 bg-primary text-primary-foreground rounded text-sm font-medium hover:bg-primary/90 transition-colors cursor-pointer">Agregar Maquina</button>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <h1 className="text-2xl font-bold text-foreground">Equipamiento</h1>
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={() => {
+                            setIsSelectionMode(!isSelectionMode)
+                            setSelectedIds(new Set())
+                        }} 
+                        className={`px-4 py-2 rounded text-sm font-medium transition-colors cursor-pointer border ${isSelectionMode ? 'bg-muted border-border text-foreground hover:bg-muted/80' : 'bg-background border-border text-foreground hover:bg-muted'}`}
+                    >
+                        {isSelectionMode ? 'Cancelar Selección' : 'Selección Múltiple'}
+                    </button>
+                    <button onClick={() => setShowModalAddMachine(!showModalAddMachine)} className="px-4 py-2 bg-primary text-primary-foreground rounded text-sm font-medium hover:bg-primary/90 transition-colors cursor-pointer">
+                        Agregar Máquina
+                    </button>
+                </div>
             </div>
             
             <div className="bg-muted p-4 mb-4 rounded border border-border">
@@ -126,22 +167,71 @@ export default function Machines() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {displayedMachines.map((machine) => (
-                    <button onClick={() => setSelectedMachine(machine)} key={machine.id} className="flex flex-row items-center justify-center p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left">
-                        <div className="flex flex-col items-center justify-between mb-2">
-                            <h2 className="font-semibold text-foreground">{machine.machine_template?.name || 'Máquina desconocida'}</h2>
-                            <p className="text-sm text-muted-foreground">{machine.location}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
+                {displayedMachines.map((machine) => {
+                    const isSelected = selectedIds.has(machine.id.toString());
+                    return (
+                    <button 
+                        key={machine.id}
+                        onClick={() => {
+                            if (isSelectionMode) {
+                                const newSet = new Set(selectedIds)
+                                if (isSelected) {
+                                    newSet.delete(machine.id.toString())
+                                } else {
+                                    newSet.add(machine.id.toString())
+                                }
+                                setSelectedIds(newSet)
+                            } else {
+                                setSelectedMachine(machine)
+                            }
+                        }} 
+                        className={`flex flex-row items-center justify-center p-4 border rounded-lg shadow-sm cursor-pointer transition-all text-left relative ${isSelectionMode ? (isSelected ? 'border-primary bg-primary/5 ring-2 ring-primary ring-offset-1 ring-offset-background scale-[1.01]' : 'border-border bg-card hover:border-primary/50') : 'border-border bg-card hover:scale-[1.02]'}`}
+                    >
+                        {isSelectionMode && (
+                            <div className="absolute top-3 left-3 z-10">
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground/50 bg-background'}`}>
+                                    {isSelected && <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                                </div>
+                            </div>
+                        )}
+                        <div className="flex flex-col items-center justify-between mb-2 flex-1 pl-6">
+                            <h2 className="font-semibold text-foreground text-center">{machine.machine_template?.name || 'Máquina desconocida'}</h2>
+                            <p className="text-sm text-muted-foreground text-center mt-1">{machine.location}</p>
                             <span className={`inline-block px-2 py-1 text-xs rounded mt-2 ${machine.isActive ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
                                 {machine.isActive ? 'Activa' : 'Inactiva'}
                             </span>
                         </div>
-                        <div className="flex w-1/2 ml-4 flex-col items-center justify-center">
-                            <img src={machine.machine_template?.imageUrl} alt={machine.machine_template?.name} className="mt-2" />
+                        <div className="flex w-[40%] ml-4 flex-col items-center justify-center shrink-0">
+                            <img src={machine.machine_template?.imageUrl} alt={machine.machine_template?.name} className="mt-2 w-full max-w-[120px] object-contain drop-shadow-sm mix-blend-multiply dark:mix-blend-normal" />
                         </div>
                     </button>
-                ))}
+                    );
+                })}
             </div>
+            
+            {/* Floating Action Bar for Selection Mode */}
+            {isSelectionMode && selectedIds.size > 0 && (
+                <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-card border border-border shadow-xl rounded-2xl px-6 py-4 flex items-center gap-6 z-50 animate-in slide-in-from-bottom-10 fade-in duration-300">
+                    <span className="font-medium text-foreground whitespace-nowrap">
+                        {selectedIds.size} seleccionada{selectedIds.size > 1 ? 's' : ''}
+                    </span>
+                    <button
+                        onClick={handleBulkDelete}
+                        disabled={isDeleting}
+                        className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                    >
+                        {isDeleting ? (
+                            <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        ) : (
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        )}
+                        Eliminar
+                    </button>
+                </div>
+            )}
             {showModalAddMachine && (
                 <ModalAddMachine 
                     gymId={gym?.id || ''} 
