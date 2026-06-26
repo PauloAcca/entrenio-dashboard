@@ -78,7 +78,7 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
     const posterContent = (
       <div 
         ref={ref}
-        className="flex flex-col justify-between select-none font-sans overflow-hidden box-border shrink-0 p-16"
+        className="flex flex-col justify-between select-none font-sans overflow-hidden box-border shrink-0 px-24 py-24"
         style={{
           width: "1200px",
           height: "1800px",
@@ -96,42 +96,42 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
         {/* 1 & 2. Main Group */}
         <div className="flex flex-col items-center w-full flex-1 justify-start">
           {/* Header Section */}
-          <div className="text-center space-y-2 mt-4 w-full">
-            <span className="text-2xl tracking-[0.25em] font-black uppercase opacity-90 block">MÁQUINA:</span>
-            <h3 className="text-[76px] font-black uppercase tracking-wide leading-[1.1] px-4 font-sans break-words whitespace-normal font-bold" title={machineName}>
+          <div className="text-center space-y-4 mt-2 w-full">
+            <span className="text-3xl tracking-[0.25em] font-black uppercase opacity-90 block">MÁQUINA:</span>
+            <h3 className="text-[92px] font-black uppercase tracking-wide leading-[1.1] px-4 font-sans break-words whitespace-normal font-bold" title={machineName}>
               {machineName || "Nombre de Máquina"}
             </h3>
-            <span className="text-4xl tracking-[0.15em] font-black uppercase opacity-80 block pt-2">Info & Variaciones</span>
-            <ChevronDown className={`w-14 h-14 mx-auto opacity-80 mt-1 ${isPrint ? "" : "animate-bounce"}`} />
+            <span className="text-5xl tracking-[0.15em] font-black uppercase opacity-80 block pt-2">Info & Variaciones</span>
+            <ChevronDown className={`w-20 h-20 mx-auto opacity-80 mt-4 ${isPrint ? "" : "animate-bounce"}`} />
           </div>
 
           {/* Flexible spacer */}
-          <div className="flex-1" />
+          <div className="flex-[0.5]" />
 
           {/* QR Code Section */}
           <div className="flex flex-col items-center w-full">
-            <span className="text-[46px] font-black tracking-[0.15em] uppercase opacity-95 mb-6">Escaneá aquí para más info</span>
+            <span className="text-[52px] font-black tracking-[0.15em] uppercase opacity-95 mb-8">Escaneá aquí para más info</span>
 
             {/* Brackets around QR frame */}
-            <div className="relative p-5">
+            <div className="relative p-6">
               {/* Top Left Bracket */}
-              <div className="absolute top-0 left-0" style={{ width: "48px", height: "7px", backgroundColor: config.posterTextColor }} />
-              <div className="absolute top-0 left-0" style={{ width: "7px", height: "48px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute top-0 left-0" style={{ width: "64px", height: "10px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute top-0 left-0" style={{ width: "10px", height: "64px", backgroundColor: config.posterTextColor }} />
 
               {/* Top Right Bracket */}
-              <div className="absolute top-0 right-0" style={{ width: "48px", height: "7px", backgroundColor: config.posterTextColor }} />
-              <div className="absolute top-0 right-0" style={{ width: "7px", height: "48px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute top-0 right-0" style={{ width: "64px", height: "10px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute top-0 right-0" style={{ width: "10px", height: "64px", backgroundColor: config.posterTextColor }} />
 
               {/* Bottom Left Bracket */}
-              <div className="absolute bottom-0 left-0" style={{ width: "48px", height: "7px", backgroundColor: config.posterTextColor }} />
-              <div className="absolute bottom-0 left-0" style={{ width: "7px", height: "48px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute bottom-0 left-0" style={{ width: "64px", height: "10px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute bottom-0 left-0" style={{ width: "10px", height: "64px", backgroundColor: config.posterTextColor }} />
 
               {/* Bottom Right Bracket */}
-              <div className="absolute bottom-0 right-0" style={{ width: "48px", height: "7px", backgroundColor: config.posterTextColor }} />
-              <div className="absolute bottom-0 right-0" style={{ width: "7px", height: "48px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute bottom-0 right-0" style={{ width: "64px", height: "10px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute bottom-0 right-0" style={{ width: "10px", height: "64px", backgroundColor: config.posterTextColor }} />
 
               {/* White QR Code Frame */}
-              <div className="rounded-[40px] overflow-hidden bg-white p-6 shadow-2xl flex items-center justify-center w-[640px] h-[640px] relative">
+              <div className="rounded-[48px] overflow-hidden bg-white p-8 shadow-2xl flex items-center justify-center w-[740px] h-[740px] relative">
                 {qrUrl ? (
                   <>
                     <img
@@ -154,15 +154,15 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
               </div>
             </div>
 
-            <span className="text-[46px] font-black tracking-[0.15em] uppercase opacity-95 mt-6">Descubre alternativas</span>
+            <span className="text-[52px] font-black tracking-[0.15em] uppercase opacity-95 mt-8">Descubre alternativas</span>
           </div>
 
           {/* Flexible spacer */}
-          <div className="flex-1" />
+          <div className="flex-[0.5]" />
         </div>
 
         {/* 3. Footer Branding Section */}
-        <div className="flex items-center justify-between border-t border-white/10 pt-6 pb-4 mb-4 w-full">
+        <div className="flex items-center justify-between border-t-2 border-white/10 pt-8 pb-2 w-full">
           {activeGymLogo ? (
             hasGymName ? (
               <>
