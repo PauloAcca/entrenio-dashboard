@@ -100,7 +100,7 @@ export default function Members() {
                 </button>
             </div>
             
-            <div className="bg-muted p-4 mb-4 rounded border border-border grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-muted p-4 mb-4 rounded border border-border grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                     <p className="text-xs text-muted-foreground uppercase font-bold">Total</p>
                     <p className="text-2xl font-bold text-foreground">{totals.total}</p>
@@ -144,49 +144,35 @@ export default function Members() {
                 </select>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
                 {filteredMembers.map((member) => (
-                    <button onClick={() => setSelectedMember(member)} key={member.id} className="flex flex-row items-center gap-4 p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-105 transition-all text-left group">
-                        {/* Avatar */}
-                        {member.user?.avatarUrl ? (
-                            <img 
-                                src={member.user.avatarUrl} 
-                                alt={member.user?.name || 'Avatar'} 
-                                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                            />
-                        ) : (
-                            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                                <span className="text-primary font-bold text-lg">
-                                    {(member.user?.name || member.user?.email || '?').charAt(0).toUpperCase()}
-                                </span>
+                    <button onClick={() => setSelectedMember(member)} key={member.id} className="flex flex-col gap-3 p-3 md:p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:scale-[1.02] transition-all text-left group">
+                        <div className="flex flex-col xl:flex-row w-full justify-between items-start gap-3 min-w-0">
+                            <div className="flex flex-col gap-1 min-w-0 w-full">
+                                <h1 className="font-bold text-sm md:text-lg text-foreground truncate leading-tight">{member.user?.name || 'Sin Nombre'}</h1>
+                                <p className="text-xs md:text-sm text-muted-foreground truncate">{member.user?.email || 'Sin Email'}</p>
+                                {!member.user_id && <span className="text-[9px] md:text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded w-fit font-bold uppercase tracking-wider mt-0.5 border border-amber-200 dark:border-amber-800/50">Sin App</span>}
+                                {member.user?.dni && <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">DNI: {member.user.dni}</p>}
+                                {member.user?.phone && <p className="text-[10px] md:text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
                             </div>
-                        )}
-                        <div className="flex flex-1 justify-between items-start gap-4 min-w-0">
-                            <div className="flex flex-col gap-1 min-w-0">
-                                <h1 className="font-bold text-lg text-foreground truncate">{member.user?.name || 'Sin Nombre'}</h1>
-                                <p className="text-sm text-muted-foreground truncate">{member.user?.email || 'Sin Email'}</p>
-                                {!member.user_id && <span className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded w-fit font-bold uppercase tracking-wider mt-0.5 border border-amber-200 dark:border-amber-800/50">Sin App</span>}
-                                {member.user?.dni && <p className="text-xs text-muted-foreground mt-0.5">DNI: {member.user.dni}</p>}
-                                {member.user?.phone && <p className="text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
-                            </div>
-                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                                <div className="flex gap-2">
+                            <div className="flex flex-col items-start xl:items-end gap-1 flex-shrink-0 w-full xl:w-auto pt-2 xl:pt-0 border-t border-border/50 xl:border-0">
+                                <div className="flex flex-wrap gap-1 md:gap-2">
                                     {isExpired(member.ends_at) ? (
-                                        <span className="px-2 py-1 text-xs rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
+                                        <span className="px-1.5 py-0.5 md:px-2 md:py-1 text-[9px] md:text-xs rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
                                             Vencido
                                         </span>
                                     ) : (
-                                        <span className={`px-2 py-1 text-xs rounded-full ${member.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
+                                        <span className={`px-1.5 py-0.5 md:px-2 md:py-1 text-[9px] md:text-xs rounded-full ${member.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'}`}>
                                             {member.status === 'active' ? 'Activo' : 'Inactivo'}
                                         </span>
                                     )}
-                                    <span className={`px-2 py-1 text-xs rounded-full ${member.has_routine ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50' : 'bg-slate-100 dark:bg-slate-800/30 text-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-800/50'}`}>
-                                        {member.has_routine ? 'Con Rutina' : 'Sin Rutina'}
+                                    <span className={`px-1.5 py-0.5 md:px-2 md:py-1 text-[9px] md:text-xs rounded-full ${member.has_routine ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50' : 'bg-slate-100 dark:bg-slate-800/30 text-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-800/50'}`}>
+                                        {member.has_routine ? 'Rutina' : 'S/Rutina'}
                                     </span>
                                 </div>
-                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider mt-2">Membresía Gimnasio</p>
-                                <p className="text-xs text-muted-foreground">Desde: {member.starts_at ? new Date(member.starts_at).toLocaleDateString() : '-'}</p>
-                                <p className={`text-xs mt-0.5 ${isExpired(member.ends_at) ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-muted-foreground'}`}>
+                                <p className="hidden md:block text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider mt-1 md:mt-2">Membresía</p>
+                                <p className="text-[10px] md:text-xs text-muted-foreground mt-1 md:mt-0">Desde: {member.starts_at ? new Date(member.starts_at).toLocaleDateString() : '-'}</p>
+                                <p className={`text-[10px] md:text-xs mt-0.5 ${isExpired(member.ends_at) ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-muted-foreground'}`}>
                                     Hasta: {member.ends_at ? new Date(member.ends_at).toLocaleDateString() : '-'}
                                 </p>
                             </div>

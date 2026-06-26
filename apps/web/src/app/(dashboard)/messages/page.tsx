@@ -85,20 +85,27 @@ export default function MessagesPage() {
             </div>
 
             {/* Stats row */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:flex md:flex-row gap-3 mb-6">
                 {(["suggestion", "complaint", "question", "notice", "other"] as const).map(cat => {
                     const cfg = CATEGORY_CONFIG[cat]
+                    const isSelected = filter === cat
                     return (
                         <button
                             key={cat}
                             onClick={() => setFilter(cat)}
-                            className={`flex flex-col gap-1.5 p-4 rounded-xl border cursor-pointer transition-all text-left hover:scale-[1.02] ${filter === cat ? `${cfg.bg} ${cfg.border}` : "bg-card border-border hover:border-border/80"}`}
+                            className={`flex flex-col gap-1.5 p-4 rounded-xl border cursor-pointer transition-all duration-500 ease-out text-left overflow-hidden
+                                ${cfg.bg} ${cfg.border}
+                                ${isSelected 
+                                    ? "md:flex-[1.5] shadow-md scale-[1.02] md:scale-100 ring-1 ring-black/5 dark:ring-white/10" 
+                                    : "md:flex-1 md:hover:flex-[1.15] shadow-sm hover:shadow-md grayscale-[30%] hover:grayscale-0 opacity-80 hover:opacity-100"
+                                }
+                            `}
                         >
-                            <div className={`flex items-center gap-1.5 ${filter === cat ? cfg.color : "text-muted-foreground"}`}>
+                            <div className={`flex items-center gap-1.5 ${cfg.color} whitespace-nowrap`}>
                                 {cfg.icon}
                                 <span className="text-xs font-bold uppercase tracking-wider">{cfg.label}</span>
                             </div>
-                            <p className="text-2xl font-bold text-foreground">{counts[cat]}</p>
+                            <p className={`text-2xl font-bold text-foreground transition-transform duration-500 ${isSelected ? 'md:scale-110 origin-left' : ''}`}>{counts[cat]}</p>
                         </button>
                     )
                 })}

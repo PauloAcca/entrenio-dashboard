@@ -39,8 +39,8 @@ export default function ModalEditMachine({ machine, gymId, onClose, onUpdate }: 
     }
 
     return (
-        <div className="fixed inset-0 backdrop-blur-sm bg-background/80 flex items-center justify-center z-50">
-            <div className="bg-card p-6 rounded-lg w-full max-w-lg shadow-xl border border-border">
+        <div className="fixed inset-0 backdrop-blur-sm bg-background/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-card p-4 md:p-6 rounded-lg w-full max-w-lg shadow-xl border border-border">
                 <div className="flex flex-row justify-between items-center mb-4">
                     <h1 className="text-xl font-bold text-foreground">Editar Maquina</h1>
                     <button onClick={onClose} className="text-muted-foreground hover:text-foreground cursor-pointer">

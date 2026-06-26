@@ -83,22 +83,22 @@ export default function QrCodesPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Page header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+      <div className="flex flex-col md:flex-row items-start md:justify-between gap-4 md:gap-0 mb-8">
+        <div className="w-full md:w-auto">
+          <div className="flex items-center gap-3 mb-2 md:mb-1">
+            <div className="w-9 h-9 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
               <QrCode className="w-5 h-5 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">Códigos QR</h1>
           </div>
-          <p className="text-muted-foreground text-sm ml-12">
+          <p className="text-muted-foreground text-sm ml-0 md:ml-12">
             Generá, personalizá y descargá los códigos QR de las máquinas de{" "}
             <span className="font-medium text-foreground">{gym?.name ?? "tu gimnasio"}</span>
           </p>
         </div>
 
         {/* Stats pill */}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card text-sm text-muted-foreground shrink-0">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card text-sm text-muted-foreground shrink-0 self-start">
           <Wifi className="w-3.5 h-3.5" />
           <span>
             {eligibleMachines.length} máquina

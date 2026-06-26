@@ -264,14 +264,29 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-card w-full max-w-4xl max-h-[90vh] rounded-xl shadow-2xl flex flex-col border border-border overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-card w-full h-dvh md:h-auto max-w-4xl md:max-h-[90vh] rounded-none md:rounded-xl shadow-2xl flex flex-col border-0 md:border border-border overflow-hidden">
                 {/* Header with Tabs */}
                 <div className="flex flex-col border-b border-border bg-muted/30">
-                    <div className="flex flex-row items-center justify-between p-4 pb-2">
-                        <div>
-                            <h2 className="text-xl font-bold text-foreground">{member.user?.name || 'Sin Nombre'}</h2>
-                            <p className="text-sm text-muted-foreground">{member.user?.email || 'Sin Email'}</p>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 pb-2 gap-4 sm:gap-0">
+                        <div className="flex items-center gap-4">
+                            {member.user?.avatarUrl ? (
+                                <img 
+                                    src={member.user.avatarUrl} 
+                                    alt={member.user?.name || 'Avatar'} 
+                                    className="w-12 h-12 rounded-full object-cover flex-shrink-0 shadow-sm border border-border"
+                                />
+                            ) : (
+                                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 shadow-sm border border-primary/20">
+                                    <span className="text-primary font-bold text-lg">
+                                        {(member.user?.name || member.user?.email || '?').charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+                            )}
+                            <div>
+                                <h2 className="text-xl font-bold text-foreground">{member.user?.name || 'Sin Nombre'}</h2>
+                                <p className="text-sm text-muted-foreground">{member.user?.email || 'Sin Email'}</p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2">
                             {activeTab === 'routine' && routine && (

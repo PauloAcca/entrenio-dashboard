@@ -26,7 +26,7 @@ export default function Navigation() {
         <>
             {/* Mobile Header: Visible on mobile when menu is closed */}
             {!open && (
-                <div className="md:hidden w-full flex items-center p-4 bg-sidebar gap-4 border-b border-border">
+                <div className="md:hidden w-full flex-shrink-0 flex items-center p-4 bg-sidebar gap-4 border-b border-border">
                     <button 
                         onClick={() => setOpen(true)} 
                         className="p-2 hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
@@ -43,7 +43,7 @@ export default function Navigation() {
             )}
 
             <nav className={`
-                flex flex-col h-dvh justify-between items-center p-4 bg-sidebar border-r border-border transition-all duration-300
+                flex flex-col h-dvh items-center p-4 bg-sidebar border-r border-border transition-all duration-300 overflow-y-auto shrink-0
                 ${open 
                     ? 'fixed inset-0 z-50 w-full md:relative md:w-[15%]' 
                     : 'hidden md:flex md:w-[5%]'
@@ -92,7 +92,7 @@ export default function Navigation() {
                     })}
                 </ul> 
 
-                <ul className="flex flex-col gap-2 w-full mb-4">
+                <ul className="flex flex-col gap-2 w-full mt-auto mb-4 pt-8">
                     <li 
                         onClick={() => {
                             logout()
