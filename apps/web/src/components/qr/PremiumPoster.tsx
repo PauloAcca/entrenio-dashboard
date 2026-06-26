@@ -1,5 +1,5 @@
 "use client";
-import React, { forwardRef, useState, useEffect } from "react";
+import React, { forwardRef, useState, useEffect, useRef } from "react";
 import { QrConfig, generateQrBlob } from "@/lib/utils/qrGenerator";
 import { ChevronDown } from "lucide-react";
 
@@ -18,6 +18,10 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
     const activeGymLogo = config.logo ?? gymLogoUrl;
     const [qrUrl, setQrUrl] = useState<string | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
+    
+    // Scale state for preview
+    const [scale, setScale] = useState(1);
+    const wrapperRef = useRef<HTMLDivElement>(null);
 
     const showGymName = config.showGymName !== false;
     const rawGymName = config.customGymName && config.customGymName.trim() !== ""
@@ -56,172 +60,84 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
       };
     }, [qrCode, config]);
     
-    // Scale classes depending on preview vs print mode
-    const posterStyle = isPrint
-      ? {
+    // Observe wrapper width for preview scaling
+    useEffect(() => {
+      if (isPrint || !wrapperRef.current) return;
+      const observer = new ResizeObserver((entries) => {
+        if (entries[0]) {
+          const { width } = entries[0].contentRect;
+          // The base width of the poster is 1200px
+          setScale(width / 1200);
+        }
+      });
+      observer.observe(wrapperRef.current);
+      return () => observer.disconnect();
+    }, [isPrint]);
+    
+    // The base poster content (ALWAYS 1200x1800)
+    const posterContent = (
+      <div 
+        ref={ref}
+        className="flex flex-col justify-between select-none font-sans overflow-hidden box-border shrink-0 p-16"
+        style={{
           width: "1200px",
           height: "1800px",
           backgroundColor: config.posterBgColor,
           color: config.posterTextColor,
-        }
-      : {
-          backgroundColor: config.posterBgColor,
-          color: config.posterTextColor,
-        };
-
-    const containerClasses = isPrint
-      ? "p-16 flex flex-col justify-between select-none relative font-sans shrink-0 overflow-hidden box-border"
-      : "w-full max-w-[420px] aspect-[2/3] rounded-2xl shadow-xl overflow-hidden p-6 flex flex-col justify-between relative select-none font-sans transition-all duration-300";
-
-    const headerClasses = isPrint
-      ? "text-center space-y-2 mt-4 w-full"
-      : "text-center space-y-1 w-full";
-
-    const titlePrefixClasses = isPrint
-      ? "text-2xl tracking-[0.25em] font-black uppercase opacity-90 block"
-      : "text-[11px] tracking-[0.25em] font-black uppercase opacity-90 block";
-
-    const titleClasses = isPrint
-      ? "text-[76px] font-black uppercase tracking-wide leading-[1.1] px-4 font-sans break-words whitespace-normal font-bold"
-      : "text-2xl sm:text-3xl font-black uppercase tracking-wide leading-tight px-2 font-sans break-words whitespace-normal font-bold";
-
-    const subTitleClasses = isPrint
-      ? "text-4xl tracking-[0.15em] font-black uppercase opacity-80 block pt-2"
-      : "text-xs tracking-[0.15em] font-black uppercase opacity-80 block pt-0.5";
-
-    const arrowIconClasses = isPrint ? "w-14 h-14 mx-auto opacity-80 mt-1" : "w-5 h-5 mx-auto opacity-80 mt-0.5 animate-bounce";
-
-    // QR container area
-    const qrSectionClasses = "flex flex-col items-center w-full";
-    
-    const qrInstructionClasses = isPrint
-      ? "text-[46px] font-black tracking-[0.15em] uppercase opacity-95 mb-6"
-      : "text-[14px] font-black tracking-[0.15em] uppercase opacity-95 mb-3";
-
-    const qrBracketsClasses = isPrint ? "relative p-5" : "relative p-2.5";
-    
-    const qrCardClasses = isPrint
-      ? "rounded-[40px] overflow-hidden bg-white p-6 shadow-2xl flex items-center justify-center w-[640px] h-[640px]"
-      : "rounded-2xl overflow-hidden bg-white p-3 shadow-md flex items-center justify-center w-[200px] h-[200px] sm:w-[240px] sm:h-[240px]";
-
-    const qrAlternativeClasses = isPrint
-      ? "text-[46px] font-black tracking-[0.15em] uppercase opacity-95 mt-6"
-      : "text-[14px] font-black tracking-[0.15em] uppercase opacity-95 mt-3";
-
-    // Footer section
-    const footerClasses = isPrint
-      ? "flex items-center justify-between border-t border-white/10 pt-6 pb-4 mb-4"
-      : "flex items-center justify-between border-t border-white/10 pt-2";
-
-    // Bracket line dimensions
-    const bracketLen = isPrint ? "48px" : "20px";
-    const bracketThick = isPrint ? "7px" : "3px";
-
-    return (
-      <div ref={ref} style={posterStyle} className={containerClasses}>
-        {/* 1 & 2. Main Group for tighter spacing between header and QR */}
+          ...(isPrint ? {} : {
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            position: "absolute",
+            top: 0,
+            left: 0
+          })
+        }}
+      >
+        {/* 1 & 2. Main Group */}
         <div className="flex flex-col items-center w-full flex-1 justify-start">
           {/* Header Section */}
-          <div className={headerClasses}>
-            <span className={titlePrefixClasses}>MÁQUINA:</span>
-            <h3 className={titleClasses} title={machineName}>
+          <div className="text-center space-y-2 mt-4 w-full">
+            <span className="text-2xl tracking-[0.25em] font-black uppercase opacity-90 block">MÁQUINA:</span>
+            <h3 className="text-[76px] font-black uppercase tracking-wide leading-[1.1] px-4 font-sans break-words whitespace-normal font-bold" title={machineName}>
               {machineName || "Nombre de Máquina"}
             </h3>
-            <span className={subTitleClasses}>Info & Variaciones</span>
-            <ChevronDown className={arrowIconClasses} />
+            <span className="text-4xl tracking-[0.15em] font-black uppercase opacity-80 block pt-2">Info & Variaciones</span>
+            <ChevronDown className={`w-14 h-14 mx-auto opacity-80 mt-1 ${isPrint ? "" : "animate-bounce"}`} />
           </div>
 
-          {/* Flexible spacer to push QR Section all the way down, reducing bottom empty space */}
+          {/* Flexible spacer */}
           <div className="flex-1" />
 
-          {/* QR Code Section (Large & Focused) */}
-          <div className={qrSectionClasses}>
-            <span className={qrInstructionClasses}>Escaneá aquí para más info</span>
+          {/* QR Code Section */}
+          <div className="flex flex-col items-center w-full">
+            <span className="text-[46px] font-black tracking-[0.15em] uppercase opacity-95 mb-6">Escaneá aquí para más info</span>
 
             {/* Brackets around QR frame */}
-            <div className={qrBracketsClasses}>
+            <div className="relative p-5">
               {/* Top Left Bracket */}
-              <div
-                className="absolute top-0 left-0"
-                style={{
-                  width: bracketLen,
-                  height: bracketThick,
-                  backgroundColor: config.posterTextColor,
-                }}
-              />
-              <div
-                className="absolute top-0 left-0"
-                style={{
-                  width: bracketThick,
-                  height: bracketLen,
-                  backgroundColor: config.posterTextColor,
-                }}
-              />
+              <div className="absolute top-0 left-0" style={{ width: "48px", height: "7px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute top-0 left-0" style={{ width: "7px", height: "48px", backgroundColor: config.posterTextColor }} />
 
               {/* Top Right Bracket */}
-              <div
-                className="absolute top-0 right-0"
-                style={{
-                  width: bracketLen,
-                  height: bracketThick,
-                  backgroundColor: config.posterTextColor,
-                }}
-              />
-              <div
-                className="absolute top-0 right-0"
-                style={{
-                  width: bracketThick,
-                  height: bracketLen,
-                  backgroundColor: config.posterTextColor,
-                }}
-              />
+              <div className="absolute top-0 right-0" style={{ width: "48px", height: "7px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute top-0 right-0" style={{ width: "7px", height: "48px", backgroundColor: config.posterTextColor }} />
 
               {/* Bottom Left Bracket */}
-              <div
-                className="absolute bottom-0 left-0"
-                style={{
-                  width: bracketLen,
-                  height: bracketThick,
-                  backgroundColor: config.posterTextColor,
-                }}
-              />
-              <div
-                className="absolute bottom-0 left-0"
-                style={{
-                  width: bracketThick,
-                  height: bracketLen,
-                  backgroundColor: config.posterTextColor,
-                }}
-              />
+              <div className="absolute bottom-0 left-0" style={{ width: "48px", height: "7px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute bottom-0 left-0" style={{ width: "7px", height: "48px", backgroundColor: config.posterTextColor }} />
 
               {/* Bottom Right Bracket */}
-              <div
-                className="absolute bottom-0 right-0"
-                style={{
-                  width: bracketLen,
-                  height: bracketThick,
-                  backgroundColor: config.posterTextColor,
-                }}
-              />
-              <div
-                className="absolute bottom-0 right-0"
-                style={{
-                  width: bracketThick,
-                  height: bracketLen,
-                  backgroundColor: config.posterTextColor,
-                }}
-              />
+              <div className="absolute bottom-0 right-0" style={{ width: "48px", height: "7px", backgroundColor: config.posterTextColor }} />
+              <div className="absolute bottom-0 right-0" style={{ width: "7px", height: "48px", backgroundColor: config.posterTextColor }} />
 
               {/* White QR Code Frame */}
-              <div className={`${qrCardClasses} relative`}>
+              <div className="rounded-[40px] overflow-hidden bg-white p-6 shadow-2xl flex items-center justify-center w-[640px] h-[640px] relative">
                 {qrUrl ? (
                   <>
                     <img
                       src={qrUrl}
                       alt="QR Code"
-                      className={`w-full h-full object-contain transition-opacity duration-200 ${
-                        isGenerating ? "opacity-35" : "opacity-100"
-                      }`}
+                      className={`w-full h-full object-contain transition-opacity duration-200 ${isGenerating ? "opacity-35" : "opacity-100"}`}
                     />
                     {isGenerating && (
                       <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[1px]">
@@ -238,176 +154,76 @@ export const PremiumPoster = forwardRef<HTMLDivElement, PremiumPosterProps>(
               </div>
             </div>
 
-            <span className={qrAlternativeClasses}>Descubre alternativas</span>
+            <span className="text-[46px] font-black tracking-[0.15em] uppercase opacity-95 mt-6">Descubre alternativas</span>
           </div>
 
-          {/* Flexible spacer to push QR Section up, keeping it perfectly centered and symmetric */}
+          {/* Flexible spacer */}
           <div className="flex-1" />
         </div>
 
         {/* 3. Footer Branding Section */}
-        <div className={footerClasses}>
+        <div className="flex items-center justify-between border-t border-white/10 pt-6 pb-4 mb-4 w-full">
           {activeGymLogo ? (
             hasGymName ? (
-              /* CASE A: Gym Logo (with Gym Name) & Entrenio branding next to each other (left & right sides) */
               <>
-                {/* Gym logo area */}
                 <div className="flex items-center gap-4 max-w-[55%]">
-                  <div
-                    className={`flex items-center justify-center shrink-0 ${
-                      isPrint ? "w-40 h-40" : "w-16 h-16"
-                    }`}
-                  >
-                    <img
-                      src={activeGymLogo}
-                      alt="Gym Logo"
-                      crossOrigin="anonymous"
-                      className="w-full h-full object-contain drop-shadow-md"
-                      onError={(e) => {
-                        // Fallback if image fails to load
-                        (e.target as HTMLElement).style.display = "none";
-                      }}
-                    />
+                  <div className="flex items-center justify-center shrink-0 w-40 h-40">
+                    <img src={activeGymLogo} alt="Gym Logo" crossOrigin="anonymous" className="w-full h-full object-contain drop-shadow-md" onError={(e) => { (e.target as HTMLElement).style.display = "none"; }} />
                   </div>
                   <div className="min-w-0">
-                    <p
-                      className={`font-black uppercase tracking-wider break-words whitespace-normal leading-tight ${
-                        isPrint ? "text-4xl" : "text-sm"
-                      }`}
-                    >
-                      {activeGymName}
-                    </p>
+                    <p className="font-black uppercase tracking-wider break-words whitespace-normal leading-tight text-4xl">{activeGymName}</p>
                   </div>
                 </div>
-
-                {/* Entrenio logo area */}
                 <div className="flex items-center gap-4 max-w-[45%] text-left">
-                  <img
-                    src="/entrenio-logo.png"
-                    alt="Entrenio Logo"
-                    className={`rounded-2xl shrink-0 object-cover shadow-lg bg-black ${
-                      isPrint ? "w-28 h-28" : "w-11 h-11"
-                    }`}
-                  />
+                  <img src="/entrenio-logo.png" alt="Entrenio Logo" className="rounded-2xl shrink-0 object-cover shadow-lg bg-black w-28 h-28" />
                   <div className="min-w-0">
-                    <p
-                      className={`font-semibold opacity-70 leading-none ${
-                        isPrint ? "text-xl mb-1" : "text-[8px]"
-                      }`}
-                    >
-                      Powered by
-                    </p>
-                    <p
-                      className={`font-black uppercase tracking-wider leading-none my-0.5 ${
-                        isPrint ? "text-4xl" : "text-xs"
-                      }`}
-                    >
-                      ENTRENIO
-                    </p>
-                    <p
-                      className={`font-semibold opacity-70 leading-none ${
-                        isPrint ? "text-xl mt-1" : "text-[8px]"
-                      }`}
-                    >
-                      Descarga la App
-                    </p>
+                    <p className="font-semibold opacity-70 leading-none text-xl mb-1">Powered by</p>
+                    <p className="font-black uppercase tracking-wider leading-none my-0.5 text-4xl">ENTRENIO</p>
+                    <p className="font-semibold opacity-70 leading-none text-xl mt-1">Descarga la App</p>
                   </div>
                 </div>
               </>
             ) : (
-              /* CASE C: Centered Gym Logo + Centered Entrenio branding side-by-side (when gym name is hidden) */
-              <div className="flex items-center justify-center gap-8 md:gap-12 w-full">
-                {/* Gym logo area */}
-                <div
-                  className={`flex items-center justify-center shrink-0 ${
-                    isPrint ? "w-40 h-40" : "w-16 h-16"
-                  }`}
-                >
-                  <img
-                    src={activeGymLogo}
-                    alt="Gym Logo"
-                    crossOrigin="anonymous"
-                    className="w-full h-full object-contain drop-shadow-md"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = "none";
-                    }}
-                  />
+              <div className="flex items-center justify-center gap-12 w-full">
+                <div className="flex items-center justify-center shrink-0 w-40 h-40">
+                  <img src={activeGymLogo} alt="Gym Logo" crossOrigin="anonymous" className="w-full h-full object-contain drop-shadow-md" onError={(e) => { (e.target as HTMLElement).style.display = "none"; }} />
                 </div>
-
-                {/* Elegant separator line */}
-                <div className={`bg-white/20 shrink-0 ${isPrint ? "w-0.5 h-16" : "w-[1px] h-8"}`} />
-
-                {/* Entrenio logo area */}
+                <div className="bg-white/20 shrink-0 w-0.5 h-16" />
                 <div className="flex items-center gap-4 text-left">
-                  <img
-                    src="/entrenio-logo.png"
-                    alt="Entrenio Logo"
-                    className={`rounded-2xl shrink-0 object-cover shadow-lg bg-black ${
-                      isPrint ? "w-28 h-28" : "w-11 h-11"
-                    }`}
-                  />
+                  <img src="/entrenio-logo.png" alt="Entrenio Logo" className="rounded-2xl shrink-0 object-cover shadow-lg bg-black w-28 h-28" />
                   <div className="min-w-0">
-                    <p
-                      className={`font-semibold opacity-70 leading-none ${
-                        isPrint ? "text-xl mb-1" : "text-[8px]"
-                      }`}
-                    >
-                      Powered by
-                    </p>
-                    <p
-                      className={`font-black uppercase tracking-wider leading-none my-0.5 ${
-                        isPrint ? "text-4xl" : "text-xs"
-                      }`}
-                    >
-                      ENTRENIO
-                    </p>
-                    <p
-                      className={`font-semibold opacity-70 leading-none ${
-                        isPrint ? "text-xl mt-1" : "text-[8px]"
-                      }`}
-                    >
-                      Descarga la App
-                    </p>
+                    <p className="font-semibold opacity-70 leading-none text-xl mb-1">Powered by</p>
+                    <p className="font-black uppercase tracking-wider leading-none my-0.5 text-4xl">ENTRENIO</p>
+                    <p className="font-semibold opacity-70 leading-none text-xl mt-1">Descarga la App</p>
                   </div>
                 </div>
               </div>
             )
           ) : (
-            /* CASE B: Centered Entrenio branding ONLY */
             <div className="flex items-center justify-center gap-4 w-full">
-              <img
-                src="/entrenio-logo.png"
-                alt="Entrenio Logo"
-                className={`rounded-2xl shrink-0 object-cover shadow-lg bg-black ${
-                  isPrint ? "w-28 h-28" : "w-12 h-12"
-                }`}
-              />
+              <img src="/entrenio-logo.png" alt="Entrenio Logo" className="rounded-2xl shrink-0 object-cover shadow-lg bg-black w-28 h-28" />
               <div className="text-left">
-                <p
-                  className={`font-semibold opacity-70 leading-none ${
-                    isPrint ? "text-xl mb-1" : "text-[8px]"
-                  }`}
-                >
-                  Powered by
-                </p>
-                <p
-                  className={`font-black uppercase tracking-wider leading-none my-0.5 ${
-                    isPrint ? "text-4xl" : "text-sm"
-                  }`}
-                >
-                  ENTRENIO
-                </p>
-                <p
-                  className={`font-semibold opacity-70 leading-none ${
-                    isPrint ? "text-xl mt-1" : "text-[8px]"
-                  }`}
-                >
-                  Descarga la App
-                </p>
+                <p className="font-semibold opacity-70 leading-none text-xl mb-1">Powered by</p>
+                <p className="font-black uppercase tracking-wider leading-none my-0.5 text-4xl">ENTRENIO</p>
+                <p className="font-semibold opacity-70 leading-none text-xl mt-1">Descarga la App</p>
               </div>
             </div>
           )}
         </div>
+      </div>
+    );
+
+    if (isPrint) {
+      return posterContent;
+    }
+
+    // Wrap in a scaled container for preview
+    return (
+      <div 
+        ref={wrapperRef}
+        className="w-full max-w-[420px] aspect-[2/3] rounded-2xl shadow-xl mx-auto relative overflow-hidden bg-background"
+      >
+        {posterContent}
       </div>
     );
   }
