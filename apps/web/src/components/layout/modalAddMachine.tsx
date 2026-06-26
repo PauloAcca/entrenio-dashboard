@@ -72,8 +72,8 @@ export default function ModalAddMachine({ gymId, setShowModalAddMachine, onMachi
     const selectionCount = selectedIds.size
 
     return (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-2 md:p-0">
-            <div className="bg-card p-4 md:p-6 rounded-lg w-full max-w-7xl md:w-[90vw] lg:w-[80vw] xl:w-[70vw] border border-border shadow-lg flex flex-col max-h-[95vh] md:max-h-[85vh] overflow-hidden">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-0 md:p-4">
+            <div className="bg-card p-4 md:p-6 rounded-none md:rounded-lg w-full h-dvh md:h-auto max-w-7xl md:w-[90vw] lg:w-[80vw] xl:w-[70vw] border-0 md:border border-border shadow-lg flex flex-col md:max-h-[85vh] overflow-hidden">
                 {/* Header */}
                 <div className="flex flex-row justify-between items-center mb-4 shrink-0">
                     <h1 className="text-xl font-bold text-foreground">Agregar Máquinas</h1>
