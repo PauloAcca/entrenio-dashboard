@@ -121,6 +121,10 @@ export function useQrGenerator() {
           }
 
           if (format === "png") {
+            // Safari iOS workaround: first pass to force image loading/decoding
+            await htmlToImage.toPng(element, { cacheBust: true, imagePlaceholder, skipAutoScale: true });
+            await new Promise(r => setTimeout(r, 100));
+            
             const dataUrl = await htmlToImage.toPng(element, {
               pixelRatio: 2,
               cacheBust: true,
@@ -128,6 +132,9 @@ export function useQrGenerator() {
             });
             saveAs(dataUrl, `POSTER_${safeName}_${qrCode}.png`);
           } else if (format === "svg") {
+            await htmlToImage.toSvg(element, { cacheBust: true, imagePlaceholder, skipAutoScale: true });
+            await new Promise(r => setTimeout(r, 100));
+            
             const dataUrl = await htmlToImage.toSvg(element, {
               cacheBust: true,
               imagePlaceholder,
@@ -135,6 +142,9 @@ export function useQrGenerator() {
             saveAs(dataUrl, `POSTER_${safeName}_${qrCode}.svg`);
           } else if (format === "pdf") {
             const { jsPDF } = await import("jspdf");
+            await htmlToImage.toPng(element, { cacheBust: true, imagePlaceholder, skipAutoScale: true });
+            await new Promise(r => setTimeout(r, 100));
+            
             const dataUrl = await htmlToImage.toPng(element, {
               pixelRatio: 2,
               cacheBust: true,
@@ -192,6 +202,8 @@ export function useQrGenerator() {
               const safeName = machine.name.replace(/[^a-zA-Z0-9_-]/g, "_");
 
               if (format === "png") {
+                await htmlToImage.toPng(element, { cacheBust: true, imagePlaceholder, skipAutoScale: true });
+                await new Promise(r => setTimeout(r, 50));
                 const dataUrl = await htmlToImage.toPng(element, {
                   pixelRatio: 2,
                   cacheBust: true,
@@ -200,6 +212,8 @@ export function useQrGenerator() {
                 const base64Data = dataUrl.split("base64,")[1];
                 zip.file(`POSTER_${safeName}_${machine.qrCode}.png`, base64Data, { base64: true });
               } else if (format === "svg") {
+                await htmlToImage.toSvg(element, { cacheBust: true, imagePlaceholder, skipAutoScale: true });
+                await new Promise(r => setTimeout(r, 50));
                 const dataUrl = await htmlToImage.toSvg(element, {
                   cacheBust: true,
                   imagePlaceholder,
@@ -211,6 +225,8 @@ export function useQrGenerator() {
                 zip.file(`POSTER_${safeName}_${machine.qrCode}.svg`, content, options);
               } else if (format === "pdf") {
                 const { jsPDF } = await import("jspdf");
+                await htmlToImage.toPng(element, { cacheBust: true, imagePlaceholder, skipAutoScale: true });
+                await new Promise(r => setTimeout(r, 50));
                 const dataUrl = await htmlToImage.toPng(element, {
                   pixelRatio: 2,
                   cacheBust: true,
