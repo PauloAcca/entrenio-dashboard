@@ -716,13 +716,23 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                     /* ── No Profile ── */
                                     <div className="bg-muted/30 rounded-lg p-8 text-center border border-dashed border-border flex flex-col items-center justify-center gap-3" style={{ minHeight: 200 }}>
                                         <span className="text-3xl">📋</span>
-                                        <p className="text-sm text-muted-foreground max-w-[220px]">El miembro aún no tiene un perfil de entrenamiento.</p>
-                                        {userId && (
-                                            <button onClick={() => setIsEditingProfile(true)} className="mt-2 px-4 py-2 text-sm font-bold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-                                                Completar perfil ahora
-                                            </button>
+                                        {userId ? (
+                                            <>
+                                                <p className="text-sm text-muted-foreground max-w-[220px]">El miembro aún no tiene un perfil de entrenamiento.</p>
+                                                <button
+                                                    onClick={() => setIsEditingProfile(true)}
+                                                    className="mt-2 px-4 py-2 text-sm font-bold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                                                >
+                                                    Completar perfil ahora
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <p className="text-sm text-muted-foreground max-w-[220px]">
+                                                Este miembro no se registró en la app aún. El perfil de entrenamiento se crea desde la app móvil.
+                                            </p>
                                         )}
                                     </div>
+
                                 )}
 
                                 {member.user_id && !isEditingProfile && (
@@ -851,14 +861,26 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                 /* ── No Routine ─────────────────────────── */
                                 <div className="flex flex-col items-center justify-center gap-4 py-16 border border-dashed border-border rounded-xl">
                                     <span className="text-5xl">🏋️</span>
-                                    <div className="text-center">
-                                        <p className="text-lg font-bold text-foreground mb-1">Sin rutina activa</p>
-                                        <p className="text-sm text-muted-foreground max-w-xs">Este cliente no tiene una rutina asignada. Podés crearle una desde acá.</p>
-                                    </div>
-                                    {userId && (
-                                        <button onClick={() => setIsCreatingRoutine(true)} className="mt-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
-                                            <span>✚</span> Crear Rutina
-                                        </button>
+                                    {userId ? (
+                                        <>
+                                            <div className="text-center">
+                                                <p className="text-lg font-bold text-foreground mb-1">Sin rutina activa</p>
+                                                <p className="text-sm text-muted-foreground max-w-xs">Este cliente no tiene una rutina asignada. Podés crearle una desde acá.</p>
+                                            </div>
+                                            <button
+                                                onClick={() => setIsCreatingRoutine(true)}
+                                                className="mt-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+                                            >
+                                                <span>✚</span> Crear Rutina
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="text-center">
+                                            <p className="text-lg font-bold text-foreground mb-1">Sin rutina activa</p>
+                                            <p className="text-sm text-muted-foreground max-w-xs">
+                                                Este miembro no tiene una cuenta en la app todavía. Las rutinas solo pueden asignarse a miembros registrados.
+                                            </p>
+                                        </div>
                                     )}
                                 </div>
                             ) : (
