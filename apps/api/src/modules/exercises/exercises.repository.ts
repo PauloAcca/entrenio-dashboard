@@ -6,29 +6,34 @@ export class ExercisesRepository {
     constructor(private readonly prisma: PrismaService) { }
 
     async searchExercises(query: string, muscle?: string, equipment?: string) {
-        const where: any = {};
-        
+        const conditions = ["1=1"];
+        const params: any[] = [];
+        let paramIndex = 1;
+
         if (query) {
-            where.nameEs = { contains: query, mode: 'insensitive' };
+            conditions.push(`unaccent("nameEs") ILIKE unaccent($${paramIndex})`);
+            params.push(`%${query}%`);
+            paramIndex++;
         }
         if (muscle) {
-            where.primaryMuscleEs = { contains: muscle, mode: 'insensitive' };
+            conditions.push(`unaccent("primaryMuscleEs") ILIKE unaccent($${paramIndex})`);
+            params.push(`%${muscle}%`);
+            paramIndex++;
         }
         if (equipment) {
-            where.equipmentType = { contains: equipment, mode: 'insensitive' };
+            conditions.push(`unaccent("equipmentType") ILIKE unaccent($${paramIndex})`);
+            params.push(`%${equipment}%`);
+            paramIndex++;
         }
 
-        return this.prisma.exercise.findMany({
-            where,
-            take: 50,
-            orderBy: { nameEs: 'asc' },
-            select: {
-                id: true,
-                nameEs: true,
-                primaryMuscleEs: true,
-                equipmentType: true,
-                videoUrl: true,
-            }
-        });
+        const sqlQuery = `
+            SELECT id, "nameEs", "primaryMuscleEs", "equipmentType", "videoUrl"
+            FROM "exercise"
+            WHERE ${conditions.join(" AND ")}
+            ORDER BY "nameEs" ASC
+            LIMIT 50
+        `;
+
+        return this.prisma.$queryRawUnsafe(sqlQuery, ...params);
     }
 }
