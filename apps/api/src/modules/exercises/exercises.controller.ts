@@ -9,8 +9,10 @@ export class ExercisesController {
     async searchExercises(
         @Query('q') q?: string,
         @Query('muscle') muscle?: string,
-        @Query('equipment') equipment?: string
+        @Query('equipment') equipment?: string,
+        @Query('gymId') gymId?: string,
+        @Query('onlyGymEquipment') onlyGymEquipment?: string
     ) {
-        return this.service.searchExercises(q || '', muscle, equipment);
+        return this.service.searchExercises(q || '', muscle, equipment, gymId, onlyGymEquipment);
     }
 }

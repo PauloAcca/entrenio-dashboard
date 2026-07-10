@@ -5,7 +5,7 @@ import { PrismaService } from "src/database/prisma/prisma.service";
 export class ExercisesRepository {
     constructor(private readonly prisma: PrismaService) { }
 
-    async searchExercises(query: string, muscle?: string, equipment?: string) {
+    async searchExercises(query: string, muscle?: string, equipment?: string, gymId?: string, onlyGymEquipment?: string) {
         const conditions = ["1=1"];
         const params: any[] = [];
         let paramIndex = 1;
@@ -23,6 +23,26 @@ export class ExercisesRepository {
         if (equipment) {
             conditions.push(`unaccent("equipmentType") ILIKE unaccent($${paramIndex})`);
             params.push(`%${equipment}%`);
+            paramIndex++;
+        }
+
+        if (onlyGymEquipment === 'true' && gymId) {
+            conditions.push(`(
+                "equipmentType" IN ('mancuernas', 'barra', 'peso corporal', 'ninguno', 'none', 'kettlebell', 'banda elástica', 'trx', 'soga')
+                OR id IN (
+                    SELECT mte."exerciseId"
+                    FROM "machine_template_exercise" mte
+                    JOIN "equipment" eq ON eq."machineTemplateId" = mte."machineTemplateId"
+                    WHERE eq."gymId" = $${paramIndex}::uuid
+                )
+                OR id IN (
+                    SELECT ee."exerciseId"
+                    FROM "equipment_exercise" ee
+                    JOIN "equipment" eq ON eq.id = ee."equipmentId"
+                    WHERE eq."gymId" = $${paramIndex}::uuid
+                )
+            )`);
+            params.push(gymId);
             paramIndex++;
         }
 

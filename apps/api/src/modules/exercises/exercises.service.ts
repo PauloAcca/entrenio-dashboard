@@ -5,7 +5,7 @@ import { ExercisesRepository } from "./exercises.repository";
 export class ExercisesService {
     constructor(private readonly repository: ExercisesRepository) { }
 
-    async searchExercises(query: string, muscle?: string, equipment?: string) {
-        return this.repository.searchExercises(query, muscle, equipment);
+    async searchExercises(query: string, muscle?: string, equipment?: string, gymId?: string, onlyGymEquipment?: string) {
+        return this.repository.searchExercises(query, muscle, equipment, gymId, onlyGymEquipment);
     }
 }

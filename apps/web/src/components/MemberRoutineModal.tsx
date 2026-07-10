@@ -172,6 +172,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
     const [searchQuery, setSearchQuery] = useState('');
     const [searchMuscle, setSearchMuscle] = useState('');
     const [searchEquipment, setSearchEquipment] = useState('');
+    const [onlyGymEquipment, setOnlyGymEquipment] = useState(true);
     const [searchResults, setSearchResults] = useState<ExerciseData[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     // For existing routine edit
@@ -195,10 +196,10 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
         if (!sessionActive) return;
         const delay = setTimeout(() => {
             setIsSearching(true);
-            searchExercises(searchQuery, searchMuscle, searchEquipment).then(setSearchResults).finally(() => setIsSearching(false));
+            searchExercises(searchQuery, searchMuscle, searchEquipment, member.gym_id, onlyGymEquipment).then(setSearchResults).finally(() => setIsSearching(false));
         }, 300);
         return () => clearTimeout(delay);
-    }, [searchQuery, searchMuscle, searchEquipment, activeSessionId, newRoutineSearchSessionId]);
+    }, [searchQuery, searchMuscle, searchEquipment, onlyGymEquipment, activeSessionId, newRoutineSearchSessionId, member.gym_id]);
 
     // ── Fetch helpers ─────────────────────────────────────────────────────────
     const fetchProfile = async () => {
@@ -1016,6 +1017,18 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                     <option value="peso corporal">Peso Corporal</option>
                                     <option value="kettlebell">Kettlebell</option>
                                 </select>
+                            </div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        className="sr-only peer" 
+                                        checked={onlyGymEquipment}
+                                        onChange={(e) => setOnlyGymEquipment(e.target.checked)}
+                                    />
+                                    <div className="w-9 h-5 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                    <span className="ml-2 text-xs font-medium text-muted-foreground flex items-center gap-1">Solo mi equipamiento y peso libre</span>
+                                </label>
                             </div>
                             <div className="flex-1 overflow-y-auto border border-border rounded-lg bg-card">
                                 {isSearching ? (
