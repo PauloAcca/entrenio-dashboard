@@ -200,6 +200,13 @@ export class MembersRepository {
         });
         if (!registry) throw new Error('No permission');
 
+        // Verify the user exists before attempting to write (FK safety check)
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new Error(`El usuario no tiene una cuenta registrada en la app.`);
+        }
+
+
         // Deactivate any existing routines
         await this.prisma.routines.updateMany({
             where: { userId, isActive: true },

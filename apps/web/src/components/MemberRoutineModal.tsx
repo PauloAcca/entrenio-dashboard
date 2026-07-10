@@ -177,7 +177,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
     // For new routine creator: { sessionTempId }
     const [newRoutineSearchSessionId, setNewRoutineSearchSessionId] = useState<string | null>(null);
 
-    const userId = member.user_id;
+    const userId = member.user?.id || null;
 
     // ── Effects ───────────────────────────────────────────────────────────────
     useEffect(() => {
@@ -735,7 +735,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
 
                                 )}
 
-                                {member.user_id && !isEditingProfile && (
+                                {userId && !isEditingProfile && (
                                     <button onClick={() => setActiveTab('routine')} className="w-full mt-6 py-3 bg-primary text-primary-foreground rounded-lg font-bold hover:bg-primary/90 transition-all shadow-md shadow-primary/20 flex items-center justify-center gap-2 group">
                                         Ver Rutina Actual
                                         <span className="group-hover:translate-x-1 transition-transform">→</span>
