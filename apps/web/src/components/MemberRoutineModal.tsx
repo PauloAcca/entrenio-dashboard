@@ -170,6 +170,8 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
 
     // ── Exercise Search ──────────────────────────────────────────────────────
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchMuscle, setSearchMuscle] = useState('');
+    const [searchEquipment, setSearchEquipment] = useState('');
     const [searchResults, setSearchResults] = useState<ExerciseData[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     // For existing routine edit
@@ -193,10 +195,10 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
         if (!sessionActive) return;
         const delay = setTimeout(() => {
             setIsSearching(true);
-            searchExercises(searchQuery).then(setSearchResults).finally(() => setIsSearching(false));
+            searchExercises(searchQuery, searchMuscle, searchEquipment).then(setSearchResults).finally(() => setIsSearching(false));
         }, 300);
         return () => clearTimeout(delay);
-    }, [searchQuery, activeSessionId, newRoutineSearchSessionId]);
+    }, [searchQuery, searchMuscle, searchEquipment, activeSessionId, newRoutineSearchSessionId]);
 
     // ── Fetch helpers ─────────────────────────────────────────────────────────
     const fetchProfile = async () => {
@@ -980,11 +982,41 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                         <div className="absolute inset-0 bg-background/95 backdrop-blur z-20 p-6 flex flex-col animate-in slide-in-from-bottom-4">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-lg font-bold">Buscar Ejercicio</h3>
-                                <button onClick={() => { setActiveSessionId(null); setNewRoutineSearchSessionId(null); setSearchQuery(''); setSearchResults([]); }} className="p-2 text-muted-foreground hover:bg-muted rounded-full">
+                                <button onClick={() => { setActiveSessionId(null); setNewRoutineSearchSessionId(null); setSearchQuery(''); setSearchMuscle(''); setSearchEquipment(''); setSearchResults([]); }} className="p-2 text-muted-foreground hover:bg-muted rounded-full">
                                     Cerrar
                                 </button>
                             </div>
-                            <input type="text" autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Ej: Press de banca, Sentadilla..." className="w-full p-3 rounded-lg border border-border bg-card focus:ring-2 focus:ring-primary focus:outline-none text-foreground mb-4 shadow-sm" />
+                            <input type="text" autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Ej: Press de banca, Sentadilla..." className="w-full p-3 rounded-lg border border-border bg-card focus:ring-2 focus:ring-primary focus:outline-none text-foreground mb-3 shadow-sm" />
+                            <div className="flex gap-2 mb-4">
+                                <select 
+                                    value={searchMuscle} 
+                                    onChange={e => setSearchMuscle(e.target.value)}
+                                    className="flex-1 p-2 rounded-lg border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                >
+                                    <option value="">Cualquier Músculo</option>
+                                    <option value="pecho">Pecho</option>
+                                    <option value="espalda">Espalda</option>
+                                    <option value="piernas">Piernas</option>
+                                    <option value="hombros">Hombros</option>
+                                    <option value="brazos">Brazos</option>
+                                    <option value="abdomen">Abdomen</option>
+                                    <option value="gluteos">Glúteos</option>
+                                    <option value="cardio">Cardio</option>
+                                </select>
+                                <select 
+                                    value={searchEquipment} 
+                                    onChange={e => setSearchEquipment(e.target.value)}
+                                    className="flex-1 p-2 rounded-lg border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                >
+                                    <option value="">Cualquier Equipo</option>
+                                    <option value="mancuernas">Mancuernas</option>
+                                    <option value="barra">Barra</option>
+                                    <option value="maquina">Máquina</option>
+                                    <option value="polea">Polea</option>
+                                    <option value="peso corporal">Peso Corporal</option>
+                                    <option value="kettlebell">Kettlebell</option>
+                                </select>
+                            </div>
                             <div className="flex-1 overflow-y-auto border border-border rounded-lg bg-card">
                                 {isSearching ? (
                                     <div className="p-8 text-center text-muted-foreground flex justify-center items-center">

@@ -151,7 +151,7 @@ export default function Members() {
                             <div className="flex flex-col gap-1 min-w-0 w-full">
                                 <h1 className="font-bold text-sm md:text-lg text-foreground truncate leading-tight">{member.user?.name || 'Sin Nombre'}</h1>
                                 <p className="text-xs md:text-sm text-muted-foreground truncate">{member.user?.email || 'Sin Email'}</p>
-                                {!member.user_id && <span className="text-[9px] md:text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded w-fit font-bold uppercase tracking-wider mt-0.5 border border-amber-200 dark:border-amber-800/50">Sin App</span>}
+                                {!member.user?.id && <span className="text-[9px] md:text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded w-fit font-bold uppercase tracking-wider mt-0.5 border border-amber-200 dark:border-amber-800/50">Sin App</span>}
                                 {member.user?.dni && <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">DNI: {member.user.dni}</p>}
                                 {member.user?.phone && <p className="text-[10px] md:text-xs text-muted-foreground">Tel: {member.user.phone}</p>}
                             </div>

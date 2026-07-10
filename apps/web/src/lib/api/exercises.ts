@@ -8,6 +8,11 @@ export interface ExerciseData {
     videoUrl: string | null;
 }
 
-export async function searchExercises(query: string = "") {
-    return apiFetch<ExerciseData[]>(`/exercises?q=${encodeURIComponent(query)}`);
+export async function searchExercises(query: string = "", muscle: string = "", equipment: string = "") {
+    const params = new URLSearchParams();
+    if (query) params.append('q', query);
+    if (muscle) params.append('muscle', muscle);
+    if (equipment) params.append('equipment', equipment);
+    
+    return apiFetch<ExerciseData[]>(`/exercises?${params.toString()}`);
 }
