@@ -98,13 +98,6 @@ export class MembersRepository {
                         routine_exercises: {
                             orderBy: {
                                 order: 'asc'
-                            },
-                            include: {
-                                exercise: {
-                                    select: {
-                                        videoUrl: true
-                                    }
-                                }
                             }
                         }
                     }
@@ -112,6 +105,35 @@ export class MembersRepository {
             }
         });
 
+        return this.attachVideoUrlsToRoutine(routine);
+    }
+
+    private async attachVideoUrlsToRoutine(routine: any) {
+        if (!routine) return routine;
+        
+        const exerciseIds = new Set<number>();
+        routine.routine_sessions?.forEach((s: any) => {
+            s.routine_exercises?.forEach((e: any) => {
+                if (e.exerciseId) exerciseIds.add(e.exerciseId);
+            });
+        });
+
+        if (exerciseIds.size > 0) {
+            const exercises = await this.prisma.exercise.findMany({
+                where: { id: { in: Array.from(exerciseIds) } },
+                select: { id: true, videoUrl: true }
+            });
+            const videoMap = new Map(exercises.map(e => [e.id, e.videoUrl]));
+            
+            routine.routine_sessions?.forEach((s: any) => {
+                s.routine_exercises?.forEach((e: any) => {
+                    if (e.exerciseId && videoMap.has(e.exerciseId)) {
+                        e.exercise = { videoUrl: videoMap.get(e.exerciseId) };
+                    }
+                });
+            });
+        }
+        
         return routine;
     }
 
@@ -254,19 +276,14 @@ export class MembersRepository {
                     orderBy: { order: 'asc' },
                     include: {
                         routine_exercises: { 
-                            orderBy: { order: 'asc' },
-                            include: {
-                                exercise: {
-                                    select: { videoUrl: true }
-                                }
-                            }
+                            orderBy: { order: 'asc' }
                         }
                     }
                 }
             }
         });
 
-        return routine;
+        return this.attachVideoUrlsToRoutine(routine);
     }
 
     async upsertMemberProfile(userId: number, payload: {
