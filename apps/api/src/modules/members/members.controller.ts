@@ -41,6 +41,24 @@ export class MembersController {
         return this.membersService.updateMemberRoutineExercises(userId, gymId, payload);
     }
 
+    @Post(':id/routine')
+    async createMemberRoutine(
+        @Param('id', ParseIntPipe) userId: number,
+        @Body('gymId') gymId: string,
+        @Body() payload: any
+    ) {
+        if (!gymId) throw new BadRequestException('GYM_ID_REQUIRED');
+        return this.membersService.createMemberRoutine(userId, gymId, payload);
+    }
+
+    @Post(':id/profile')
+    async upsertMemberProfile(
+        @Param('id', ParseIntPipe) userId: number,
+        @Body() payload: any
+    ) {
+        return this.membersService.upsertMemberProfile(userId, payload);
+    }
+
     @Post('upload-csv')
     @UseInterceptors(FileInterceptor('file'))
     async uploadCsv(

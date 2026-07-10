@@ -34,6 +34,57 @@ export async function updateMemberRoutineExercises(
     });
 }
 
+export async function createMemberRoutine(userId: number, payload: {
+    name: string;
+    goal?: string;
+    intensity?: string;
+    days_per_week: number;
+    session_duration?: number;
+    description?: string;
+    sessions: {
+        day_label: string;
+        focus?: string;
+        order: number;
+        exercises: {
+            name: string;
+            exerciseId?: number;
+            sets: number;
+            reps: string;
+            rest?: string;
+            order: number;
+        }[];
+    }[];
+}) {
+    const gymId = useAuthStore.getState().gym?.id;
+    return apiFetch<any>(`/members/${userId}/routine`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gymId, ...payload }),
+    });
+}
+
+export async function upsertMemberProfile(userId: number, payload: {
+    experiencia?: string;
+    dias?: number;
+    tiempo?: number;
+    enfoque?: string;
+    intensidad?: string;
+    lesion?: string;
+    fechaNacimiento?: string;
+    sexo?: string;
+    peso?: number;
+    altura?: number;
+    objetivo?: string;
+    nombre?: string;
+    actividad?: string;
+}) {
+    return apiFetch<any>(`/members/${userId}/profile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+}
+
 export async function uploadMembersCsv(file: File) {
     const gymId = useAuthStore.getState().gym?.id;
     if (!gymId) throw new Error("No Gym ID");
@@ -42,12 +93,6 @@ export async function uploadMembersCsv(file: File) {
     formData.append('file', file);
     formData.append('gymId', gymId);
 
-    // Using fetch directly or extending apiFetch to handle FormData if needed.
-    // Assuming apiFetch might json stringify body, let's look at apiFetch if possible, but for now standard fetch with token is safer if apiFetch is rigid. 
-    // Wait, let's rely on apiFetch if it supports FormData or just use what we have.
-    // The previous view of members.ts imports apiFetch.
-    // Let's assume apiFetch handles headers. If it sets Content-Type to application/json automatically, it breaks buffer upload.
-    // Let's check apiFetch.
     return apiFetch<any>('/members/upload-csv', {
         method: 'POST',
         body: formData,

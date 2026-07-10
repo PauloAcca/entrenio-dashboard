@@ -170,4 +170,129 @@ export class MembersRepository {
             where: { userId }
         });
     }
+
+    async createMemberRoutine(userId: number, gymId: string, payload: {
+        name: string;
+        goal?: string;
+        intensity?: string;
+        days_per_week: number;
+        session_duration?: number;
+        description?: string;
+        sessions: {
+            day_label: string;
+            focus?: string;
+            order: number;
+            exercises: {
+                name: string;
+                exerciseId?: number;
+                sets: number;
+                reps: string;
+                rest?: string;
+                order: number;
+            }[];
+        }[];
+    }) {
+        const membership = await this.prisma.memberships.findFirst({
+            where: { user_id: userId, gym_id: gymId }
+        });
+        if (!membership) throw new Error('No permission');
+
+        // Deactivate any existing routines
+        await this.prisma.routines.updateMany({
+            where: { userId, isActive: true },
+            data: { isActive: false }
+        });
+
+        const routine = await this.prisma.routines.create({
+            data: {
+                name: payload.name,
+                goal: payload.goal,
+                intensity: payload.intensity,
+                days_per_week: payload.days_per_week,
+                session_duration: payload.session_duration,
+                description: payload.description,
+                source: 'trainer_dashboard',
+                isActive: true,
+                userId,
+                routine_sessions: {
+                    create: payload.sessions.map(session => ({
+                        day_label: session.day_label,
+                        focus: session.focus,
+                        order: session.order,
+                        routine_exercises: {
+                            create: session.exercises.map(ex => ({
+                                name: ex.name,
+                                exerciseId: ex.exerciseId,
+                                sets: ex.sets,
+                                reps: ex.reps,
+                                rest: ex.rest,
+                                order: ex.order,
+                            }))
+                        }
+                    }))
+                }
+            },
+            include: {
+                routine_sessions: {
+                    orderBy: { order: 'asc' },
+                    include: {
+                        routine_exercises: { orderBy: { order: 'asc' } }
+                    }
+                }
+            }
+        });
+
+        return routine;
+    }
+
+    async upsertMemberProfile(userId: number, payload: {
+        experiencia?: string;
+        dias?: number;
+        tiempo?: number;
+        enfoque?: string;
+        intensidad?: string;
+        lesion?: string;
+        fechaNacimiento?: string;
+        sexo?: string;
+        peso?: number;
+        altura?: number;
+        objetivo?: string;
+        nombre?: string;
+        actividad?: string;
+    }) {
+        return this.prisma.user_training_profile.upsert({
+            where: { userId },
+            create: {
+                userId,
+                experiencia: payload.experiencia ?? 'principiante',
+                dias: payload.dias ?? 3,
+                tiempo: payload.tiempo ?? 60,
+                enfoque: payload.enfoque ?? 'hybrid',
+                intensidad: payload.intensidad ?? 'medium',
+                lesion: payload.lesion,
+                fechaNacimiento: payload.fechaNacimiento ? new Date(payload.fechaNacimiento) : null,
+                sexo: payload.sexo,
+                peso: payload.peso,
+                altura: payload.altura,
+                objetivo: payload.objetivo,
+                nombre: payload.nombre,
+                actividad: payload.actividad,
+            },
+            update: {
+                experiencia: payload.experiencia,
+                dias: payload.dias,
+                tiempo: payload.tiempo,
+                enfoque: payload.enfoque,
+                intensidad: payload.intensidad,
+                lesion: payload.lesion,
+                fechaNacimiento: payload.fechaNacimiento ? new Date(payload.fechaNacimiento) : undefined,
+                sexo: payload.sexo,
+                peso: payload.peso,
+                altura: payload.altura,
+                objetivo: payload.objetivo,
+                nombre: payload.nombre,
+                actividad: payload.actividad,
+            }
+        });
+    }
 }
