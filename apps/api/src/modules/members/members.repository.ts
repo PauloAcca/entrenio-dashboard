@@ -72,14 +72,15 @@ export class MembersRepository {
     }
 
     async getMemberRoutine(userId: number, gymId: string) {
-        const membership = await this.prisma.memberships.findFirst({
+        // Use gym_member_registry (dashboard-managed) instead of memberships (app-only)
+        const registry = await this.prisma.gym_member_registry.findFirst({
             where: {
-                user_id: userId,
+                claimed_by_user_id: userId,
                 gym_id: gymId
             }
         });
 
-        if (!membership) {
+        if (!registry) {
             throw new Error("El usuario no es miembro de este gimnasio o no existe.");
         }
 
@@ -112,11 +113,12 @@ export class MembersRepository {
         adds: { sessionId: number, reps: string, sets: number, rest?: string, weight_kg?: number, name: string, exerciseId?: number, order: number }[];
         removes: number[];
     }) {
-        const membership = await this.prisma.memberships.findFirst({
-            where: { user_id: userId, gym_id: gymId }
+        // Use gym_member_registry (dashboard-managed) instead of memberships (app-only)
+        const registry = await this.prisma.gym_member_registry.findFirst({
+            where: { claimed_by_user_id: userId, gym_id: gymId }
         });
 
-        if (!membership) throw new Error("No permission");
+        if (!registry) throw new Error("No permission");
 
         // Verify routine ownership implicitly by checking sessions and exercises? 
         // We do it by passing the updates through a query or just trusting the gym admin for now.
@@ -192,10 +194,11 @@ export class MembersRepository {
             }[];
         }[];
     }) {
-        const membership = await this.prisma.memberships.findFirst({
-            where: { user_id: userId, gym_id: gymId }
+        // Use gym_member_registry (dashboard-managed) instead of memberships (app-only)
+        const registry = await this.prisma.gym_member_registry.findFirst({
+            where: { claimed_by_user_id: userId, gym_id: gymId }
         });
-        if (!membership) throw new Error('No permission');
+        if (!registry) throw new Error('No permission');
 
         // Deactivate any existing routines
         await this.prisma.routines.updateMany({
