@@ -56,8 +56,13 @@ export class MembersController {
         @Param('id', ParseIntPipe) userId: number,
         @Body() payload: any
     ) {
-        return this.membersService.upsertMemberProfile(userId, payload);
+        try {
+            return await this.membersService.upsertMemberProfile(userId, payload);
+        } catch (err: any) {
+            throw new BadRequestException(err?.message || 'Error al guardar el perfil');
+        }
     }
+
 
     @Post('upload-csv')
     @UseInterceptors(FileInterceptor('file'))

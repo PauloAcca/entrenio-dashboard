@@ -260,39 +260,46 @@ export class MembersRepository {
         nombre?: string;
         actividad?: string;
     }) {
-        return this.prisma.user_training_profile.upsert({
-            where: { userId },
-            create: {
-                userId,
-                experiencia: payload.experiencia ?? 'principiante',
-                dias: payload.dias ?? 3,
-                tiempo: payload.tiempo ?? 60,
-                enfoque: payload.enfoque ?? 'hybrid',
-                intensidad: payload.intensidad ?? 'medium',
-                lesion: payload.lesion,
-                fechaNacimiento: payload.fechaNacimiento ? new Date(payload.fechaNacimiento) : null,
-                sexo: payload.sexo,
-                peso: payload.peso,
-                altura: payload.altura,
-                objetivo: payload.objetivo,
-                nombre: payload.nombre,
-                actividad: payload.actividad,
-            },
-            update: {
-                experiencia: payload.experiencia,
-                dias: payload.dias,
-                tiempo: payload.tiempo,
-                enfoque: payload.enfoque,
-                intensidad: payload.intensidad,
-                lesion: payload.lesion,
-                fechaNacimiento: payload.fechaNacimiento ? new Date(payload.fechaNacimiento) : undefined,
-                sexo: payload.sexo,
-                peso: payload.peso,
-                altura: payload.altura,
-                objetivo: payload.objetivo,
-                nombre: payload.nombre,
-                actividad: payload.actividad,
-            }
+        // Verify the user exists before attempting to write (FK safety check)
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new Error(`User with id ${userId} does not exist in the database.`);
+        }
+
+        const profileData = {
+            experiencia: payload.experiencia ?? 'principiante',
+            dias: payload.dias ?? 3,
+            tiempo: payload.tiempo ?? 60,
+            enfoque: payload.enfoque ?? 'hybrid',
+            intensidad: payload.intensidad ?? 'medium',
+            lesion: payload.lesion ?? null,
+            fechaNacimiento: payload.fechaNacimiento ? new Date(payload.fechaNacimiento) : null,
+            sexo: payload.sexo ?? null,
+            peso: payload.peso ?? null,
+            altura: payload.altura ?? null,
+            objetivo: payload.objetivo ?? null,
+            nombre: payload.nombre ?? null,
+            actividad: payload.actividad ?? null,
+        };
+
+        // Use find + create/update instead of upsert to avoid TypeORM FK constraint name mismatches
+        const existing = await this.prisma.user_training_profile.findUnique({
+            where: { userId }
         });
+
+        if (existing) {
+            return this.prisma.user_training_profile.update({
+                where: { userId },
+                data: profileData,
+            });
+        } else {
+            return this.prisma.user_training_profile.create({
+                data: {
+                    userId,
+                    ...profileData,
+                },
+            });
+        }
     }
 }
+
