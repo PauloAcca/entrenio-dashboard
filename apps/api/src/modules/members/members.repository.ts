@@ -98,6 +98,13 @@ export class MembersRepository {
                         routine_exercises: {
                             orderBy: {
                                 order: 'asc'
+                            },
+                            include: {
+                                exercise: {
+                                    select: {
+                                        videoUrl: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -246,7 +253,14 @@ export class MembersRepository {
                 routine_sessions: {
                     orderBy: { order: 'asc' },
                     include: {
-                        routine_exercises: { orderBy: { order: 'asc' } }
+                        routine_exercises: { 
+                            orderBy: { order: 'asc' },
+                            include: {
+                                exercise: {
+                                    select: { videoUrl: true }
+                                }
+                            }
+                        }
                     }
                 }
             }

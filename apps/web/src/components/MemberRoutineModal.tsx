@@ -9,6 +9,16 @@ type MemberModalProps = {
 };
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────────────────────────────────────
+function getYouTubeEmbedUrl(url: string | null) {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Types
 // ──────────────────────────────────────────────────────────────────────────────
 type NewExercise = {
@@ -175,6 +185,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
     const [onlyGymEquipment, setOnlyGymEquipment] = useState(true);
     const [searchResults, setSearchResults] = useState<ExerciseData[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
     // For existing routine edit
     const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
     // For new routine creator: { sessionTempId }
@@ -421,6 +432,7 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
 
     // ──────────────────────────────────────────────────────────────────────────
     return (
+    <>
         <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-card w-full h-dvh md:h-auto max-w-4xl md:max-h-[90vh] rounded-none md:rounded-xl shadow-2xl flex flex-col border-0 md:border border-border overflow-hidden">
 
@@ -933,7 +945,16 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                                         <tbody className="divide-y divide-border">
                                                             {session.routine_exercises?.map((exercise: any) => (
                                                                 <tr key={exercise.id} className="hover:bg-muted/10">
-                                                                    <td className="px-4 py-3 font-medium text-foreground">{exercise.name}</td>
+                                                                    <td className="px-4 py-3 font-medium text-foreground">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span>{exercise.name}</span>
+                                                                            {exercise.exercise?.videoUrl && (
+                                                                                <button onClick={() => setSelectedVideo(exercise.exercise.videoUrl)} className="text-blue-500 hover:text-blue-600 p-1 bg-blue-500/10 rounded-full transition-colors flex-shrink-0" title="Ver video">
+                                                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
                                                                     <td className="px-4 py-3">
                                                                         {isEditing ? (
                                                                             <input type="number" value={exercise.sets} onChange={e => updateExerciseField(session.id, exercise.id, 'sets', e.target.value)} className="w-full bg-background border border-border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary" />
@@ -1043,9 +1064,17 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                                     <p className="font-bold text-sm text-foreground">{ex.nameEs}</p>
                                                     <p className="text-xs text-muted-foreground">{ex.primaryMuscleEs} • {ex.equipmentType}</p>
                                                 </div>
-                                                <button onClick={() => addExerciseFromSearch(ex)} className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded hover:bg-primary/20 transition-colors">
-                                                    Agregar
-                                                </button>
+                                                <div className="flex gap-2">
+                                                    {ex.videoUrl && (
+                                                        <button onClick={() => setSelectedVideo(ex.videoUrl!)} className="px-3 py-1.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold rounded hover:bg-blue-200 transition-colors" title="Ver video">
+                                                            <svg className="w-3 h-3 inline-block mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                            Video
+                                                        </button>
+                                                    )}
+                                                    <button onClick={() => addExerciseFromSearch(ex)} className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded hover:bg-primary/20 transition-colors">
+                                                        Agregar
+                                                    </button>
+                                                </div>
                                             </li>
                                         ))}
                                     </ul>
@@ -1061,5 +1090,33 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                 </div>
             </div>
         </div>
+        
+        {/* ── Video Modal ──────────────────────────── */}
+        {selectedVideo && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                <div className="bg-card w-full max-w-2xl rounded-xl shadow-2xl border border-border overflow-hidden animate-in fade-in zoom-in-95">
+                    <div className="flex justify-between items-center p-4 border-b border-border bg-muted/30">
+                        <h3 className="font-bold text-foreground flex items-center gap-2">
+                            <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Video del Ejercicio
+                        </h3>
+                        <button onClick={() => setSelectedVideo(null)} className="p-2 bg-muted hover:bg-border text-foreground rounded-full transition-colors">
+                            ✕
+                        </button>
+                    </div>
+                    <div className="p-4 aspect-video">
+                        {getYouTubeEmbedUrl(selectedVideo) ? (
+                            <iframe className="w-full h-full rounded-lg" src={getYouTubeEmbedUrl(selectedVideo)!} title="Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                        ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted rounded-lg p-6 text-center">
+                                <p className="mb-4">No se puede reproducir este video directamente aquí.</p>
+                                <a href={selectedVideo} target="_blank" rel="noreferrer" className="px-4 py-2 bg-primary text-primary-foreground font-bold rounded hover:bg-primary/90 transition-colors">Abrir en otra pestaña</a>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )}
+    </>
     );
 }
