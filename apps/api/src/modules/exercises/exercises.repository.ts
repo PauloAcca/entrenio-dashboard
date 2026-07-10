@@ -16,19 +16,40 @@ export class ExercisesRepository {
             paramIndex++;
         }
         if (muscle) {
-            conditions.push(`unaccent("primaryMuscleEs") ILIKE unaccent($${paramIndex})`);
-            params.push(`%${muscle}%`);
-            paramIndex++;
+            let muscleTerms = [muscle];
+            if (muscle === 'pecho') muscleTerms = ['pectorales'];
+            else if (muscle === 'espalda') muscleTerms = ['dorsales', 'trapecio', 'erectores'];
+            else if (muscle === 'piernas') muscleTerms = ['cuádriceps', 'isquiosurales', 'aductores', 'gemelos', 'piernas'];
+            else if (muscle === 'hombros') muscleTerms = ['deltoides', 'hombros'];
+            else if (muscle === 'brazos') muscleTerms = ['bíceps', 'tríceps', 'braquial', 'antebrazos'];
+            else if (muscle === 'abdomen') muscleTerms = ['abdominales', 'core', 'oblicuos'];
+            else if (muscle === 'gluteos') muscleTerms = ['glúteos'];
+
+            const muscleConditions = muscleTerms.map(term => {
+                const cond = `unaccent("primaryMuscleEs") ILIKE unaccent($${paramIndex})`;
+                params.push(`%${term}%`);
+                paramIndex++;
+                return cond;
+            });
+            conditions.push(`(${muscleConditions.join(" OR ")})`);
         }
         if (equipment) {
-            conditions.push(`unaccent("equipmentType") ILIKE unaccent($${paramIndex})`);
-            params.push(`%${equipment}%`);
-            paramIndex++;
+            let eqTerms = [equipment];
+            if (equipment === 'mancuernas') eqTerms = ['mancuerna', 'mancuernas'];
+            else if (equipment === 'maquina') eqTerms = ['maquina', 'máquina'];
+
+            const eqConditions = eqTerms.map(term => {
+                const cond = `unaccent("equipmentType") ILIKE unaccent($${paramIndex})`;
+                params.push(`%${term}%`);
+                paramIndex++;
+                return cond;
+            });
+            conditions.push(`(${eqConditions.join(" OR ")})`);
         }
 
         if (onlyGymEquipment === 'true' && gymId) {
             conditions.push(`(
-                "equipmentType" IN ('mancuernas', 'barra', 'peso corporal', 'ninguno', 'none', 'kettlebell', 'banda elástica', 'trx', 'soga')
+                "equipmentType" IN ('mancuernas', 'mancuerna', 'barra', 'peso corporal', 'ninguno', 'none', 'kettlebell', 'banda elástica', 'banda', 'trx', 'soga')
                 OR id IN (
                     SELECT mte."exerciseId"
                     FROM "machine_template_exercise" mte
