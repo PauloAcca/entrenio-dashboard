@@ -557,6 +557,16 @@ model gym_nutrition_plan_meals {
   recipe    recipes?                @relation(fields: [recipeId], references: [id], onDelete: SetNull)
 }
 
+enum recipes_mealtype_enum {
+  breakfast
+  lunch
+  dinner
+  snack
+  pre_workout
+  post_workout
+  dessert
+}
+
 model recipes {
   id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   title           String   @db.VarChar
@@ -567,7 +577,7 @@ model recipes {
   fats            Float?
   prepTimeMinutes Int?
   imageUrl        String?  @db.VarChar
-  mealType        String?  @db.VarChar
+  mealType        recipes_mealtype_enum?
 
   meals gym_nutrition_plan_meals[]
 }
