@@ -13,6 +13,12 @@ export class GymNutritionController {
     return { data: await this.service.getGymRecipes(gymId) };
   }
 
+  @Get('global-recipes')
+  async searchGlobalRecipes(@Query('search') search: string, @Query('limit') limit: string) {
+    const l = limit ? parseInt(limit, 10) : 20;
+    return { data: await this.service.searchGlobalRecipes(search || '', l) };
+  }
+
   @Post('gym-recipes')
   async createGymRecipe(@Body() data: any) {
     if (!data.gymId) throw new BadRequestException('gymId required');

@@ -19,6 +19,28 @@ export class GymNutritionService {
     });
   }
 
+  async searchGlobalRecipes(search: string, limit: number = 20) {
+    return this.prisma.recipes.findMany({
+      where: {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+        ],
+      },
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        imageUrl: true,
+        calories: true,
+        protein: true,
+        carbs: true,
+        fats: true,
+        prepTimeMinutes: true,
+        mealType: true,
+      },
+    });
+  }
+
   async createGymRecipe(gymId: string, data: any) {
     const { ingredients, ...recipeData } = data;
     return this.prisma.gym_recipes.create({

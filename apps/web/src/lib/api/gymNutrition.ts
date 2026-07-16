@@ -175,6 +175,6 @@ export async function deleteNutritionPlan(planId: string): Promise<void> {
 // ─── Global Recipes Search (for picker) ──────────────────────────────────────
 
 export async function searchGlobalRecipes(search: string, limit = 20): Promise<GlobalRecipeSummary[]> {
-  const res = await apiFetch<{ data: GlobalRecipeSummary[]; total: number }>(`/recipes?search=${encodeURIComponent(search)}&limit=${limit}`);
+  const res = await apiFetch<{ data: GlobalRecipeSummary[] }>(`/gym-nutrition-plans/global-recipes?search=${encodeURIComponent(search)}&limit=${limit}`);
   return res.data ?? [];
 }
