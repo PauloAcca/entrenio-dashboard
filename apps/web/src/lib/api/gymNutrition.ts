@@ -1,5 +1,32 @@
-import { apiFetch } from "./http";
+import { apiFetch as originalApiFetch } from "./http";
 import { useAuthStore } from "../../store/authStore";
+
+const APP_API_URL = process.env.NEXT_PUBLIC_APP_API_URL || "http://localhost:5000";
+
+async function appApiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const isFormData = init?.body instanceof FormData;
+  const headers: HeadersInit = {
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...(init?.headers ?? {}),
+  };
+
+  const res = await fetch(`${APP_API_URL}${path}`, {
+    ...init,
+    headers,
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const errorMessage = 
+      (Array.isArray(body?.message) ? body.message[0] : body?.message) || 
+      body?.error || 
+      `Request failed: ${res.status}`;
+    throw new Error(errorMessage);
+  }
+
+  const text = await res.text();
+  return text ? JSON.parse(text) as T : null as unknown as T;
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,14 +118,14 @@ export interface GymNutritionPlan {
 export async function getGymRecipes(): Promise<GymRecipe[]> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  const res = await apiFetch<{ data: GymRecipe[] }>(`/gym-nutrition-plans/gym-recipes?gymId=${gymId}`);
+  const res = await appApiFetch<{ data: GymRecipe[] }>(`/gym-nutrition-plans/gym-recipes?gymId=${gymId}`);
   return res.data;
 }
 
 export async function createGymRecipe(payload: Omit<GymRecipe, "id" | "gymId" | "createdAt" | "updatedAt"> & { ingredients?: Partial<GymRecipeIngredient>[] }): Promise<GymRecipe> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  const res = await apiFetch<{ data: GymRecipe }>(`/gym-nutrition-plans/gym-recipes`, {
+  const res = await appApiFetch<{ data: GymRecipe }>(`/gym-nutrition-plans/gym-recipes`, {
     method: "POST",
     body: JSON.stringify({ ...payload, gymId }),
   });
@@ -108,7 +135,7 @@ export async function createGymRecipe(payload: Omit<GymRecipe, "id" | "gymId" | 
 export async function updateGymRecipe(recipeId: string, payload: Partial<GymRecipe> & { ingredients?: Partial<GymRecipeIngredient>[] }): Promise<GymRecipe> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  const res = await apiFetch<{ data: GymRecipe }>(`/gym-nutrition-plans/gym-recipes/${recipeId}`, {
+  const res = await appApiFetch<{ data: GymRecipe }>(`/gym-nutrition-plans/gym-recipes/${recipeId}`, {
     method: "PUT",
     body: JSON.stringify({ ...payload, gymId }),
   });
@@ -118,7 +145,7 @@ export async function updateGymRecipe(recipeId: string, payload: Partial<GymReci
 export async function deleteGymRecipe(recipeId: string): Promise<void> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  await apiFetch<void>(`/gym-nutrition-plans/gym-recipes/${recipeId}?gymId=${gymId}`, { method: "DELETE" });
+  await appApiFetch<void>(`/gym-nutrition-plans/gym-recipes/${recipeId}?gymId=${gymId}`, { method: "DELETE" });
 }
 
 // ─── Nutrition Plans API ──────────────────────────────────────────────────────
@@ -126,14 +153,14 @@ export async function deleteGymRecipe(recipeId: string): Promise<void> {
 export async function getNutritionPlans(): Promise<GymNutritionPlan[]> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  const res = await apiFetch<{ data: GymNutritionPlan[] }>(`/gym-nutrition-plans?gymId=${gymId}`);
+  const res = await appApiFetch<{ data: GymNutritionPlan[] }>(`/gym-nutrition-plans?gymId=${gymId}`);
   return res.data;
 }
 
 export async function getNutritionPlan(planId: string): Promise<GymNutritionPlan> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  const res = await apiFetch<{ data: GymNutritionPlan }>(`/gym-nutrition-plans/${planId}?gymId=${gymId}`);
+  const res = await appApiFetch<{ data: GymNutritionPlan }>(`/gym-nutrition-plans/${planId}?gymId=${gymId}`);
   return res.data;
 }
 
@@ -149,7 +176,7 @@ export async function createNutritionPlan(payload: {
 }): Promise<GymNutritionPlan> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  const res = await apiFetch<{ data: GymNutritionPlan }>(`/gym-nutrition-plans`, {
+  const res = await appApiFetch<{ data: GymNutritionPlan }>(`/gym-nutrition-plans`, {
     method: "POST",
     body: JSON.stringify({ ...payload, gymId }),
   });
@@ -159,7 +186,7 @@ export async function createNutritionPlan(payload: {
 export async function updateNutritionPlan(planId: string, payload: Partial<GymNutritionPlan>): Promise<GymNutritionPlan> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  const res = await apiFetch<{ data: GymNutritionPlan }>(`/gym-nutrition-plans/${planId}`, {
+  const res = await appApiFetch<{ data: GymNutritionPlan }>(`/gym-nutrition-plans/${planId}`, {
     method: "PUT",
     body: JSON.stringify({ ...payload, gymId }),
   });
@@ -169,12 +196,12 @@ export async function updateNutritionPlan(planId: string, payload: Partial<GymNu
 export async function deleteNutritionPlan(planId: string): Promise<void> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  await apiFetch<void>(`/gym-nutrition-plans/${planId}?gymId=${gymId}`, { method: "DELETE" });
+  await appApiFetch<void>(`/gym-nutrition-plans/${planId}?gymId=${gymId}`, { method: "DELETE" });
 }
 
 // ─── Global Recipes Search (for picker) ──────────────────────────────────────
 
 export async function searchGlobalRecipes(search: string, limit = 20): Promise<GlobalRecipeSummary[]> {
-  const res = await apiFetch<{ data: GlobalRecipeSummary[]; total: number }>(`/recipes?search=${encodeURIComponent(search)}&limit=${limit}`);
+  const res = await appApiFetch<{ data: GlobalRecipeSummary[]; total: number }>(`/recipes?search=${encodeURIComponent(search)}&limit=${limit}`);
   return res.data ?? [];
 }
