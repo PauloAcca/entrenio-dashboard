@@ -470,3 +470,98 @@ model notices {
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
 }
+
+model gym_recipes {
+  id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  gymId           String   @db.Uuid
+  title           String   @db.VarChar
+  description     String?  @db.VarChar
+  calories        Float?
+  protein         Float?
+  carbs           Float?
+  fats            Float?
+  prepTimeMinutes Int?
+  servings        Int?
+  imageUrl        String?  @db.VarChar
+  mealType        String?  @db.VarChar
+  notes           String?
+  createdAt       DateTime @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime @default(now()) @db.Timestamp(6)
+
+  ingredients gym_recipe_ingredients[]
+  meals       gym_nutrition_plan_meals[]
+}
+
+model gym_recipe_ingredients {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  gymRecipeId String   @db.Uuid
+  name        String   @db.VarChar
+  quantity    Float?
+  unit        String?  @db.VarChar
+  optional    Boolean  @default(false)
+  order       Int      @default(0)
+  
+  gymRecipe   gym_recipes @relation(fields: [gymRecipeId], references: [id], onDelete: Cascade)
+}
+
+model gym_nutrition_plans {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  gymId       String   @db.Uuid
+  userId      Int?
+  title       String   @db.VarChar
+  description String?
+  notes       String?
+  status      String   @default("draft") @db.VarChar
+  startsAt    DateTime? @db.Timestamp(6)
+  endsAt      DateTime? @db.Timestamp(6)
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime @default(now()) @db.Timestamp(6)
+
+  days gym_nutrition_plan_days[]
+}
+
+model gym_nutrition_plan_days {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  planId    String   @db.Uuid
+  dayNumber Int
+  dayLabel  String?  @db.VarChar
+  notes     String?
+  
+  plan  gym_nutrition_plans @relation(fields: [planId], references: [id], onDelete: Cascade)
+  meals gym_nutrition_plan_meals[]
+}
+
+model gym_nutrition_plan_meals {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  dayId          String   @db.Uuid
+  mealType       String   @db.VarChar
+  order          Int      @default(0)
+  title          String?  @db.VarChar
+  description    String?
+  customCalories Float?
+  customProtein  Float?
+  customCarbs    Float?
+  customFats     Float?
+  recipeId       String?  @db.Uuid
+  gymRecipeId    String?  @db.Uuid
+  notes          String?
+  
+  day       gym_nutrition_plan_days @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  gymRecipe gym_recipes?            @relation(fields: [gymRecipeId], references: [id], onDelete: SetNull)
+  recipe    recipes?                @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+}
+
+model recipes {
+  id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title           String   @db.VarChar
+  slug            String   @unique @db.VarChar
+  calories        Float?
+  protein         Float?
+  carbs           Float?
+  fats            Float?
+  prepTimeMinutes Int?
+  imageUrl        String?  @db.VarChar
+  mealType        String?  @db.VarChar
+
+  meals gym_nutrition_plan_meals[]
+}

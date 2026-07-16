@@ -11,6 +11,7 @@ import { MetricsModule } from './modules/metrics/metrics.modules';
 import { ExercisesModule } from './modules/exercises/exercises.module';
 import { GymMessagesModule } from './modules/gym-messages/gym-messages.module';
 import { NoticesModule } from './modules/notices/notices.module';
+import { GymNutritionModule } from './modules/gym-nutrition/gym-nutrition.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NoticesModule } from './modules/notices/notices.module';
     ExercisesModule,
     GymMessagesModule,
     NoticesModule,
+    GymNutritionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
