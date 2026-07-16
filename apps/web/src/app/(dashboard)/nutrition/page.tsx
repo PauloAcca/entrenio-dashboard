@@ -7,7 +7,7 @@ import { getAppMembers } from "@/lib/api/members"
 import { membership, user } from "@/types/entities"
 import {
     Salad, Plus, ChevronRight, Clock, User, BookOpen, MoreVertical, Trash2, Edit3,
-    Archive, CheckCircle2, FileText, UtensilsCrossed, Search, X, Loader2
+    Archive, CheckCircle2, FileText, UtensilsCrossed, Search, X, Loader2, ChevronDown, ChevronUp
 } from "lucide-react"
 
 const STATUS_CONFIG = {
@@ -37,6 +37,8 @@ export default function NutritionPage() {
     // New plan form
     const [newPlan, setNewPlan] = useState({ userId: "", title: "", description: "", notes: "", status: "draft" })
     const [creating, setCreating] = useState(false)
+    const [showMemberDropdown, setShowMemberDropdown] = useState(false)
+    const [memberSearchQuery, setMemberSearchQuery] = useState("")
 
     useEffect(() => {
         Promise.all([
@@ -287,20 +289,63 @@ export default function NutritionPage() {
                                 />
                             </div>
 
-                            <div>
+                            <div className="relative">
                                 <label className="block text-sm font-medium text-foreground mb-1.5">Socio *</label>
-                                <select
-                                    value={newPlan.userId}
-                                    onChange={e => setNewPlan(p => ({ ...p, userId: e.target.value }))}
-                                    className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                                <div 
+                                    className={`w-full px-4 py-2.5 bg-background border ${showMemberDropdown ? 'border-emerald-500 ring-2 ring-emerald-500/40' : 'border-border'} rounded-xl text-sm cursor-pointer flex justify-between items-center transition-all`}
+                                    onClick={() => setShowMemberDropdown(!showMemberDropdown)}
                                 >
-                                    <option value="">Seleccionar socio...</option>
-                                    {members.map(m => (
-                                        <option key={m.user.id} value={m.user.id ?? ""}>
-                                            {m.user.name ? `${m.user.name} (${m.user.email})` : m.user.email ?? `#${m.user.id}`}
-                                        </option>
-                                    ))}
-                                </select>
+                                    <span className={newPlan.userId ? "text-foreground" : "text-muted-foreground"}>
+                                        {newPlan.userId ? getMemberName(Number(newPlan.userId)) : "Seleccionar socio..."}
+                                    </span>
+                                    {showMemberDropdown ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                                </div>
+                                
+                                {showMemberDropdown && (
+                                    <div className="absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                        <div className="p-2 border-b border-border relative">
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                            <input
+                                                autoFocus
+                                                value={memberSearchQuery}
+                                                onChange={e => setMemberSearchQuery(e.target.value)}
+                                                placeholder="Buscar por nombre o email..."
+                                                className="w-full pl-8 pr-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                                            />
+                                        </div>
+                                        <div className="max-h-[220px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                                            {members.filter(m => {
+                                                if (!memberSearchQuery) return true;
+                                                const q = memberSearchQuery.toLowerCase();
+                                                const name = m.user.name?.toLowerCase() || "";
+                                                const email = m.user.email?.toLowerCase() || "";
+                                                return name.includes(q) || email.includes(q) || m.user.id?.toString().includes(q);
+                                            }).length === 0 ? (
+                                                <div className="p-4 text-sm text-center text-muted-foreground">No se encontraron socios</div>
+                                            ) : (
+                                                members.filter(m => {
+                                                    if (!memberSearchQuery) return true;
+                                                    const q = memberSearchQuery.toLowerCase();
+                                                    const name = m.user.name?.toLowerCase() || "";
+                                                    const email = m.user.email?.toLowerCase() || "";
+                                                    return name.includes(q) || email.includes(q) || m.user.id?.toString().includes(q);
+                                                }).map(m => (
+                                                    <div 
+                                                        key={m.user.id}
+                                                        onClick={() => {
+                                                            setNewPlan(p => ({ ...p, userId: m.user.id?.toString() ?? "" }))
+                                                            setShowMemberDropdown(false)
+                                                            setMemberSearchQuery("")
+                                                        }}
+                                                        className={`px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors ${newPlan.userId === m.user.id?.toString() ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-medium" : "hover:bg-accent text-foreground"}`}
+                                                    >
+                                                        {m.user.name ? `${m.user.name} (${m.user.email})` : m.user.email ?? `#${m.user.id}`}
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div>
