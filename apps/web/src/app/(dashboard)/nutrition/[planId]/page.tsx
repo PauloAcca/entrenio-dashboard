@@ -45,25 +45,30 @@ interface MealEditorProps {
 function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
     const [expanded, setExpanded] = useState(true)
     const [recipeSearch, setRecipeSearch] = useState("")
+    const [recipeFilter, setRecipeFilter] = useState("")
     const [globalResults, setGlobalResults] = useState<GlobalRecipeSummary[]>([])
     const [searchLoading, setSearchLoading] = useState(false)
     const [showRecipePicker, setShowRecipePicker] = useState(false)
     const [pickerTab, setPickerTab] = useState<"global" | "gym">("global")
 
-    const doSearch = useCallback(async (q: string) => {
-        if (!q.trim()) { setGlobalResults([]); return }
+    const doSearch = useCallback(async (q: string, filter: string) => {
         setSearchLoading(true)
         try {
-            setGlobalResults(await searchGlobalRecipes(q, 15))
+            const results = await searchGlobalRecipes(q, 100)
+            if (filter) {
+                setGlobalResults(results.filter(r => r.mealType === filter))
+            } else {
+                setGlobalResults(results)
+            }
         } finally {
             setSearchLoading(false)
         }
     }, [])
 
     useEffect(() => {
-        const t = setTimeout(() => doSearch(recipeSearch), 400)
+        const t = setTimeout(() => doSearch(recipeSearch, recipeFilter), 400)
         return () => clearTimeout(t)
-    }, [recipeSearch, doSearch])
+    }, [recipeSearch, recipeFilter, doSearch])
 
     const selectedRecipeName = meal.recipe?.title ?? meal.gymRecipe?.title ?? null
 
@@ -190,7 +195,7 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
 
                         {pickerTab === "global" && (
                             <>
-                                <div className="p-3 border-b border-border">
+                                <div className="p-3 border-b border-border space-y-3">
                                     <div className="relative">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                         <input
@@ -201,12 +206,29 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                                             autoFocus
                                         />
                                     </div>
+                                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                                        <button
+                                            onClick={() => setRecipeFilter("")}
+                                            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${recipeFilter === "" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                                        >
+                                            Todas
+                                        </button>
+                                        {MEAL_TYPES.map(t => (
+                                            <button
+                                                key={t.value}
+                                                onClick={() => setRecipeFilter(t.value)}
+                                                className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${recipeFilter === t.value ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                                            >
+                                                {t.label}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                                 <div className="overflow-y-auto flex-1 p-2">
                                     {searchLoading ? (
                                         <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
                                     ) : globalResults.length === 0 ? (
-                                        <p className="text-center text-sm text-muted-foreground py-8">{recipeSearch ? "Sin resultados" : "Escribí para buscar recetas"}</p>
+                                        <p className="text-center text-sm text-muted-foreground py-8">Sin resultados</p>
                                     ) : (
                                         globalResults.map(r => (
                                             <button key={r.id} onClick={() => { onUpdate({ ...meal, recipeId: r.id, recipe: r as any, gymRecipeId: null, gymRecipe: null, title: meal.title ?? r.title }); setShowRecipePicker(false) }}
