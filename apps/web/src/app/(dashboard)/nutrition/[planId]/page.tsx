@@ -588,12 +588,12 @@ export default function PlanEditorPage() {
                                 const m = members.find(mbr => mbr.user?.id === plan.userId)?.user as any;
                                 if (!m) return null;
                                 return (
-                                    <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
-                                        {m.calories > 0 && <span className="bg-muted px-1.5 py-0.5 rounded">🔥 {m.calories} kcal</span>}
-                                        {m.profile?.peso && <span className="bg-muted px-1.5 py-0.5 rounded">⚖️ Peso: {m.profile.peso}kg</span>}
-                                        {m.targetWeight && <span className="bg-muted px-1.5 py-0.5 rounded">🎯 Obj: {m.targetWeight}kg</span>}
-                                        {m.profile?.altura && <span className="bg-muted px-1.5 py-0.5 rounded">📏 {m.profile.altura}cm</span>}
-                                        {m.dailyWaterGoal && <span className="bg-muted px-1.5 py-0.5 rounded">💧 {m.dailyWaterGoal}L</span>}
+                                    <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground mt-1">
+                                        {m.calories > 0 && <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md shadow-sm">🔥 {m.calories} kcal</span>}
+                                        {m.profile?.peso && <span className="bg-muted px-2.5 py-1 rounded-md border border-border shadow-sm">⚖️ Peso: {m.profile.peso}kg</span>}
+                                        {m.targetWeight && <span className="bg-muted px-2.5 py-1 rounded-md border border-border shadow-sm">🎯 Obj: {m.targetWeight}kg</span>}
+                                        {m.profile?.altura && <span className="bg-muted px-2.5 py-1 rounded-md border border-border shadow-sm">📏 {m.profile.altura}cm</span>}
+                                        {m.dailyWaterGoal && <span className="bg-muted px-2.5 py-1 rounded-md border border-border shadow-sm">💧 {m.dailyWaterGoal}L</span>}
                                     </div>
                                 )
                             })()}
