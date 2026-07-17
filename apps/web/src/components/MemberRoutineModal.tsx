@@ -1108,6 +1108,33 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                     {/* ══ NUTRITION TAB ═══════════════════════════════════════ */}
                     {activeTab === 'nutrition' && (
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                            {/* Member Profile Stats */}
+                            <div className="mb-6 p-4 bg-muted/30 rounded-xl border border-border">
+                                <h4 className="text-sm font-bold mb-3 flex items-center gap-2"><svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg> Perfil del socio</h4>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                                    <div className="bg-background/50 rounded-lg p-2.5 border border-border">
+                                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-0.5">Calorías</p>
+                                        <p className="text-sm font-bold text-foreground">{(member.user as any).calories > 0 ? `${(member.user as any).calories} kcal` : '-'}</p>
+                                    </div>
+                                    <div className="bg-background/50 rounded-lg p-2.5 border border-border">
+                                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-0.5">Peso Actual</p>
+                                        <p className="text-sm font-bold text-foreground">{(member.user as any).profile?.peso ? `${(member.user as any).profile.peso} kg` : '-'}</p>
+                                    </div>
+                                    <div className="bg-background/50 rounded-lg p-2.5 border border-border">
+                                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-0.5">Objetivo Peso</p>
+                                        <p className="text-sm font-bold text-foreground">{(member.user as any).targetWeight ? `${(member.user as any).targetWeight} kg` : '-'}</p>
+                                    </div>
+                                    <div className="bg-background/50 rounded-lg p-2.5 border border-border">
+                                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-0.5">Altura</p>
+                                        <p className="text-sm font-bold text-foreground">{(member.user as any).profile?.altura ? `${(member.user as any).profile.altura} cm` : '-'}</p>
+                                    </div>
+                                    <div className="bg-background/50 rounded-lg p-2.5 border border-border">
+                                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-0.5">Agua Diaria</p>
+                                        <p className="text-sm font-bold text-foreground">{(member.user as any).dailyWaterGoal ? `${(member.user as any).dailyWaterGoal} L` : '-'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {loadingNutrition ? (
                                 <div className="flex justify-center items-center h-32">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

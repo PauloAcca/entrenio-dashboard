@@ -24,6 +24,9 @@ export class MembersRepository {
             this.prisma.user.findMany({
                 where: {
                     id: { in: claimedUserIds }
+                },
+                include: {
+                    user_training_profile: true
                 }
             }),
             this.prisma.routines.findMany({
@@ -66,6 +69,10 @@ export class MembersRepository {
                     phone: registry.phone || null,
                     dni: registry.dni || null,
                     claimed_at: registry.claimed_at || null,
+                    calories: user?.calories || 0,
+                    targetWeight: user?.targetWeight || null,
+                    dailyWaterGoal: user?.dailyWaterGoal || null,
+                    profile: user?.user_training_profile || null,
                 }
             } as any;
         });

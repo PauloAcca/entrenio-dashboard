@@ -157,7 +157,7 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                             onChange={e => onUpdate({ ...meal, description: e.target.value || null })}
                             placeholder="Describe la preparación, cantidad, modo de consumo..."
                             rows={2}
-                            className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                            className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                         />
                     </div>
 
@@ -193,7 +193,7 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                             onChange={e => onUpdate({ ...meal, notes: e.target.value || null })}
                             placeholder="Indicaciones para el socio..."
                             rows={2}
-                            className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                            className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                         />
                     </div>
                 </div>
@@ -580,10 +580,23 @@ export default function PlanEditorPage() {
                             onChange={e => setPlan(p => p ? { ...p, title: e.target.value } : p)}
                             className="text-xl font-bold text-foreground bg-transparent border-none outline-none w-full min-w-0 focus:ring-0"
                         />
-                        <div className="flex items-center gap-2 mt-1">
-                            <p className="text-xs text-muted-foreground truncate">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                            <p className="text-xs font-medium text-emerald-600 truncate">
                                 {getMemberName(plan.userId)}
                             </p>
+                            {(() => {
+                                const m = members.find(mbr => mbr.user?.id === plan.userId)?.user as any;
+                                if (!m) return null;
+                                return (
+                                    <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+                                        {m.calories > 0 && <span className="bg-muted px-1.5 py-0.5 rounded">🔥 {m.calories} kcal</span>}
+                                        {m.profile?.peso && <span className="bg-muted px-1.5 py-0.5 rounded">⚖️ Peso: {m.profile.peso}kg</span>}
+                                        {m.targetWeight && <span className="bg-muted px-1.5 py-0.5 rounded">🎯 Obj: {m.targetWeight}kg</span>}
+                                        {m.profile?.altura && <span className="bg-muted px-1.5 py-0.5 rounded">📏 {m.profile.altura}cm</span>}
+                                        {m.dailyWaterGoal && <span className="bg-muted px-1.5 py-0.5 rounded">💧 {m.dailyWaterGoal}L</span>}
+                                    </div>
+                                )
+                            })()}
                         </div>
                     </div>
                 </div>
@@ -628,17 +641,32 @@ export default function PlanEditorPage() {
             <div className="flex flex-1 overflow-hidden">
                 {/* ─── Day Sidebar ────────────────────────────────────── */}
                 <div className="hidden md:flex flex-col w-48 shrink-0 border-r border-border bg-sidebar p-3 gap-1">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">Días</p>
-                    {plan.days.map((day, idx) => (
+                    {plan.days[0] && (
                         <button
-                            key={idx}
-                            onClick={() => setActiveDay(idx)}
-                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
+                            key={0}
+                            onClick={() => setActiveDay(0)}
+                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === 0 ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
                         >
-                            <span>{day.dayLabel}</span>
-                            <span className={`text-xs ${activeDay === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
+                            <span>{plan.days[0].dayLabel}</span>
+                            <span className={`text-xs ${activeDay === 0 ? "text-emerald-100" : "text-muted-foreground"}`}>{plan.days[0].meals.length}</span>
                         </button>
-                    ))}
+                    )}
+                    
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1 mt-2">Días</p>
+                    
+                    {plan.days.slice(1).map((day, offsetIdx) => {
+                        const idx = offsetIdx + 1;
+                        return (
+                            <button
+                                key={idx}
+                                onClick={() => setActiveDay(idx)}
+                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
+                            >
+                                <span>{day.dayLabel}</span>
+                                <span className={`text-xs ${activeDay === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
+                            </button>
+                        )
+                    })}
                 </div>
 
                 {/* ─── Mobile day tabs ────────────────────────────────── */}
@@ -663,7 +691,7 @@ export default function PlanEditorPage() {
                                         onChange={e => setPlan(p => p ? { ...p, description: e.target.value || null } : p)}
                                         placeholder="Descripción general..."
                                         rows={2}
-                                        className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                                        className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                                     />
                                 </div>
                                 <div>
@@ -673,7 +701,7 @@ export default function PlanEditorPage() {
                                         onChange={e => setPlan(p => p ? { ...p, notes: e.target.value || null } : p)}
                                         placeholder="Indicaciones especiales..."
                                         rows={2}
-                                        className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                                        className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                                     />
                                 </div>
                             </div>
@@ -703,7 +731,7 @@ export default function PlanEditorPage() {
                                     onChange={e => updateGeneralNote('general', e.target.value)}
                                     placeholder="Indicaciones generales para estas opciones..."
                                     rows={2}
-                                    className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                                    className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                                 />
                             </div>
                         ) : (
@@ -714,7 +742,7 @@ export default function PlanEditorPage() {
                                     onChange={e => updateDayNotes(activeDay, e.target.value)}
                                     placeholder="Indicaciones especiales para este día..."
                                     rows={2}
-                                    className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                                    className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                                 />
                             </div>
                         )}
@@ -740,7 +768,7 @@ export default function PlanEditorPage() {
                                                     onChange={e => updateGeneralNote(mt.value, e.target.value)}
                                                     placeholder={`Indicaciones generales para ${mt.label.split(" ")[1]?.toLowerCase() || "este apartado"}...`}
                                                     rows={1}
-                                                    className="w-full px-3 py-1.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                                                    className="w-full px-3 py-1.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                                                 />
                                             </div>
                                             {typeMeals.map((meal) => {
@@ -818,7 +846,7 @@ export default function PlanEditorPage() {
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-muted-foreground mb-1">Descripción / Preparación</label>
-                                <textarea value={newGymRecipe.description} onChange={e => setNewGymRecipe(r => ({ ...r, description: e.target.value }))} rows={3} placeholder="Cómo se prepara..." className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 resize-none" />
+                                <textarea value={newGymRecipe.description} onChange={e => setNewGymRecipe(r => ({ ...r, description: e.target.value }))} rows={3} placeholder="Cómo se prepara..." className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 resize-y" />
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-muted-foreground mb-1">Tipo de comida</label>
