@@ -579,6 +579,35 @@ model recipes {
   imageUrl        String?  @db.VarChar
   mealType        recipes_mealtype_enum?
   dietTags        String[] @default([])
+  tags            String[] @default([])
+  goals           String[] @default([])
 
   meals gym_nutrition_plan_meals[]
+  ingredients recipe_ingredients[]
+  steps       recipe_steps[]
+}
+
+model recipe_ingredients {
+  id       String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  recipeId String   @db.Uuid
+  name     String   @db.VarChar
+  quantity Float?
+  unit     String?  @db.VarChar
+  optional Boolean  @default(false)
+  order    Int      @default(0)
+
+  recipe   recipes  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model recipe_steps {
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  recipeId      String   @db.Uuid
+  stepNumber    Int      @default(0)
+  title         String?  @db.VarChar
+  description   String   @db.Text
+  estimatedTime String?  @db.VarChar
+  imageUrl      String?  @db.Text
+  createdAt     DateTime @default(now())
+
+  recipe        recipes  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 }

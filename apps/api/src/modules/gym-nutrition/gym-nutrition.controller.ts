@@ -19,6 +19,11 @@ export class GymNutritionController {
     return { data: await this.service.searchGlobalRecipes(search || '', l, diet || undefined) };
   }
 
+  @Get('global-recipes/:id')
+  async getGlobalRecipe(@Param('id') id: string) {
+    return this.service.getGlobalRecipe(id);
+  }
+
   @Post('gym-recipes')
   async createGymRecipe(@Body() data: any) {
     if (!data.gymId) throw new BadRequestException('gymId required');

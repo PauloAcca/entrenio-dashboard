@@ -47,6 +47,7 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
     const [recipeSearch, setRecipeSearch] = useState("")
     const [recipeFilter, setRecipeFilter] = useState("")
     const [dietFilter, setDietFilter] = useState("")
+    const [viewRecipeContext, setViewRecipeContext] = useState<{ id: string; type: 'global' | 'gym'; mode: 'view' | 'select' } | null>(null)
     const [globalResults, setGlobalResults] = useState<GlobalRecipeSummary[]>([])
     const [searchLoading, setSearchLoading] = useState(false)
     const [showRecipePicker, setShowRecipePicker] = useState(false)
@@ -100,16 +101,32 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                     <div>
                         <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Receta vinculada</label>
                         {selectedRecipeName ? (
-                            <div className="flex items-center gap-3 p-2 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl">
-                                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-emerald-200/50 dark:border-emerald-800/50">
+                            <div className="flex items-start gap-4 p-3 bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-200/60 dark:border-emerald-900/40 rounded-xl relative group">
+                                <div className="w-16 h-16 bg-emerald-100/50 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-emerald-200/50 dark:border-emerald-800/50">
                                     {selectedRecipeImage ? (
                                         <img src={selectedRecipeImage} alt={selectedRecipeName} className="w-full h-full object-cover" />
                                     ) : (
-                                        <Salad className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                        <Salad className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                                     )}
                                 </div>
-                                <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300 flex-1 truncate">{selectedRecipeName}</span>
-                                <button onClick={() => onUpdate({ ...meal, recipeId: null, recipe: null, gymRecipeId: null, gymRecipe: null })} className="p-1.5 text-emerald-600 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-colors mr-1">
+                                <div className="flex-1 min-w-0 py-0.5">
+                                    <h4 className="text-sm font-semibold text-emerald-900 dark:text-emerald-100 truncate mb-1">{selectedRecipeName}</h4>
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-emerald-700/80 dark:text-emerald-300/80 mb-2">
+                                        {(meal.recipe?.calories != null || meal.gymRecipe?.calories != null) && <span className="flex items-center gap-1 font-medium"><Flame className="w-3 h-3 text-orange-500"/> {Math.round(meal.recipe?.calories ?? meal.gymRecipe?.calories ?? 0)} kcal</span>}
+                                        {(meal.recipe?.prepTimeMinutes != null || meal.gymRecipe?.prepTimeMinutes != null) && <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-blue-500"/> {meal.recipe?.prepTimeMinutes ?? meal.gymRecipe?.prepTimeMinutes} min</span>}
+                                        {(meal.recipe?.carbs != null || meal.gymRecipe?.carbs != null) && <span>C: {Math.round(meal.recipe?.carbs ?? meal.gymRecipe?.carbs ?? 0)}g</span>}
+                                        {(meal.recipe?.protein != null || meal.gymRecipe?.protein != null) && <span>P: {Math.round(meal.recipe?.protein ?? meal.gymRecipe?.protein ?? 0)}g</span>}
+                                        {(meal.recipe?.fats != null || meal.gymRecipe?.fats != null) && <span>G: {Math.round(meal.recipe?.fats ?? meal.gymRecipe?.fats ?? 0)}g</span>}
+                                    </div>
+                                    {meal.recipe && (
+                                        <div className="flex gap-2">
+                                            <button onClick={() => setViewRecipeContext({ id: meal.recipeId!, type: 'global', mode: 'view' })} className="text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 flex items-center gap-1">
+                                                <BookOpen className="w-3.5 h-3.5" /> Ver detalles
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                <button onClick={() => onUpdate({ ...meal, recipeId: null, recipe: null, gymRecipeId: null, gymRecipe: null })} className="p-1.5 text-emerald-600 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-colors absolute top-2 right-2">
                                     <X className="w-4 h-4" />
                                 </button>
                             </div>
@@ -135,7 +152,7 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Descripción / Instrucciones</label>
+                        <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Aclaraciones</label>
                         <textarea
                             value={meal.description ?? ""}
                             onChange={e => onUpdate({ ...meal, description: e.target.value || null })}
@@ -172,11 +189,12 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                     {/* Notes */}
                     <div>
                         <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Notas del nutricionista</label>
-                        <input
+                        <textarea
                             value={meal.notes ?? ""}
                             onChange={e => onUpdate({ ...meal, notes: e.target.value || null })}
                             placeholder="Indicaciones para el socio..."
-                            className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                            rows={2}
+                            className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
                         />
                     </div>
                 </div>
@@ -256,7 +274,7 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                                         <p className="text-center text-sm text-muted-foreground py-8">Sin resultados</p>
                                     ) : (
                                         globalResults.map(r => (
-                                            <button key={r.id} onClick={() => { onUpdate({ ...meal, recipeId: r.id, recipe: r as any, gymRecipeId: null, gymRecipe: null, title: meal.title ?? r.title }); setShowRecipePicker(false) }}
+                                            <button key={r.id} onClick={() => setViewRecipeContext({ id: r.id, type: 'global', mode: 'select' })}
                                                 className="w-full flex items-start gap-4 p-3 border border-border rounded-xl hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 text-left group transition-all"
                                             >
                                                 <div className="w-20 h-20 bg-muted rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-border">
@@ -315,6 +333,16 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                     </div>
                 </div>
             )}
+            {/* Recipe Details Modal */}
+            <RecipeDetailsModal
+                isOpen={viewRecipeContext !== null}
+                onClose={() => setViewRecipeContext(null)}
+                context={viewRecipeContext}
+                onSelect={(details) => {
+                    onUpdate({ ...meal, recipeId: details.id, recipe: details as any, gymRecipeId: null, gymRecipe: null, title: meal.title ?? details.title })
+                    setShowRecipePicker(false)
+                }}
+            />
         </div>
     )
 }
@@ -714,6 +742,140 @@ export default function PlanEditorPage() {
                     </div>
                 </div>
             )}
+        </div>
+    )
+}
+
+
+
+function RecipeDetailsModal({
+    isOpen,
+    onClose,
+    context,
+    onSelect
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    context: { id: string; type: 'global' | 'gym'; mode: 'view' | 'select' } | null;
+    onSelect?: (recipe: any) => void;
+}) {
+    const [details, setDetails] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen || !context) return;
+        let active = true;
+        setDetails(null);
+        if (context.type === 'global') {
+            setLoading(true);
+            import('@/lib/api/gymNutrition').then(m => m.getGlobalRecipe(context.id))
+                .then(res => {
+                    if (active) setDetails(res);
+                })
+                .catch(() => alert("Error al cargar detalles"))
+                .finally(() => active && setLoading(false));
+        } else {
+            // Gym recipe doesn't have detailed endpoint yet, just use basic info
+            // In a real app we would pass the gym recipe object or fetch it
+        }
+        return () => { active = false };
+    }, [isOpen, context]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+            <div className="bg-card w-full max-w-2xl rounded-2xl border border-border shadow-2xl flex flex-col max-h-[90vh]">
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                        <BookOpen className="w-5 h-5 text-emerald-600" />
+                        Detalles de la receta
+                    </h3>
+                    <button onClick={onClose} className="p-2 hover:bg-accent rounded-xl text-muted-foreground transition-colors"><X className="w-5 h-5" /></button>
+                </div>
+                
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                        </div>
+                    ) : details ? (
+                        <>
+                            <div className="flex gap-6 items-start">
+                                <div className="w-32 h-32 shrink-0 bg-muted rounded-2xl overflow-hidden border border-border">
+                                    {details.imageUrl ? <img src={details.imageUrl} className="w-full h-full object-cover" /> : <Salad className="w-12 h-12 text-muted-foreground m-10" />}
+                                </div>
+                                <div className="flex-1">
+                                    <h2 className="text-2xl font-bold mb-2">{details.title}</h2>
+                                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
+                                        {details.calories != null && <span className="flex items-center gap-1.5"><Flame className="w-4 h-4 text-orange-500"/> {Math.round(details.calories)} kcal</span>}
+                                        {details.prepTimeMinutes != null && <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-blue-500"/> {details.prepTimeMinutes} min</span>}
+                                        {details.carbs != null && <span>C: {Math.round(details.carbs)}g</span>}
+                                        {details.protein != null && <span>P: {Math.round(details.protein)}g</span>}
+                                        {details.fats != null && <span>G: {Math.round(details.fats)}g</span>}
+                                    </div>
+                                    {details.dietTags && details.dietTags.length > 0 && (
+                                        <div className="flex flex-wrap gap-2">
+                                            {details.dietTags.includes('vegetarian') && <span className="px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Vegetariano</span>}
+                                            {details.dietTags.includes('vegan') && <span className="px-2 py-1 rounded-md text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Vegano</span>}
+                                            {details.dietTags.includes('gluten_free') && <span className="px-2 py-1 rounded-md text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Sin TACC</span>}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            {details.ingredients && details.ingredients.length > 0 && (
+                                <div>
+                                    <h4 className="font-semibold text-lg mb-3 flex items-center gap-2"><Salad className="w-4 h-4" /> Ingredientes</h4>
+                                    <ul className="space-y-2 bg-muted/30 p-4 rounded-xl border border-border/50">
+                                        {details.ingredients.map((ing: any) => (
+                                            <li key={ing.id} className="text-sm flex items-start gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                                                <span className="font-medium">{ing.quantity ? ing.quantity : ""} {ing.unit ? ing.unit : ""}</span>
+                                                <span className="text-muted-foreground">{ing.name} {ing.optional && "(opcional)"}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {details.steps && details.steps.length > 0 && (
+                                <div>
+                                    <h4 className="font-semibold text-lg mb-3 flex items-center gap-2"><UtensilsCrossed className="w-4 h-4" /> Preparación</h4>
+                                    <div className="space-y-4">
+                                        {details.steps.map((step: any) => (
+                                            <div key={step.id} className="flex gap-4 items-start">
+                                                <div className="w-6 h-6 shrink-0 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center text-xs font-bold border border-emerald-200 dark:border-emerald-800/50">
+                                                    {step.stepNumber}
+                                                </div>
+                                                <div>
+                                                    {step.title && <h5 className="font-medium text-sm mb-1">{step.title}</h5>}
+                                                    <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="py-12 text-center text-muted-foreground">
+                            No se pudieron cargar los detalles.
+                        </div>
+                    )}
+                </div>
+                
+                {/* Footer */}
+                {context?.mode === 'select' && onSelect && details && (
+                    <div className="p-4 border-t border-border flex justify-end shrink-0">
+                        <button onClick={() => { onSelect(details); onClose(); }} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
+                            <Plus className="w-4 h-4" /> Vincular a esta comida
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

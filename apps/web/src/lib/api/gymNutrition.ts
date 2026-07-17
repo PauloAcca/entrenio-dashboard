@@ -175,9 +175,29 @@ export async function deleteNutritionPlan(planId: string): Promise<void> {
 
 // ─── Global Recipes Search (for picker) ──────────────────────────────────────
 
+export interface GlobalRecipeDetail extends GlobalRecipeSummary {
+  ingredients: {
+    id: string;
+    name: string;
+    quantity: number | null;
+    unit: string | null;
+    optional: boolean;
+  }[];
+  steps: {
+    id: string;
+    stepNumber: number;
+    description: string;
+    title: string | null;
+  }[];
+}
+
 export async function searchGlobalRecipes(search: string, limit = 20, diet = ""): Promise<GlobalRecipeSummary[]> {
   const query = new URLSearchParams({ search, limit: limit.toString() });
   if (diet) query.append("diet", diet);
   const res = await apiFetch<{ data: GlobalRecipeSummary[] }>(`/gym-nutrition-plans/global-recipes?${query.toString()}`);
   return res.data ?? [];
+}
+
+export async function getGlobalRecipe(id: string): Promise<GlobalRecipeDetail> {
+  return await apiFetch<GlobalRecipeDetail>(`/gym-nutrition-plans/global-recipes/${id}`);
 }

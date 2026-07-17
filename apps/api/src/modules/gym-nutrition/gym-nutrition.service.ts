@@ -46,6 +46,18 @@ export class GymNutritionService {
     });
   }
 
+  async getGlobalRecipe(id: string) {
+    const recipe = await this.prisma.recipes.findUnique({
+      where: { id },
+      include: {
+        ingredients: { orderBy: { order: 'asc' } },
+        steps: { orderBy: { stepNumber: 'asc' } }
+      }
+    });
+    if (!recipe) throw new NotFoundException('Recipe not found');
+    return recipe;
+  }
+
   async createGymRecipe(gymId: string, data: any) {
     const { ingredients, ...recipeData } = data;
     return this.prisma.gym_recipes.create({
