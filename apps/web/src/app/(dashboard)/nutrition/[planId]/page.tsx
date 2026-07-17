@@ -13,7 +13,7 @@ import { membership, user } from "@/types/entities"
 import {
     ArrowLeft, Save, ChevronDown, ChevronUp, Plus, Trash2, X, Search,
     Salad, UtensilsCrossed, BookOpen, Loader2, CheckCircle2, Archive,
-    FileText, StickyNote, Tag, AlertCircle, ChefHat, Globe, Sparkles, Flame, Clock
+    FileText, StickyNote, Tag, AlertCircle, ChefHat, Globe, Sparkles, Flame, Clock, Printer
 } from "lucide-react"
 
 const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
@@ -534,7 +534,8 @@ export default function PlanEditorPage() {
     }
 
     return (
-        <div className="w-full min-h-full flex flex-col">
+        <>
+            <div className="w-full min-h-full flex flex-col print:hidden">
             {/* ─── Top Bar ────────────────────────────────────────────── */}
             <div className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-border px-6 py-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
@@ -571,15 +572,22 @@ export default function PlanEditorPage() {
 
                     <button
                         onClick={() => setShowGymRecipeModal(true)}
-                        className="hidden md:flex items-center gap-2 px-4 py-2 border border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors"
+                        className="hidden md:flex items-center gap-2 px-4 py-2 border border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors print:hidden"
                     >
                         <ChefHat className="w-4 h-4" /> Nueva receta
                     </button>
 
                     <button
+                        onClick={() => window.print()}
+                        className="hidden md:flex items-center gap-2 px-4 py-2 border border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-blue-400 transition-colors print:hidden"
+                    >
+                        <Printer className="w-4 h-4" /> Exportar a PDF
+                    </button>
+
+                    <button
                         onClick={handleSave}
                         disabled={saving}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${saved ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`}
+                        className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all print:hidden ${saved ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`}
                     >
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
                         {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar"}
@@ -793,6 +801,126 @@ export default function PlanEditorPage() {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+        </div>
+
+            {/* ─── Print View ────────────────────────────────────────────── */}
+            <div className="hidden print:block p-8 bg-white text-black min-h-screen font-sans">
+                {/* Header */}
+                <div className="border-b-2 border-emerald-600 pb-6 mb-8 flex justify-between items-end">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">{gym?.name || 'Gimnasio'}</h1>
+                        <p className="text-sm text-gray-500 mt-1">Plan de Alimentación</p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-sm font-semibold text-gray-800">Powered by Entrenio</p>
+                    </div>
+                </div>
+
+                {/* Plan Info */}
+                <div className="mb-8 space-y-4">
+                    <h2 className="text-2xl font-bold text-gray-900">{plan.title}</h2>
+                    {plan.description && <p className="text-gray-700">{plan.description}</p>}
+                    {plan.notes && (
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p className="text-sm font-bold text-gray-800 mb-1">Notas del nutricionista:</p>
+                            <p className="text-sm text-gray-600 whitespace-pre-wrap">{plan.notes}</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Days / Meals */}
+                {plan.days.map((day, idx) => {
+                    // For General plan, we might want to group by mealType in the print view as well
+                    const isGeneral = plan.days.length === 1 && plan.days[0].dayLabel === "General"
+                    
+                    return (
+                        <div key={idx} className="mb-10 page-break-inside-avoid">
+                            {!isGeneral && (
+                                <h3 className="text-xl font-bold text-emerald-700 border-b border-gray-200 pb-2 mb-4">{day.dayLabel}</h3>
+                            )}
+                            {day.notes && !isGeneral && (
+                                <div className="mb-4 text-sm text-gray-600 italic">
+                                    Notas del día: {day.notes}
+                                </div>
+                            )}
+                            <div className="space-y-6">
+                                {day.meals.length === 0 ? (
+                                    <p className="text-sm text-gray-500">Sin comidas asignadas.</p>
+                                ) : (
+                                    isGeneral ? (
+                                        MEAL_TYPES.map(mt => {
+                                            const typeMeals = day.meals.filter(m => m.mealType === mt.value);
+                                            if (typeMeals.length === 0) return null;
+                                            return (
+                                                <div key={mt.value} className="mb-8">
+                                                    <h3 className="text-xl font-bold text-emerald-700 border-b border-gray-200 pb-2 mb-4">{mt.label}</h3>
+                                                    <div className="space-y-4 mt-4">
+                                                        {typeMeals.map((meal, midx) => (
+                                                            <PrintMealCard key={midx} meal={meal} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })
+                                    ) : (
+                                        day.meals.map((meal, midx) => (
+                                            <PrintMealCard key={midx} meal={meal} />
+                                        ))
+                                    )
+                                )}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </>
+    )
+}
+
+function PrintMealCard({ meal }: { meal: any }) {
+    return (
+        <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm page-break-inside-avoid">
+            <div className="flex justify-between items-start mb-2">
+                <h4 className="font-bold text-gray-900">{meal.title || meal.recipe?.title || meal.gymRecipe?.title || 'Comida'}</h4>
+                <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
+                    {MEAL_TYPE_LABEL[meal.mealType] || meal.mealType}
+                </span>
+            </div>
+            {(meal.description || meal.recipe?.description || meal.gymRecipe?.description) && (
+                <p className="text-sm text-gray-600 mb-3">
+                    {meal.description || meal.recipe?.description || meal.gymRecipe?.description}
+                </p>
+            )}
+            <div className="flex gap-4 text-xs text-gray-500 font-medium">
+                <span>🔥 {Math.round(meal.customCalories || meal.recipe?.calories || meal.gymRecipe?.calories || 0)} kcal</span>
+                <span>🥩 P: {Math.round(meal.customProtein || meal.recipe?.protein || meal.gymRecipe?.protein || 0)}g</span>
+                <span>🍚 C: {Math.round(meal.customCarbs || meal.recipe?.carbs || meal.gymRecipe?.carbs || 0)}g</span>
+                <span>🥑 G: {Math.round(meal.customFats || meal.recipe?.fats || meal.gymRecipe?.fats || 0)}g</span>
+            </div>
+            {(meal.recipe?.ingredients?.length > 0 || meal.recipe?.steps?.length > 0) && (
+                <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {meal.recipe.ingredients?.length > 0 && (
+                        <div>
+                            <p className="text-xs font-bold text-gray-800 mb-2">Ingredientes:</p>
+                            <ul className="list-disc pl-4 text-sm text-gray-600 space-y-1">
+                                {meal.recipe.ingredients.map((ing: any) => (
+                                    <li key={ing.id}>{ing.name} - {ing.amount} {ing.unit}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                    {meal.recipe.steps?.length > 0 && (
+                        <div>
+                            <p className="text-xs font-bold text-gray-800 mb-2">Preparación:</p>
+                            <ol className="list-decimal pl-4 text-sm text-gray-600 space-y-1">
+                                {meal.recipe.steps.sort((a: any, b: any) => a.stepNumber - b.stepNumber).map((step: any) => (
+                                    <li key={step.id}>{step.instruction}</li>
+                                ))}
+                            </ol>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
