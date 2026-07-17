@@ -899,7 +899,20 @@ export default function PlanEditorPage() {
                         const isGeneral = day.dayLabel === "General";
                         if (printMode === 'general' && !isGeneral) return false;
                         if (printMode === 'days' && isGeneral) return false;
-                        if (day.meals.length === 0) return false;
+                        if (day.meals.length === 0) {
+                            if (!day.notes || !day.notes.trim()) return false;
+                            if (isGeneral) {
+                                try {
+                                    const parsed = JSON.parse(day.notes);
+                                    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+                                        const hasAnyNote = Object.values(parsed).some(v => v && typeof v === 'string' && v.trim().length > 0);
+                                        if (!hasAnyNote) return false;
+                                    }
+                                } catch {
+                                    // Not JSON, but string is not empty
+                                }
+                            }
+                        }
                         return true;
                     })
                     .map((day, idx) => {
@@ -932,29 +945,34 @@ export default function PlanEditorPage() {
                                 </div>
                             )}
                             <div className="space-y-6">
-                                {day.meals.length === 0 ? (
-                                    <p className="text-sm text-gray-500">Sin comidas asignadas.</p>
-                                ) : (
-                                    isGeneral ? (
-                                        MEAL_TYPES.map(mt => {
-                                            const typeMeals = day.meals.filter(m => m.mealType === mt.value);
-                                            if (typeMeals.length === 0) return null;
-                                            return (
-                                                <div key={mt.value} className="mb-8">
-                                                    <h3 className="text-lg font-bold text-emerald-700 border-b border-gray-100 pb-2 mb-2">{mt.label}</h3>
-                                                    {printGeneralNotes[mt.value] && (
-                                                        <div className="mb-4 text-sm text-gray-600 italic">
-                                                            {printGeneralNotes[mt.value]}
-                                                        </div>
-                                                    )}
+                                {isGeneral ? (
+                                    MEAL_TYPES.map(mt => {
+                                        const typeMeals = day.meals.filter(m => m.mealType === mt.value);
+                                        const hasNote = !!printGeneralNotes[mt.value] && printGeneralNotes[mt.value].trim().length > 0;
+                                        if (typeMeals.length === 0 && !hasNote) return null;
+                                        return (
+                                            <div key={mt.value} className="mb-8">
+                                                <h3 className="text-lg font-bold text-emerald-700 border-b border-gray-100 pb-2 mb-2">{mt.label}</h3>
+                                                {hasNote && (
+                                                    <div className="mb-4 text-sm text-gray-600 italic">
+                                                        {printGeneralNotes[mt.value]}
+                                                    </div>
+                                                )}
+                                                {typeMeals.length === 0 ? (
+                                                    <p className="text-sm text-gray-500 mt-2">Sin opciones sugeridas.</p>
+                                                ) : (
                                                     <div className="space-y-4 mt-4">
                                                         {typeMeals.map((meal, midx) => (
                                                             <PrintMealCard key={midx} meal={meal} />
                                                         ))}
                                                     </div>
-                                                </div>
-                                            )
-                                        })
+                                                )}
+                                            </div>
+                                        )
+                                    })
+                                ) : (
+                                    day.meals.length === 0 ? (
+                                        <p className="text-sm text-gray-500">Sin comidas asignadas.</p>
                                     ) : (
                                         day.meals.map((meal, midx) => (
                                             <PrintMealCard key={midx} meal={meal} />
