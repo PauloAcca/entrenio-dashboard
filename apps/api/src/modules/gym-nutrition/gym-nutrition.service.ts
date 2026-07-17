@@ -160,7 +160,7 @@ export class GymNutritionService {
       });
     }
 
-    return this.prisma.gym_nutrition_plans.create({
+    const created = await this.prisma.gym_nutrition_plans.create({
       data: {
         ...planData,
         gymId,
@@ -188,6 +188,8 @@ export class GymNutritionService {
         },
       },
     });
+
+    return this.findPlanById(gymId, created.id);
   }
 
   async updatePlan(gymId: string, planId: string, data: any) {
@@ -217,7 +219,7 @@ export class GymNutritionService {
       });
     }
 
-    return this.prisma.gym_nutrition_plans.update({
+    await this.prisma.gym_nutrition_plans.update({
       where: { id: planId },
       data: {
         ...planData,
@@ -249,6 +251,8 @@ export class GymNutritionService {
           : {}),
       },
     });
+
+    return this.findPlanById(gymId, planId);
   }
 
   async deletePlan(gymId: string, planId: string) {
