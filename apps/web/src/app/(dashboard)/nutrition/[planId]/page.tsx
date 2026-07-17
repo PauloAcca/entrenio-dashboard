@@ -16,7 +16,7 @@ import {
     FileText, StickyNote, Tag, AlertCircle, ChefHat, Globe, Sparkles, Flame, Clock, Printer
 } from "lucide-react"
 
-const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+const DAYS = ["General", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 const MEAL_TYPES = [
     { value: "breakfast", label: "🌅 Desayuno" },
     { value: "lunch", label: "☀️ Almuerzo" },
@@ -376,6 +376,24 @@ export default function PlanEditorPage() {
             getGymRecipes(),
             getAppMembers(),
         ]).then(([p, r, m]) => {
+            if (p) {
+                const existingLabels = p.days?.map((d: any) => d.dayLabel) || []
+                const missingDays = DAYS.filter(d => !existingLabels.includes(d))
+                if (missingDays.length > 0) {
+                    missingDays.forEach(md => {
+                        p.days.push({
+                            id: `new-${md}-${Date.now()}`,
+                            planId: p.id,
+                            dayNumber: DAYS.indexOf(md),
+                            dayLabel: md,
+                            notes: null,
+                            meals: []
+                        } as any)
+                    })
+                }
+                // Sort by DAYS order
+                p.days.sort((a: any, b: any) => DAYS.indexOf(a.dayLabel) - DAYS.indexOf(b.dayLabel))
+            }
             setPlan(p)
             setGymRecipes(r)
             setMembers(m.filter(m => m.user?.id))
@@ -521,17 +539,7 @@ export default function PlanEditorPage() {
     )
 
     const currentDay = plan.days[activeDay]
-    const isGeneralPlan = plan.days.length === 1 && plan.days[0].dayLabel === "General"
-
-    const togglePlanType = () => {
-        if (!confirm("Cambiar el tipo de plan borrará todas las comidas actuales. ¿Continuar?")) return;
-        if (isGeneralPlan) {
-            setPlan(p => p ? { ...p, days: DAYS.map((d, i) => ({ id: `new-day-${i}`, planId: p.id, dayNumber: i + 1, dayLabel: d, notes: null, meals: [] })) } : p)
-        } else {
-            setPlan(p => p ? { ...p, days: [{ id: "new-day-general", planId: p.id, dayNumber: 0, dayLabel: "General", notes: null, meals: [] }] } : p)
-        }
-        setActiveDay(0)
-    }
+    const isGeneralDay = currentDay?.dayLabel === "General"
 
     return (
         <>
@@ -552,10 +560,6 @@ export default function PlanEditorPage() {
                             <p className="text-xs text-muted-foreground truncate">
                                 {getMemberName(plan.userId)}
                             </p>
-                            <span className="text-muted-foreground/40 text-xs">•</span>
-                            <button onClick={togglePlanType} className="text-xs font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md transition-colors">
-                                {isGeneralPlan ? "Plan General" : "Plan por Días"} ⇄
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -597,21 +601,19 @@ export default function PlanEditorPage() {
 
             <div className="flex flex-1 overflow-hidden">
                 {/* ─── Day Sidebar ────────────────────────────────────── */}
-                {!isGeneralPlan && (
-                    <div className="hidden md:flex flex-col w-48 shrink-0 border-r border-border bg-sidebar p-3 gap-1">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">Días</p>
-                        {plan.days.map((day, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => setActiveDay(idx)}
-                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
-                            >
-                                <span>{day.dayLabel}</span>
-                                <span className={`text-xs ${activeDay === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
-                            </button>
-                        ))}
-                    </div>
-                )}
+                <div className="hidden md:flex flex-col w-48 shrink-0 border-r border-border bg-sidebar p-3 gap-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">Días</p>
+                    {plan.days.map((day, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => setActiveDay(idx)}
+                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
+                        >
+                            <span>{day.dayLabel}</span>
+                            <span className={`text-xs ${activeDay === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
+                        </button>
+                    ))}
+                </div>
 
                 {/* ─── Mobile day tabs ────────────────────────────────── */}
                 <div className="md:hidden flex gap-2 overflow-x-auto px-4 py-2 border-b border-border bg-card shrink-0 w-full">
@@ -651,7 +653,7 @@ export default function PlanEditorPage() {
                             </div>
                         )}
 
-                        {!isGeneralPlan && (
+                        {!isGeneralDay && (
                             <>
                                 {/* Day title */}
                                 <div className="flex items-center justify-between">
@@ -678,7 +680,7 @@ export default function PlanEditorPage() {
                         )}
 
                         {/* Meals */}
-                        {isGeneralPlan ? (
+                        {isGeneralDay ? (
                             <div className="space-y-10">
                                 {MEAL_TYPES.map(mt => {
                                     const typeMeals = currentDay.meals.filter(m => m.mealType === mt.value);
@@ -833,13 +835,13 @@ export default function PlanEditorPage() {
                 {/* Days / Meals */}
                 {plan.days.map((day, idx) => {
                     // For General plan, we might want to group by mealType in the print view as well
-                    const isGeneral = plan.days.length === 1 && plan.days[0].dayLabel === "General"
+                    const isGeneral = day.dayLabel === "General"
                     
                     return (
                         <div key={idx} className="mb-10 page-break-inside-avoid">
-                            {!isGeneral && (
-                                <h3 className="text-xl font-bold text-emerald-700 border-b border-gray-200 pb-2 mb-4">{day.dayLabel}</h3>
-                            )}
+                            <h3 className="text-xl font-bold text-emerald-700 border-b border-gray-200 pb-2 mb-4">
+                                {isGeneral ? "Opciones Generales" : day.dayLabel}
+                            </h3>
                             {day.notes && !isGeneral && (
                                 <div className="mb-4 text-sm text-gray-600 italic">
                                     Notas del día: {day.notes}
