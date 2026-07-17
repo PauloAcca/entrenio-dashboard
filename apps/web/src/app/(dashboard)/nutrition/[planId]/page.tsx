@@ -958,9 +958,7 @@ export default function PlanEditorPage() {
                                                         {printGeneralNotes[mt.value]}
                                                     </div>
                                                 )}
-                                                {typeMeals.length === 0 ? (
-                                                    <p className="text-sm text-gray-500 mt-2">Sin opciones sugeridas.</p>
-                                                ) : (
+                                                {typeMeals.length > 0 && (
                                                     <div className="space-y-4 mt-4">
                                                         {typeMeals.map((meal, midx) => (
                                                             <PrintMealCard key={midx} meal={meal} />
@@ -971,9 +969,7 @@ export default function PlanEditorPage() {
                                         )
                                     })
                                 ) : (
-                                    day.meals.length === 0 ? (
-                                        <p className="text-sm text-gray-500">Sin comidas asignadas.</p>
-                                    ) : (
+                                    day.meals.length > 0 && (
                                         day.meals.map((meal, midx) => (
                                             <PrintMealCard key={midx} meal={meal} />
                                         ))
