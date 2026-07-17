@@ -46,9 +46,9 @@ export class GymNutritionController {
   // ─── Nutrition Plans ────────────────────────────────────────────────────────
 
   @Get()
-  async getAllPlans(@Query('gymId') gymId: string) {
+  async findPlans(@Query('gymId') gymId: string, @Query('userId') userId?: string) {
     if (!gymId) throw new BadRequestException('gymId required');
-    return { data: await this.service.findAllPlansByGym(gymId) };
+    return { data: await this.service.findAllPlansByGym(gymId, userId ? parseInt(userId, 10) : undefined) };
   }
 
   @Post()

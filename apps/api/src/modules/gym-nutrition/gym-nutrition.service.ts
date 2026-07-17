@@ -128,9 +128,9 @@ export class GymNutritionService {
 
   // ─── Nutrition Plans ────────────────────────────────────────────────────────
 
-  async findAllPlansByGym(gymId: string) {
+  async findAllPlansByGym(gymId: string, userId?: number) {
     return this.prisma.gym_nutrition_plans.findMany({
-      where: { gymId },
+      where: { gymId, ...(userId ? { userId } : {}) },
       include: {
         days: {
           include: {

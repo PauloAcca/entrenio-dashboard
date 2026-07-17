@@ -149,7 +149,7 @@ const profileFromData = (data: any): ProfileForm => ({
 // Component
 // ──────────────────────────────────────────────────────────────────────────────
 export default function MemberRoutineModal({ member, onClose }: MemberModalProps) {
-    const [activeTab, setActiveTab] = useState<'info' | 'routine'>('info');
+    const [activeTab, setActiveTab] = useState<'info' | 'routine' | 'nutrition'>('info');
 
     // ── Profile ──────────────────────────────────────────────────────────────
     const [profile, setProfile] = useState<any>(null);
@@ -201,6 +201,21 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
     useEffect(() => {
         if (activeTab === 'routine' && !routine && userId) fetchRoutine();
     }, [activeTab, userId]);
+
+    // ── Nutrition Plan ───────────────────────────────────────────────────────
+    const [nutritionPlans, setNutritionPlans] = useState<any[]>([]);
+    const [loadingNutrition, setLoadingNutrition] = useState(false);
+
+    useEffect(() => {
+        if (activeTab === 'nutrition' && nutritionPlans.length === 0 && userId) {
+            setLoadingNutrition(true);
+            import('@/lib/api/gymNutrition')
+                .then(m => m.getNutritionPlans(userId))
+                .then(data => setNutritionPlans(data))
+                .catch(err => console.error(err))
+                .finally(() => setLoadingNutrition(false));
+        }
+    }, [activeTab, userId, nutritionPlans.length]);
 
     useEffect(() => {
         const sessionActive = activeSessionId !== null || newRoutineSearchSessionId !== null;
@@ -504,6 +519,9 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                         </button>
                         <button onClick={() => setActiveTab('routine')} className={`px-4 py-2 text-sm font-bold border-b-2 transition-all ${activeTab === 'routine' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
                             Rutina
+                        </button>
+                        <button onClick={() => setActiveTab('nutrition')} className={`px-4 py-2 text-sm font-bold border-b-2 transition-all ${activeTab === 'nutrition' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                            Alimentación
                         </button>
                     </div>
                 </div>
@@ -1084,6 +1102,58 @@ export default function MemberRoutineModal({ member, onClose }: MemberModalProps
                                     </div>
                                 )}
                             </div>
+                        </div>
+                    )}
+
+                    {/* ══ NUTRITION TAB ═══════════════════════════════════════ */}
+                    {activeTab === 'nutrition' && (
+                        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                            {loadingNutrition ? (
+                                <div className="flex justify-center items-center h-32">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                </div>
+                            ) : nutritionPlans.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-16 px-4 bg-muted/30 border-2 border-dashed border-border rounded-xl text-center">
+                                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                                        <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                    </div>
+                                    <p className="text-lg font-bold text-foreground mb-1">Sin plan de alimentación</p>
+                                    <p className="text-sm text-muted-foreground max-w-md">El socio no tiene ningún plan de alimentación activo en este momento.</p>
+                                    <a href="/nutrition" className="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl transition-colors inline-flex items-center gap-2">
+                                        Ir a Planes de Alimentación
+                                    </a>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {nutritionPlans.map(plan => (
+                                        <div key={plan.id} className="border border-border rounded-xl p-5 bg-card hover:border-emerald-500/50 transition-colors">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                                                        {plan.title}
+                                                        {plan.status === 'active' && <span className="px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">Activo</span>}
+                                                        {plan.status === 'draft' && <span className="px-2 py-0.5 text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 rounded-full">Borrador</span>}
+                                                    </h3>
+                                                    {plan.description && <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>}
+                                                </div>
+                                                <a href={`/nutrition/${plan.id}`} target="_blank" rel="noopener noreferrer" className="text-sm text-emerald-600 hover:underline font-medium flex items-center gap-1">
+                                                    Ver / Editar <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                </a>
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                                                <div className="bg-muted/50 p-3 rounded-lg">
+                                                    <p className="text-xs text-muted-foreground mb-1">Días</p>
+                                                    <p className="text-sm font-bold">{plan.days?.length || 0}</p>
+                                                </div>
+                                                <div className="bg-muted/50 p-3 rounded-lg">
+                                                    <p className="text-xs text-muted-foreground mb-1">Comidas totales</p>
+                                                    <p className="text-sm font-bold">{plan.days?.reduce((acc: number, d: any) => acc + (d.meals?.length || 0), 0) || 0}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
 

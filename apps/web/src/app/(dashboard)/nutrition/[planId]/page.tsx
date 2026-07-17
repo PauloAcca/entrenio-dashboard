@@ -22,8 +22,7 @@ const MEAL_TYPES = [
     { value: "lunch", label: "☀️ Almuerzo" },
     { value: "dinner", label: "🌙 Cena" },
     { value: "snack", label: "🍎 Merienda" },
-    { value: "pre_workout", label: "⚡ Pre-Entrenamiento" },
-    { value: "post_workout", label: "💪 Post-Entrenamiento" },
+    { value: "dessert", label: "🍨 Postre" },
 ]
 const MEAL_TYPE_LABEL: Record<string, string> = Object.fromEntries(MEAL_TYPES.map(m => [m.value, m.label]))
 
@@ -442,14 +441,14 @@ export default function PlanEditorPage() {
         })
     }
 
-    const addMeal = (dayIdx: number) => {
+    const addMeal = (dayIdx: number, defaultMealType: string = "breakfast") => {
         setPlan(p => {
             if (!p) return p
             const days = [...p.days]
             const meals = [...days[dayIdx].meals, {
                 id: `new-${Date.now()}`,
                 dayId: days[dayIdx].id,
-                mealType: "breakfast",
+                mealType: defaultMealType,
                 order: days[dayIdx].meals.length,
                 title: null, description: null,
                 customCalories: null, customProtein: null, customCarbs: null, customFats: null,
@@ -522,6 +521,17 @@ export default function PlanEditorPage() {
     )
 
     const currentDay = plan.days[activeDay]
+    const isGeneralPlan = plan.days.length === 1 && plan.days[0].dayLabel === "General"
+
+    const togglePlanType = () => {
+        if (!confirm("Cambiar el tipo de plan borrará todas las comidas actuales. ¿Continuar?")) return;
+        if (isGeneralPlan) {
+            setPlan(p => p ? { ...p, days: DAYS.map((d, i) => ({ id: `new-day-${i}`, planId: p.id, dayNumber: i + 1, dayLabel: d, notes: null, meals: [] })) } : p)
+        } else {
+            setPlan(p => p ? { ...p, days: [{ id: "new-day-general", planId: p.id, dayNumber: 0, dayLabel: "General", notes: null, meals: [] }] } : p)
+        }
+        setActiveDay(0)
+    }
 
     return (
         <div className="w-full min-h-full flex flex-col">
@@ -537,9 +547,15 @@ export default function PlanEditorPage() {
                             onChange={e => setPlan(p => p ? { ...p, title: e.target.value } : p)}
                             className="text-xl font-bold text-foreground bg-transparent border-none outline-none w-full min-w-0 focus:ring-0"
                         />
-                        <p className="text-xs text-muted-foreground truncate">
-                            {getMemberName(plan.userId)}
-                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                            <p className="text-xs text-muted-foreground truncate">
+                                {getMemberName(plan.userId)}
+                            </p>
+                            <span className="text-muted-foreground/40 text-xs">•</span>
+                            <button onClick={togglePlanType} className="text-xs font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md transition-colors">
+                                {isGeneralPlan ? "Plan General" : "Plan por Días"} ⇄
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -573,19 +589,21 @@ export default function PlanEditorPage() {
 
             <div className="flex flex-1 overflow-hidden">
                 {/* ─── Day Sidebar ────────────────────────────────────── */}
-                <div className="hidden md:flex flex-col w-48 shrink-0 border-r border-border bg-sidebar p-3 gap-1">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">Días</p>
-                    {plan.days.map((day, idx) => (
-                        <button
-                            key={idx}
-                            onClick={() => setActiveDay(idx)}
-                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
-                        >
-                            <span>{day.dayLabel}</span>
-                            <span className={`text-xs ${activeDay === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
-                        </button>
-                    ))}
-                </div>
+                {!isGeneralPlan && (
+                    <div className="hidden md:flex flex-col w-48 shrink-0 border-r border-border bg-sidebar p-3 gap-1">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">Días</p>
+                        {plan.days.map((day, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setActiveDay(idx)}
+                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
+                            >
+                                <span>{day.dayLabel}</span>
+                                <span className={`text-xs ${activeDay === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {/* ─── Mobile day tabs ────────────────────────────────── */}
                 <div className="md:hidden flex gap-2 overflow-x-auto px-4 py-2 border-b border-border bg-card shrink-0 w-full">
@@ -625,58 +643,93 @@ export default function PlanEditorPage() {
                             </div>
                         )}
 
-                        {/* Day title */}
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h2 className="text-2xl font-bold text-foreground">{currentDay.dayLabel}</h2>
-                                <p className="text-sm text-muted-foreground mt-0.5">
-                                    {currentDay.meals.length} comida{currentDay.meals.length !== 1 ? "s" : ""}
-                                    {currentDay.meals.length > 0 && ` · ${currentDay.meals.filter(m => m.recipeId || m.gymRecipeId).length} con receta`}
-                                </p>
-                            </div>
-                        </div>
+                        {!isGeneralPlan && (
+                            <>
+                                {/* Day title */}
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-foreground">{currentDay.dayLabel}</h2>
+                                        <p className="text-sm text-muted-foreground mt-0.5">
+                                            {currentDay.meals.length} comida{currentDay.meals.length !== 1 ? "s" : ""}
+                                            {currentDay.meals.length > 0 && ` · ${currentDay.meals.filter(m => m.recipeId || m.gymRecipeId).length} con receta`}
+                                        </p>
+                                    </div>
+                                </div>
 
-                        {/* Day notes */}
-                        <div>
-                            <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><StickyNote className="w-3 h-3" /> Notas del día</label>
-                            <input
-                                value={currentDay.notes ?? ""}
-                                onChange={e => updateDayNotes(activeDay, e.target.value)}
-                                placeholder="Indicaciones especiales para este día..."
-                                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-                            />
-                        </div>
+                                {/* Day notes */}
+                                <div>
+                                    <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><StickyNote className="w-3 h-3" /> Notas del día</label>
+                                    <input
+                                        value={currentDay.notes ?? ""}
+                                        onChange={e => updateDayNotes(activeDay, e.target.value)}
+                                        placeholder="Indicaciones especiales para este día..."
+                                        className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                                    />
+                                </div>
+                            </>
+                        )}
 
                         {/* Meals */}
-                        <div className="space-y-3">
-                            {currentDay.meals.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 gap-3 text-center border-2 border-dashed border-border rounded-2xl">
-                                    <UtensilsCrossed className="w-8 h-8 text-muted-foreground" />
-                                    <div>
-                                        <p className="font-medium text-foreground">Sin comidas para {currentDay.dayLabel}</p>
-                                        <p className="text-sm text-muted-foreground">Agregá comidas o recetas</p>
+                        {isGeneralPlan ? (
+                            <div className="space-y-10">
+                                {MEAL_TYPES.map(mt => {
+                                    const typeMeals = currentDay.meals.filter(m => m.mealType === mt.value);
+                                    return (
+                                        <div key={mt.value} className="space-y-4">
+                                            <div className="flex items-center gap-2 pb-2 border-b border-border">
+                                                <h3 className="text-lg font-bold text-foreground">{mt.label}</h3>
+                                                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{typeMeals.length} opciones</span>
+                                            </div>
+                                            {typeMeals.map((meal) => {
+                                                const globalIdx = currentDay.meals.findIndex(m => m.id === meal.id || m === meal);
+                                                return (
+                                                    <MealEditor
+                                                        key={meal.id ?? globalIdx}
+                                                        meal={meal}
+                                                        gymRecipes={gymRecipes}
+                                                        onUpdate={(updated) => updateMeal(activeDay, globalIdx, updated)}
+                                                        onDelete={() => removeMeal(activeDay, globalIdx)}
+                                                    />
+                                                );
+                                            })}
+                                            <button onClick={() => addMeal(activeDay, mt.value)} className="flex items-center gap-2 px-5 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors w-full justify-center group">
+                                                <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" /> Agregar opción
+                                            </button>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {currentDay.meals.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-12 gap-3 text-center border-2 border-dashed border-border rounded-2xl">
+                                        <UtensilsCrossed className="w-8 h-8 text-muted-foreground" />
+                                        <div>
+                                            <p className="font-medium text-foreground">Sin comidas para {currentDay.dayLabel}</p>
+                                            <p className="text-sm text-muted-foreground">Agregá comidas o recetas</p>
+                                        </div>
+                                        <button onClick={() => addMeal(activeDay)} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors">
+                                            <Plus className="w-4 h-4" /> Agregar comida
+                                        </button>
                                     </div>
-                                    <button onClick={() => addMeal(activeDay)} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors">
-                                        <Plus className="w-4 h-4" /> Agregar comida
-                                    </button>
-                                </div>
-                            ) : (
-                                currentDay.meals.map((meal, mealIdx) => (
-                                    <MealEditor
-                                        key={meal.id ?? mealIdx}
-                                        meal={meal}
-                                        gymRecipes={gymRecipes}
-                                        onUpdate={(updated) => updateMeal(activeDay, mealIdx, updated)}
-                                        onDelete={() => removeMeal(activeDay, mealIdx)}
-                                    />
-                                ))
-                            )}
-                        </div>
+                                ) : (
+                                    currentDay.meals.map((meal, mealIdx) => (
+                                        <MealEditor
+                                            key={meal.id ?? mealIdx}
+                                            meal={meal}
+                                            gymRecipes={gymRecipes}
+                                            onUpdate={(updated) => updateMeal(activeDay, mealIdx, updated)}
+                                            onDelete={() => removeMeal(activeDay, mealIdx)}
+                                        />
+                                    ))
+                                )}
 
-                        {currentDay.meals.length > 0 && (
-                            <button onClick={() => addMeal(activeDay)} className="flex items-center gap-2 px-5 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors w-full justify-center">
-                                <Plus className="w-4 h-4" /> Agregar otra comida
-                            </button>
+                                {currentDay.meals.length > 0 && (
+                                    <button onClick={() => addMeal(activeDay)} className="flex items-center gap-2 px-5 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors w-full justify-center">
+                                        <Plus className="w-4 h-4" /> Agregar otra comida
+                                    </button>
+                                )}
+                            </div>
                         )}
                     </div>
                 )}

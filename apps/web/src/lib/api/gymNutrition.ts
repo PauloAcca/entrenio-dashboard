@@ -124,10 +124,12 @@ export async function deleteGymRecipe(recipeId: string): Promise<void> {
 
 // ─── Nutrition Plans API ──────────────────────────────────────────────────────
 
-export async function getNutritionPlans(): Promise<GymNutritionPlan[]> {
+export async function getNutritionPlans(userId?: number): Promise<GymNutritionPlan[]> {
   const gymId = useAuthStore.getState().gym?.id;
   if (!gymId) throw new Error("No Gym ID");
-  const res = await apiFetch<{ data: GymNutritionPlan[] }>(`/gym-nutrition-plans?gymId=${gymId}`);
+  let url = `/gym-nutrition-plans?gymId=${gymId}`;
+  if (userId) url += `&userId=${userId}`;
+  const res = await apiFetch<{ data: GymNutritionPlan[] }>(url);
   return res.data;
 }
 
