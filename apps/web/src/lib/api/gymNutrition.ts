@@ -80,6 +80,8 @@ export interface GymNutritionPlan {
   description: string | null;
   notes: string | null;
   status: "draft" | "active" | "archived";
+  isGeneralActive: boolean;
+  isDailyActive: boolean;
   startsAt: string | null;
   endsAt: string | null;
   days: GymNutritionPlanDay[];

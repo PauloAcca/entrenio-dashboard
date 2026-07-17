@@ -641,18 +641,36 @@ export default function PlanEditorPage() {
             <div className="flex flex-1 overflow-hidden">
                 {/* ─── Day Sidebar ────────────────────────────────────── */}
                 <div className="hidden md:flex flex-col w-48 shrink-0 border-r border-border bg-sidebar p-3 gap-1">
+                    <div className="flex items-center justify-between px-2 py-1 mb-1">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">General</span>
+                        <button
+                            onClick={() => setPlan(p => p ? { ...p, isGeneralActive: p.isGeneralActive === false ? true : false } : null)}
+                            className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${plan.isGeneralActive !== false ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'}`}
+                        >
+                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${plan.isGeneralActive !== false ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                        </button>
+                    </div>
+
                     {plan.days[0] && (
                         <button
                             key={0}
                             onClick={() => setActiveDay(0)}
                             className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === 0 ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
                         >
-                            <span>{plan.days[0].dayLabel}</span>
+                            <span className={plan.isGeneralActive === false ? "opacity-50 line-through" : ""}>{plan.days[0].dayLabel}</span>
                             <span className={`text-xs ${activeDay === 0 ? "text-emerald-100" : "text-muted-foreground"}`}>{plan.days[0].meals.length}</span>
                         </button>
                     )}
                     
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1 mt-2">Días</p>
+                    <div className="flex items-center justify-between px-2 py-1 mt-2">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Por Días</span>
+                        <button
+                            onClick={() => setPlan(p => p ? { ...p, isDailyActive: p.isDailyActive === false ? true : false } : null)}
+                            className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${plan.isDailyActive !== false ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'}`}
+                        >
+                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${plan.isDailyActive !== false ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                        </button>
+                    </div>
                     
                     {plan.days.slice(1).map((day, offsetIdx) => {
                         const idx = offsetIdx + 1;
@@ -662,7 +680,7 @@ export default function PlanEditorPage() {
                                 onClick={() => setActiveDay(idx)}
                                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
                             >
-                                <span>{day.dayLabel}</span>
+                                <span className={plan.isDailyActive === false ? "opacity-50 line-through" : ""}>{day.dayLabel}</span>
                                 <span className={`text-xs ${activeDay === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
                             </button>
                         )
@@ -671,11 +689,15 @@ export default function PlanEditorPage() {
 
                 {/* ─── Mobile day tabs ────────────────────────────────── */}
                 <div className="md:hidden flex gap-2 overflow-x-auto px-4 py-2 border-b border-border bg-card shrink-0 w-full">
-                    {plan.days.map((day, idx) => (
-                        <button key={idx} onClick={() => setActiveDay(idx)} className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium ${activeDay === idx ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"}`}>
-                            {day.dayLabel.slice(0, 3)}
-                        </button>
-                    ))}
+                    {plan.days.map((day, idx) => {
+                        const isGeneral = idx === 0 && day.dayLabel === 'General';
+                        const isDisabled = isGeneral ? plan.isGeneralActive === false : plan.isDailyActive === false;
+                        return (
+                            <button key={idx} onClick={() => setActiveDay(idx)} className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium ${activeDay === idx ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"} ${isDisabled ? "opacity-50 line-through" : ""}`}>
+                                {day.dayLabel.slice(0, 3)}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* ─── Day Content ─────────────────────────────────────── */}

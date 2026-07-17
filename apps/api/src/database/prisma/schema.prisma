@@ -514,14 +514,16 @@ model gym_nutrition_plans {
   id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   gymId       String   @map("gym_id") @db.Uuid
   userId      Int?     @map("user_id")
-  title       String   @db.VarChar
-  description String?
-  notes       String?
-  status      gym_nutrition_plan_status_enum @default(draft)
-  startsAt    DateTime? @map("starts_at") @db.Timestamp(6)
-  endsAt      DateTime? @map("ends_at") @db.Timestamp(6)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
+  title           String   @db.VarChar
+  description     String?
+  notes           String?
+  status          gym_nutrition_plan_status_enum @default(draft)
+  isGeneralActive Boolean  @default(true) @map("is_general_active")
+  isDailyActive   Boolean  @default(true) @map("is_daily_active")
+  startsAt        DateTime? @map("starts_at") @db.Timestamp(6)
+  endsAt          DateTime? @map("ends_at") @db.Timestamp(6)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
 
   days gym_nutrition_plan_days[]
 }
