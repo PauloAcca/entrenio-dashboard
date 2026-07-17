@@ -71,6 +71,7 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
     }, [recipeSearch, recipeFilter, doSearch])
 
     const selectedRecipeName = meal.recipe?.title ?? meal.gymRecipe?.title ?? null
+    const selectedRecipeImage = meal.recipe?.imageUrl ?? meal.gymRecipe?.imageUrl ?? null
 
     return (
         <div className="border border-border rounded-xl bg-card overflow-hidden">
@@ -98,10 +99,16 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                     <div>
                         <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Receta vinculada</label>
                         {selectedRecipeName ? (
-                            <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl">
-                                <Salad className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                                <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300 flex-1 truncate">{selectedRecipeName}</span>
-                                <button onClick={() => onUpdate({ ...meal, recipeId: null, recipe: null, gymRecipeId: null, gymRecipe: null })} className="text-emerald-500 hover:text-red-500">
+                            <div className="flex items-center gap-3 p-2 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50 rounded-xl">
+                                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-emerald-200/50 dark:border-emerald-800/50">
+                                    {selectedRecipeImage ? (
+                                        <img src={selectedRecipeImage} alt={selectedRecipeName} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Salad className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                    )}
+                                </div>
+                                <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300 flex-1 truncate">{selectedRecipeName}</span>
+                                <button onClick={() => onUpdate({ ...meal, recipeId: null, recipe: null, gymRecipeId: null, gymRecipe: null })} className="p-1.5 text-emerald-600 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-colors mr-1">
                                     <X className="w-4 h-4" />
                                 </button>
                             </div>
