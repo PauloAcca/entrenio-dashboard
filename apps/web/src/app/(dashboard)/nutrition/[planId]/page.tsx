@@ -13,7 +13,7 @@ import { membership, user } from "@/types/entities"
 import {
     ArrowLeft, Save, ChevronDown, ChevronUp, Plus, Trash2, X, Search,
     Salad, UtensilsCrossed, BookOpen, Loader2, CheckCircle2, Archive,
-    FileText, StickyNote, Tag, AlertCircle, ChefHat, Globe, Sparkles
+    FileText, StickyNote, Tag, AlertCircle, ChefHat, Globe, Sparkles, Flame, Clock
 } from "lucide-react"
 
 const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
@@ -46,15 +46,16 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
     const [expanded, setExpanded] = useState(true)
     const [recipeSearch, setRecipeSearch] = useState("")
     const [recipeFilter, setRecipeFilter] = useState("")
+    const [dietFilter, setDietFilter] = useState("")
     const [globalResults, setGlobalResults] = useState<GlobalRecipeSummary[]>([])
     const [searchLoading, setSearchLoading] = useState(false)
     const [showRecipePicker, setShowRecipePicker] = useState(false)
     const [pickerTab, setPickerTab] = useState<"global" | "gym">("global")
 
-    const doSearch = useCallback(async (q: string, filter: string) => {
+    const doSearch = useCallback(async (q: string, filter: string, diet: string) => {
         setSearchLoading(true)
         try {
-            const results = await searchGlobalRecipes(q, 100)
+            const results = await searchGlobalRecipes(q, 100, diet)
             if (filter) {
                 setGlobalResults(results.filter(r => r.mealType === filter))
             } else {
@@ -66,9 +67,9 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
     }, [])
 
     useEffect(() => {
-        const t = setTimeout(() => doSearch(recipeSearch, recipeFilter), 400)
+        const t = setTimeout(() => doSearch(recipeSearch, recipeFilter, dietFilter), 400)
         return () => clearTimeout(t)
-    }, [recipeSearch, recipeFilter, doSearch])
+    }, [recipeSearch, recipeFilter, dietFilter, doSearch])
 
     const selectedRecipeName = meal.recipe?.title ?? meal.gymRecipe?.title ?? null
     const selectedRecipeImage = meal.recipe?.imageUrl ?? meal.gymRecipe?.imageUrl ?? null
@@ -230,8 +231,25 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                                             </button>
                                         ))}
                                     </div>
+                                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                                        <button onClick={() => setDietFilter("")} className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${dietFilter === "" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+                                            Cualquier dieta
+                                        </button>
+                                        <button onClick={() => setDietFilter("vegetarian")} className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${dietFilter === "vegetarian" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+                                            Vegetariano
+                                        </button>
+                                        <button onClick={() => setDietFilter("vegan")} className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${dietFilter === "vegan" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+                                            Vegano
+                                        </button>
+                                        <button onClick={() => setDietFilter("gluten_free")} className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${dietFilter === "gluten_free" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+                                            Sin TACC
+                                        </button>
+                                        <button onClick={() => setDietFilter("lactose_free")} className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${dietFilter === "lactose_free" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
+                                            Sin lactosa
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="overflow-y-auto flex-1 p-2">
+                                <div className="overflow-y-auto flex-1 p-3 space-y-2">
                                     {searchLoading ? (
                                         <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
                                     ) : globalResults.length === 0 ? (
@@ -239,14 +257,32 @@ function MealEditor({ meal, gymRecipes, onUpdate, onDelete }: MealEditorProps) {
                                     ) : (
                                         globalResults.map(r => (
                                             <button key={r.id} onClick={() => { onUpdate({ ...meal, recipeId: r.id, recipe: r as any, gymRecipeId: null, gymRecipe: null, title: meal.title ?? r.title }); setShowRecipePicker(false) }}
-                                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent text-left group"
+                                                className="w-full flex items-start gap-4 p-3 border border-border rounded-xl hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 text-left group transition-all"
                                             >
-                                                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
-                                                    {r.imageUrl ? <img src={r.imageUrl} className="w-full h-full object-cover" /> : <Salad className="w-5 h-5 text-emerald-600" />}
+                                                <div className="w-20 h-20 bg-muted rounded-xl flex items-center justify-center shrink-0 overflow-hidden border border-border">
+                                                    {r.imageUrl ? <img src={r.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" /> : <Salad className="w-8 h-8 text-muted-foreground" />}
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium text-foreground truncate">{r.title}</p>
-                                                    <p className="text-xs text-muted-foreground">{r.calories ? `${Math.round(r.calories)} kcal` : ""} {r.mealType ? `· ${r.mealType}` : ""}</p>
+                                                <div className="flex-1 min-w-0 py-0.5">
+                                                    <h4 className="font-semibold text-foreground truncate mb-1">{r.title}</h4>
+                                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-1.5">
+                                                        {r.calories != null && <span className="flex items-center gap-1 font-medium text-foreground"><Flame className="w-3.5 h-3.5 text-orange-500"/> {Math.round(r.calories)} kcal</span>}
+                                                        {r.prepTimeMinutes != null && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-blue-500"/> {r.prepTimeMinutes} min</span>}
+                                                        {r.carbs != null && <span className="text-muted-foreground/80">C: {Math.round(r.carbs)}g</span>}
+                                                        {r.protein != null && <span className="text-muted-foreground/80">P: {Math.round(r.protein)}g</span>}
+                                                        {r.fats != null && <span className="text-muted-foreground/80">G: {Math.round(r.fats)}g</span>}
+                                                    </div>
+                                                    {r.dietTags && r.dietTags.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {r.dietTags.includes('vegetarian') && <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800/50">Vegetariano</span>}
+                                                            {r.dietTags.includes('vegan') && <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">Vegano</span>}
+                                                            {r.dietTags.includes('gluten_free') && <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50">Sin TACC</span>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="shrink-0 self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-center text-emerald-600">
+                                                        <Plus className="w-5 h-5" />
+                                                    </div>
                                                 </div>
                                             </button>
                                         ))

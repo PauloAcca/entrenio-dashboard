@@ -42,6 +42,7 @@ export interface GlobalRecipeSummary {
   prepTimeMinutes: number | null;
   imageUrl: string | null;
   mealType: string | null;
+  dietTags?: string[];
 }
 
 export interface GymNutritionPlanMeal {
@@ -174,7 +175,9 @@ export async function deleteNutritionPlan(planId: string): Promise<void> {
 
 // ─── Global Recipes Search (for picker) ──────────────────────────────────────
 
-export async function searchGlobalRecipes(search: string, limit = 20): Promise<GlobalRecipeSummary[]> {
-  const res = await apiFetch<{ data: GlobalRecipeSummary[] }>(`/gym-nutrition-plans/global-recipes?search=${encodeURIComponent(search)}&limit=${limit}`);
+export async function searchGlobalRecipes(search: string, limit = 20, diet = ""): Promise<GlobalRecipeSummary[]> {
+  const query = new URLSearchParams({ search, limit: limit.toString() });
+  if (diet) query.append("diet", diet);
+  const res = await apiFetch<{ data: GlobalRecipeSummary[] }>(`/gym-nutrition-plans/global-recipes?${query.toString()}`);
   return res.data ?? [];
 }

@@ -14,9 +14,9 @@ export class GymNutritionController {
   }
 
   @Get('global-recipes')
-  async searchGlobalRecipes(@Query('search') search: string, @Query('limit') limit: string) {
+  async searchGlobalRecipes(@Query('search') search: string, @Query('limit') limit: string, @Query('diet') diet: string) {
     const l = limit ? parseInt(limit, 10) : 20;
-    return { data: await this.service.searchGlobalRecipes(search || '', l) };
+    return { data: await this.service.searchGlobalRecipes(search || '', l, diet || undefined) };
   }
 
   @Post('gym-recipes')

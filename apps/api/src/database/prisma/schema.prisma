@@ -578,6 +578,7 @@ model recipes {
   prepTimeMinutes Int?
   imageUrl        String?  @db.VarChar
   mealType        recipes_mealtype_enum?
+  dietTags        String[] @default([])
 
   meals gym_nutrition_plan_meals[]
 }

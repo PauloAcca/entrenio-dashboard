@@ -19,13 +19,17 @@ export class GymNutritionService {
     });
   }
 
-  async searchGlobalRecipes(search: string, limit: number = 20) {
+  async searchGlobalRecipes(search: string, limit: number = 20, dietTag?: string) {
+    const filters: any[] = [];
+    if (search) {
+      filters.push({ title: { contains: search, mode: 'insensitive' } });
+    }
+    if (dietTag) {
+      filters.push({ dietTags: { has: dietTag } });
+    }
+
     return this.prisma.recipes.findMany({
-      where: {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-        ],
-      },
+      where: filters.length > 0 ? { AND: filters } : {},
       take: limit,
       select: {
         id: true,
@@ -37,6 +41,7 @@ export class GymNutritionService {
         fats: true,
         prepTimeMinutes: true,
         mealType: true,
+        dietTags: true,
       },
     });
   }
