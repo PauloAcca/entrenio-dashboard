@@ -547,6 +547,24 @@ export default function PlanEditorPage() {
     const currentDay = plan.days[activeDay]
     const isGeneralDay = currentDay?.dayLabel === "General"
 
+    let generalDayNotes: Record<string, string> = {}
+    if (isGeneralDay) {
+        try {
+            const parsed = JSON.parse(currentDay.notes || "{}")
+            if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+                generalDayNotes = parsed
+            } else {
+                generalDayNotes = { general: currentDay.notes || "" }
+            }
+        } catch {
+            generalDayNotes = { general: currentDay.notes || "" }
+        }
+    }
+    const updateGeneralNote = (key: string, value: string) => {
+        const newNotes = { ...generalDayNotes, [key]: value }
+        updateDayNotes(activeDay, JSON.stringify(newNotes))
+    }
+
     return (
         <>
             <div className="w-full min-h-full flex flex-col print:hidden">
@@ -665,26 +683,40 @@ export default function PlanEditorPage() {
                             <>
                                 {/* Day title */}
                                 <div className="flex items-center justify-between">
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-foreground">{currentDay.dayLabel}</h2>
-                                        <p className="text-sm text-muted-foreground mt-0.5">
-                                            {currentDay.meals.length} comida{currentDay.meals.length !== 1 ? "s" : ""}
-                                            {currentDay.meals.length > 0 && ` · ${currentDay.meals.filter(m => m.recipeId || m.gymRecipeId).length} con receta`}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Day notes */}
                                 <div>
-                                    <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><StickyNote className="w-3 h-3" /> Notas del día</label>
-                                    <input
-                                        value={currentDay.notes ?? ""}
-                                        onChange={e => updateDayNotes(activeDay, e.target.value)}
-                                        placeholder="Indicaciones especiales para este día..."
-                                        className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-                                    />
+                                    <h2 className="text-2xl font-bold text-foreground">{currentDay.dayLabel}</h2>
+                                    <p className="text-sm text-muted-foreground mt-0.5">
+                                        {currentDay.meals.length} comida{currentDay.meals.length !== 1 ? "s" : ""}
+                                        {currentDay.meals.length > 0 && ` · ${currentDay.meals.filter(m => m.recipeId || m.gymRecipeId).length} con receta`}
+                                    </p>
                                 </div>
+                            </div>
                             </>
+                        )}
+
+                        {/* Day notes */}
+                        {isGeneralDay ? (
+                            <div className="mb-6">
+                                <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><StickyNote className="w-3 h-3" /> Notas Generales</label>
+                                <textarea
+                                    value={generalDayNotes.general ?? ""}
+                                    onChange={e => updateGeneralNote('general', e.target.value)}
+                                    placeholder="Indicaciones generales para estas opciones..."
+                                    rows={2}
+                                    className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                                />
+                            </div>
+                        ) : (
+                            <div className="mb-6">
+                                <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><StickyNote className="w-3 h-3" /> Notas del día</label>
+                                <textarea
+                                    value={currentDay.notes ?? ""}
+                                    onChange={e => updateDayNotes(activeDay, e.target.value)}
+                                    placeholder="Indicaciones especiales para este día..."
+                                    rows={2}
+                                    className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                                />
+                            </div>
                         )}
 
                         {/* Meals */}
@@ -694,9 +726,22 @@ export default function PlanEditorPage() {
                                     const typeMeals = currentDay.meals.filter(m => m.mealType === mt.value);
                                     return (
                                         <div key={mt.value} className="space-y-4">
-                                            <div className="flex items-center gap-2 pb-2 border-b border-border">
-                                                <h3 className="text-lg font-bold text-foreground">{mt.label}</h3>
-                                                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{typeMeals.length} opciones</span>
+                                            <div className="flex items-center justify-between pb-2 border-b border-border">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-lg font-bold text-foreground">{mt.label}</h3>
+                                                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{typeMeals.length} opciones</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="mb-4">
+                                                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Notas para {mt.label.split(" ")[1] || "sección"}</label>
+                                                <textarea
+                                                    value={generalDayNotes[mt.value] ?? ""}
+                                                    onChange={e => updateGeneralNote(mt.value, e.target.value)}
+                                                    placeholder={`Indicaciones generales para ${mt.label.split(" ")[1]?.toLowerCase() || "este apartado"}...`}
+                                                    rows={1}
+                                                    className="w-full px-3 py-1.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                                                />
                                             </div>
                                             {typeMeals.map((meal) => {
                                                 const globalIdx = currentDay.meals.findIndex(m => m.id === meal.id || m === meal);
@@ -860,6 +905,16 @@ export default function PlanEditorPage() {
                     .map((day, idx) => {
                     // For General plan, we might want to group by mealType in the print view as well
                     const isGeneral = day.dayLabel === "General"
+                    let printGeneralNotes: Record<string, string> = {}
+                    if (isGeneral && day.notes) {
+                        try {
+                            const parsed = JSON.parse(day.notes)
+                            if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) printGeneralNotes = parsed
+                            else printGeneralNotes = { general: day.notes }
+                        } catch {
+                            printGeneralNotes = { general: day.notes }
+                        }
+                    }
                     
                     return (
                         <div key={idx} className="mb-10 page-break-inside-avoid">
@@ -869,6 +924,11 @@ export default function PlanEditorPage() {
                             {day.notes && !isGeneral && (
                                 <div className="mb-4 text-sm text-gray-600 italic">
                                     Notas del día: {day.notes}
+                                </div>
+                            )}
+                            {isGeneral && printGeneralNotes.general && (
+                                <div className="mb-4 text-sm text-gray-600 italic">
+                                    Notas Generales: {printGeneralNotes.general}
                                 </div>
                             )}
                             <div className="space-y-6">
@@ -881,7 +941,12 @@ export default function PlanEditorPage() {
                                             if (typeMeals.length === 0) return null;
                                             return (
                                                 <div key={mt.value} className="mb-8">
-                                                    <h3 className="text-xl font-bold text-emerald-700 border-b border-gray-200 pb-2 mb-4">{mt.label}</h3>
+                                                    <h3 className="text-lg font-bold text-emerald-700 border-b border-gray-100 pb-2 mb-2">{mt.label}</h3>
+                                                    {printGeneralNotes[mt.value] && (
+                                                        <div className="mb-4 text-sm text-gray-600 italic">
+                                                            {printGeneralNotes[mt.value]}
+                                                        </div>
+                                                    )}
                                                     <div className="space-y-4 mt-4">
                                                         {typeMeals.map((meal, midx) => (
                                                             <PrintMealCard key={midx} meal={meal} />
