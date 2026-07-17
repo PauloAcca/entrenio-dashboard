@@ -504,7 +504,7 @@ model gym_recipe_ingredients {
   gymRecipe   gym_recipes @relation(fields: [gymRecipeId], references: [id], onDelete: Cascade)
 }
 
-enum gym_nutrition_plan_status_enum {
+enum gym_nutrition_plans_status_enum {
   draft
   active
   archived
@@ -517,7 +517,7 @@ model gym_nutrition_plans {
   title           String   @db.VarChar
   description     String?
   notes           String?
-  status          gym_nutrition_plan_status_enum @default(draft)
+  status          gym_nutrition_plans_status_enum @default(draft)
   isGeneralActive Boolean  @default(true) @map("is_general_active")
   isDailyActive   Boolean  @default(true) @map("is_daily_active")
   startsAt        DateTime? @map("starts_at") @db.Timestamp(6)
