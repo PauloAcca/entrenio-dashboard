@@ -362,6 +362,7 @@ export default function PlanEditorPage() {
     const [gymRecipes, setGymRecipes] = useState<GymRecipe[]>([])
     const [members, setMembers] = useState<(membership & { user: user })[]>([])
     const [showGymRecipeModal, setShowGymRecipeModal] = useState(false)
+    const [printMode, setPrintMode] = useState<'general' | 'days'>('general')
 
     // Gym recipe form
     const [newGymRecipe, setNewGymRecipe] = useState({
@@ -403,6 +404,11 @@ export default function PlanEditorPage() {
     const getMemberName = (userId: number) => {
         const m = members.find(m => m.user?.id === userId)
         return m?.user ? (m.user.name ? `${m.user.name} (${m.user.email})` : m.user.email) : `Usuario #${userId}`
+    }
+
+    const handlePrint = (mode: 'general' | 'days') => {
+        setPrintMode(mode)
+        setTimeout(() => window.print(), 100)
     }
 
     const handleSave = async () => {
@@ -581,12 +587,14 @@ export default function PlanEditorPage() {
                         <ChefHat className="w-4 h-4" /> Nueva receta
                     </button>
 
-                    <button
-                        onClick={() => window.print()}
-                        className="hidden md:flex items-center gap-2 px-4 py-2 border border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-blue-400 transition-colors print:hidden"
-                    >
-                        <Printer className="w-4 h-4" /> Exportar a PDF
-                    </button>
+                    <div className="hidden md:flex items-center gap-2 print:hidden">
+                        <button onClick={() => handlePrint('general')} className="px-3 py-2 border border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-blue-400 transition-colors flex items-center gap-1.5">
+                            <Printer className="w-4 h-4" /> PDF General
+                        </button>
+                        <button onClick={() => handlePrint('days')} className="px-3 py-2 border border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-blue-400 transition-colors flex items-center gap-1.5">
+                            <Printer className="w-4 h-4" /> PDF Días
+                        </button>
+                    </div>
 
                     <button
                         onClick={handleSave}
@@ -809,14 +817,22 @@ export default function PlanEditorPage() {
 
             {/* ─── Print View ────────────────────────────────────────────── */}
             <div className="hidden print:block p-8 bg-white text-black min-h-screen font-sans">
+                <style>{`
+                    @media print {
+                        @page { margin: 0; }
+                        body { margin: 1.6cm; }
+                    }
+                `}</style>
                 {/* Header */}
                 <div className="border-b-2 border-emerald-600 pb-6 mb-8 flex justify-between items-end">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900">{gym?.name || 'Gimnasio'}</h1>
-                        <p className="text-sm text-gray-500 mt-1">Plan de Alimentación</p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-sm font-semibold text-gray-800">Powered by Entrenio</p>
+                    <div className="flex items-center gap-4">
+                        {gym?.logo_url && (
+                            <img src={gym.logo_url} alt={gym.name} className="w-16 h-16 object-contain rounded-lg" />
+                        )}
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900">{gym?.name || 'Gimnasio'}</h1>
+                            <p className="text-sm text-gray-500 mt-1">Plan de Alimentación</p>
+                        </div>
                     </div>
                 </div>
 
@@ -833,7 +849,15 @@ export default function PlanEditorPage() {
                 </div>
 
                 {/* Days / Meals */}
-                {plan.days.map((day, idx) => {
+                {plan.days
+                    .filter(day => {
+                        const isGeneral = day.dayLabel === "General";
+                        if (printMode === 'general' && !isGeneral) return false;
+                        if (printMode === 'days' && isGeneral) return false;
+                        if (day.meals.length === 0) return false;
+                        return true;
+                    })
+                    .map((day, idx) => {
                     // For General plan, we might want to group by mealType in the print view as well
                     const isGeneral = day.dayLabel === "General"
                     

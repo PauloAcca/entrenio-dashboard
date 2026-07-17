@@ -27,7 +27,7 @@ export default function Navigation() {
         <>
             {/* Mobile Header: Visible on mobile when menu is closed */}
             {!open && (
-                <div className="md:hidden w-full flex-shrink-0 flex items-center p-4 bg-sidebar gap-4 border-b border-border">
+                <div className="md:hidden w-full flex-shrink-0 flex items-center p-4 bg-sidebar gap-4 border-b border-border print:hidden">
                     <button 
                         onClick={() => setOpen(true)} 
                         className="p-2 hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
