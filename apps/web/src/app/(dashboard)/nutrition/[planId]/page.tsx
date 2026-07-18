@@ -424,6 +424,8 @@ export default function PlanEditorPage() {
                 status: plan.status,
                 startsAt: plan.startsAt,
                 endsAt: plan.endsAt,
+                isGeneralActive: plan.isGeneralActive,
+                isDailyActive: plan.isDailyActive,
                 days: plan.days.map((day, di) => ({
                     dayNumber: di + 1,
                     dayLabel: day.dayLabel,
