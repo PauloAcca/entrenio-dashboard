@@ -668,7 +668,7 @@ export default function PlanEditorPage() {
                             onClick={() => setActiveTab(0)}
                             className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 0 ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
                         >
-                            <span className={plan.isGeneralActive === false ? "opacity-50 line-through" : ""}>Opciones Generales</span>
+                            <span className={plan.isGeneralActive === false ? "opacity-50 line-through" : ""}>Plan General</span>
                             <span className={`text-xs ${activeTab === 0 ? "text-emerald-100" : "text-muted-foreground"}`}>{plan.days[0].meals.length}</span>
                         </button>
                     )}
