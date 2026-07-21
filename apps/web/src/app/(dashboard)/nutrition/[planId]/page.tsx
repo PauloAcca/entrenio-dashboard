@@ -358,7 +358,7 @@ export default function PlanEditorPage() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
-    const [activeDay, setActiveDay] = useState(0)
+    const [activeTab, setActiveTab] = useState<'details' | number>('details')
     const [gymRecipes, setGymRecipes] = useState<GymRecipe[]>([])
     const [members, setMembers] = useState<(membership & { user: user })[]>([])
     const [showGymRecipeModal, setShowGymRecipeModal] = useState(false)
@@ -546,11 +546,11 @@ export default function PlanEditorPage() {
         </div>
     )
 
-    const currentDay = plan.days[activeDay]
+    const currentDay = typeof activeTab === 'number' ? plan.days[activeTab] : null
     const isGeneralDay = currentDay?.dayLabel === "General"
 
     let generalDayNotes: Record<string, string> = {}
-    if (isGeneralDay) {
+    if (isGeneralDay && currentDay) {
         try {
             const parsed = JSON.parse(currentDay.notes || "{}")
             if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
@@ -563,8 +563,9 @@ export default function PlanEditorPage() {
         }
     }
     const updateGeneralNote = (key: string, value: string) => {
+        if (typeof activeTab !== 'number') return;
         const newNotes = { ...generalDayNotes, [key]: value }
-        updateDayNotes(activeDay, JSON.stringify(newNotes))
+        updateDayNotes(activeTab, JSON.stringify(newNotes))
     }
 
     return (
@@ -642,7 +643,15 @@ export default function PlanEditorPage() {
 
             <div className="flex flex-1 overflow-hidden">
                 {/* ─── Day Sidebar ────────────────────────────────────── */}
-                <div className="hidden md:flex flex-col w-48 shrink-0 border-r border-border bg-sidebar p-3 gap-1">
+                <div className="hidden md:flex flex-col w-48 shrink-0 border-r border-border bg-sidebar p-3 gap-1 overflow-y-auto">
+                    <button
+                        onClick={() => setActiveTab('details')}
+                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-4 ${activeTab === 'details' ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
+                    >
+                        <FileText className="w-4 h-4" />
+                        <span>Detalles del Plan</span>
+                    </button>
+
                     <div className="flex items-center justify-between px-2 py-1 mb-1">
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">General</span>
                         <button
@@ -656,11 +665,11 @@ export default function PlanEditorPage() {
                     {plan.days[0] && (
                         <button
                             key={0}
-                            onClick={() => setActiveDay(0)}
-                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === 0 ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
+                            onClick={() => setActiveTab(0)}
+                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === 0 ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
                         >
-                            <span className={plan.isGeneralActive === false ? "opacity-50 line-through" : ""}>{plan.days[0].dayLabel}</span>
-                            <span className={`text-xs ${activeDay === 0 ? "text-emerald-100" : "text-muted-foreground"}`}>{plan.days[0].meals.length}</span>
+                            <span className={plan.isGeneralActive === false ? "opacity-50 line-through" : ""}>Opciones Generales</span>
+                            <span className={`text-xs ${activeTab === 0 ? "text-emerald-100" : "text-muted-foreground"}`}>{plan.days[0].meals.length}</span>
                         </button>
                     )}
                     
@@ -679,11 +688,11 @@ export default function PlanEditorPage() {
                         return (
                             <button
                                 key={idx}
-                                onClick={() => setActiveDay(idx)}
-                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeDay === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
+                                onClick={() => setActiveTab(idx)}
+                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === idx ? "bg-emerald-600 text-white" : "text-sidebar-foreground hover:bg-accent"}`}
                             >
                                 <span className={plan.isDailyActive === false ? "opacity-50 line-through" : ""}>{day.dayLabel}</span>
-                                <span className={`text-xs ${activeDay === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
+                                <span className={`text-xs ${activeTab === idx ? "text-emerald-100" : "text-muted-foreground"}`}>{day.meals.length}</span>
                             </button>
                         )
                     })}
@@ -691,60 +700,81 @@ export default function PlanEditorPage() {
 
                 {/* ─── Mobile day tabs ────────────────────────────────── */}
                 <div className="md:hidden flex gap-2 overflow-x-auto px-4 py-2 border-b border-border bg-card shrink-0 w-full">
+                    <button onClick={() => setActiveTab('details')} className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium ${activeTab === 'details' ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"}`}>
+                        Detalles
+                    </button>
                     {plan.days.map((day, idx) => {
                         const isGeneral = idx === 0 && day.dayLabel === 'General';
                         const isDisabled = isGeneral ? plan.isGeneralActive === false : plan.isDailyActive === false;
                         return (
-                            <button key={idx} onClick={() => setActiveDay(idx)} className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium ${activeDay === idx ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"} ${isDisabled ? "opacity-50 line-through" : ""}`}>
-                                {day.dayLabel.slice(0, 3)}
+                            <button key={idx} onClick={() => setActiveTab(idx)} className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium ${activeTab === idx ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground"} ${isDisabled ? "opacity-50 line-through" : ""}`}>
+                                {isGeneral ? "General" : day.dayLabel.slice(0, 3)}
                             </button>
                         );
                     })}
                 </div>
 
                 {/* ─── Day Content ─────────────────────────────────────── */}
-                {currentDay && (
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                        {/* Plan header info */}
-                        {activeDay === 0 && (
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {activeTab === 'details' && (
+                        <div className="space-y-6">
+                            <div>
+                                <h2 className="text-2xl font-bold text-foreground">Detalles del Plan</h2>
+                                <p className="text-sm text-muted-foreground mt-0.5">
+                                    Información general, descripción y estado.
+                                </p>
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-muted/30 border border-border rounded-2xl">
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1">
+                                        <FileText className="w-3 h-3" /> Título del Plan
+                                    </label>
+                                    <input
+                                        value={plan.title}
+                                        onChange={e => setPlan(p => p ? { ...p, title: e.target.value } : p)}
+                                        placeholder="Ej: Plan de volumen muscular..."
+                                        className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                                    />
+                                </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Descripción del plan</label>
+                                    <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1">
+                                        <StickyNote className="w-3 h-3" /> Descripción general
+                                    </label>
                                     <textarea
                                         value={plan.description ?? ""}
                                         onChange={e => setPlan(p => p ? { ...p, description: e.target.value || null } : p)}
-                                        placeholder="Descripción general..."
-                                        rows={2}
+                                        placeholder="Escribe de qué se trata el plan..."
+                                        rows={4}
                                         className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Notas del nutricionista</label>
+                                    <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1">
+                                        <StickyNote className="w-3 h-3" /> Notas del nutricionista
+                                    </label>
                                     <textarea
                                         value={plan.notes ?? ""}
                                         onChange={e => setPlan(p => p ? { ...p, notes: e.target.value || null } : p)}
-                                        placeholder="Indicaciones especiales..."
-                                        rows={2}
+                                        placeholder="Indicaciones especiales independientes de los días..."
+                                        rows={4}
                                         className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                                     />
                                 </div>
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        {!isGeneralDay && (
-                            <>
-                                {/* Day title */}
-                                <div className="flex items-center justify-between">
+                    {typeof activeTab === 'number' && currentDay && (
+                        <>
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-foreground">{currentDay.dayLabel}</h2>
+                                    <h2 className="text-2xl font-bold text-foreground">{isGeneralDay ? "Opciones Generales" : currentDay.dayLabel}</h2>
                                     <p className="text-sm text-muted-foreground mt-0.5">
                                         {currentDay.meals.length} comida{currentDay.meals.length !== 1 ? "s" : ""}
                                         {currentDay.meals.length > 0 && ` · ${currentDay.meals.filter(m => m.recipeId || m.gymRecipeId).length} con receta`}
                                     </p>
                                 </div>
                             </div>
-                            </>
-                        )}
 
                         {/* Day notes */}
                         {isGeneralDay ? (
@@ -759,14 +789,14 @@ export default function PlanEditorPage() {
                                 />
                             </div>
                         ) : (
-                            <div className="mb-6">
-                                <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><StickyNote className="w-3 h-3" /> Notas del día</label>
+                            <div className="p-5 bg-muted/30 border border-border rounded-2xl mb-6">
+                                <label className="block text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1"><StickyNote className="w-3 h-3" /> Notas para el {currentDay.dayLabel}</label>
                                 <textarea
                                     value={currentDay.notes ?? ""}
-                                    onChange={e => updateDayNotes(activeDay, e.target.value)}
-                                    placeholder="Indicaciones especiales para este día..."
+                                    onChange={e => updateDayNotes(activeTab as number, e.target.value)}
+                                    placeholder={`Indicaciones para el ${currentDay.dayLabel.toLowerCase()}...`}
                                     rows={2}
-                                    className="w-full px-3 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
+                                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-y"
                                 />
                             </div>
                         )}
@@ -802,12 +832,12 @@ export default function PlanEditorPage() {
                                                         key={meal.id ?? globalIdx}
                                                         meal={meal}
                                                         gymRecipes={gymRecipes}
-                                                        onUpdate={(updated) => updateMeal(activeDay, globalIdx, updated)}
-                                                        onDelete={() => removeMeal(activeDay, globalIdx)}
+                                                        onUpdate={(updated) => updateMeal(activeTab as number, globalIdx, updated)}
+                                                        onDelete={() => removeMeal(activeTab as number, globalIdx)}
                                                     />
                                                 );
                                             })}
-                                            <button onClick={() => addMeal(activeDay, mt.value)} className="flex items-center gap-2 px-5 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors w-full justify-center group">
+                                            <button onClick={() => addMeal(activeTab as number, mt.value)} className="flex items-center gap-2 px-5 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors w-full justify-center group">
                                                 <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" /> Agregar opción
                                             </button>
                                         </div>
@@ -823,7 +853,7 @@ export default function PlanEditorPage() {
                                             <p className="font-medium text-foreground">Sin comidas para {currentDay.dayLabel}</p>
                                             <p className="text-sm text-muted-foreground">Agregá comidas o recetas</p>
                                         </div>
-                                        <button onClick={() => addMeal(activeDay)} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors">
+                                        <button onClick={() => addMeal(activeTab as number)} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-colors">
                                             <Plus className="w-4 h-4" /> Agregar comida
                                         </button>
                                     </div>
@@ -833,21 +863,22 @@ export default function PlanEditorPage() {
                                             key={meal.id ?? mealIdx}
                                             meal={meal}
                                             gymRecipes={gymRecipes}
-                                            onUpdate={(updated) => updateMeal(activeDay, mealIdx, updated)}
-                                            onDelete={() => removeMeal(activeDay, mealIdx)}
+                                            onUpdate={(updated) => updateMeal(activeTab as number, mealIdx, updated)}
+                                            onDelete={() => removeMeal(activeTab as number, mealIdx)}
                                         />
                                     ))
                                 )}
 
                                 {currentDay.meals.length > 0 && (
-                                    <button onClick={() => addMeal(activeDay)} className="flex items-center gap-2 px-5 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors w-full justify-center">
+                                    <button onClick={() => addMeal(activeTab as number)} className="flex items-center gap-2 px-5 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:text-foreground hover:border-emerald-400 transition-colors w-full justify-center">
                                         <Plus className="w-4 h-4" /> Agregar otra comida
                                     </button>
                                 )}
                             </div>
                         )}
-                    </div>
-                )}
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* ─── New Gym Recipe Modal ─────────────────────────────────── */}
